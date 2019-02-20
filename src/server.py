@@ -15,8 +15,8 @@ class Game(object):
     def new_player(cls, name):
         if len(cls.players) < 2:
             cls.players.append(name)
-        if len(cls.players) == 1:
-            cls.start_new_game()
+            if len(cls.players) == 1:
+                cls.start_new_game()
         else:
             return False
         return True
@@ -29,8 +29,6 @@ class Game(object):
 
     @classmethod
     def make_move(cls, column, name):
-        if name != cls.turn:
-            return
         move = int(column) - 1
         # TODO: Do move in board
         cls.toggle_turn(name)
