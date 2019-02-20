@@ -5,7 +5,7 @@ SERVER_URL = "http://127.0.0.1:5000"
 CONNECT_URL = f"{SERVER_URL}/connect"
 
 
-def play():
+def connect():
     name = input("Enter your name: ")
     response = requests.post(CONNECT_URL, json={"name": name})
     print(response.json())
@@ -14,4 +14,4 @@ def play():
 if __name__ == "__main__":
     # TODO: try/finally for SIG_TERM => DELETE /connect
     #while True:
-    play()
+    connect()
