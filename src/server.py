@@ -17,6 +17,8 @@ class Game(object):
             cls.players.append(name)
             if len(cls.players) == 1:
                 cls.start_new_game()
+            if cls.turn is None:
+                cls.turn = name
         else:
             return False
         return True
@@ -24,7 +26,6 @@ class Game(object):
     @classmethod
     def start_new_game(cls):
         cls.board = [[cls.EMPTY for i in range(6)] for j in range(9)]
-        cls.turn = cls.players[0]
 
 
     @classmethod

@@ -16,7 +16,6 @@ def connect():
     if response.status_code != requests.codes.created:
         print(response.json().get("message"))
         sys.exit()
-
     return name
 
 
@@ -24,7 +23,9 @@ def display_board(board):
     print(board)
 
 
-def make_move(column, name):
+def make_move(name):
+    # TODO: Validatioin
+    column = input(f"It's your turn {name}, please enter column (1 - 9): ")
     data = {
         "column": column,
         "name": name,
@@ -37,9 +38,7 @@ def get_game_state(name):
     turn = response_data["turn"]
     if turn == name:
         display_board(response_data["board"])
-        # TODO: Validatioin
-        column = input(f"It's your turn {name}, please enter column (1 - 9): ")
-        make_move(column, name)
+        make_move(name)
     else:
         # TODO: Handle turn = None (different message)
         print(f"Waiting on player {turn} . . .")
