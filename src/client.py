@@ -7,7 +7,7 @@ SERVER_URL = "http://127.0.0.1:5000"
 CONNECT_URL = f"{SERVER_URL}/connect"
 STATE_URL = f"{SERVER_URL}/state"
 MOVE_URL = f"{SERVER_URL}/move"
-WAIT_INTERVAL = 2
+WAIT_INTERVAL = 3
 
 
 def connect():
@@ -40,8 +40,10 @@ def get_game_state(name):
         display_board(response_data["board"])
         make_move(name)
     else:
-        # TODO: Handle turn = None (different message)
-        print(f"Waiting on player {turn} . . .")
+        if turn is None:
+            print("Waiting for another player to join . . .")
+        else:
+            print(f"Waiting on player {turn} . . .")
         time.sleep(WAIT_INTERVAL)
 
 

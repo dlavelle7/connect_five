@@ -7,7 +7,7 @@ app = Flask(__name__)
 class Game(object):
     turn = None
     players = []
-    EMPTY = ""
+    EMPTY = "-"
     X = "x"
     O = "o"
 
@@ -26,7 +26,6 @@ class Game(object):
     @classmethod
     def start_new_game(cls):
         cls.board = [[cls.EMPTY for i in range(6)] for j in range(9)]
-
 
     @classmethod
     def make_move(cls, column, name):
