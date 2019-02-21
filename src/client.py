@@ -20,7 +20,9 @@ def connect():
 
 
 def display_board(board):
-    print(board)
+    for row_idx in range(6):
+        row = " ".join(board[col_idx][row_idx] for col_idx in range(9))
+        print(row)
 
 
 def make_move(name):
@@ -48,7 +50,7 @@ def get_game_state(name):
 
 
 if __name__ == "__main__":
-    # TODO: try/finally for SIG_TERM => DELETE /connect
+    # TODO: signals for SIG_TERM => DELETE /connect
     name = connect()
     while True:
         get_game_state(name)

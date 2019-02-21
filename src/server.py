@@ -6,10 +6,12 @@ app = Flask(__name__)
 # TODO: Do i need a lock here?
 class Game(object):
     turn = None
+    board = None
     players = []
     EMPTY = "-"
     X = "x"
     O = "o"
+    player_discs = (X, O)
 
     @classmethod
     def new_player(cls, name):
@@ -28,10 +30,28 @@ class Game(object):
         cls.board = [[cls.EMPTY for i in range(6)] for j in range(9)]
 
     @classmethod
-    def make_move(cls, column, name):
-        move = int(column) - 1
-        # TODO: Do move in board
+    def make_move(cls, move, name):
+        """Make move on board and return position of move."""
+        column = int(move) - 1
+        # Check if this row is already full
+        if cls.board[column][0] != cls.EMPTY:
+            return None
+        # Drop disc
+        for idx, cell in enumerate(cls.board[column]):
+            if cell != cls.EMPTY:
+                position = idx - 1
+                break
+        else:
+            position = idx
+        disc = cls.get_player_disc_colour(name)
+        cls.board[column][position] = disc
         cls.toggle_turn(name)
+        return position
+
+    @classmethod
+    def get_player_disc_colour(cls, name):
+        """Return the player's disc colour (Player 1 is always 'X')."""
+        return cls.player_discs[cls.players.index(name)]
 
     @classmethod
     def toggle_turn(cls, just_moved):
