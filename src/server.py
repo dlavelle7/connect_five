@@ -1,5 +1,6 @@
 from flask import Flask, request, json, jsonify
 
+# TODO: Flask-API???
 app = Flask(__name__)
 
 
@@ -78,6 +79,7 @@ def join():
         })
         status = 201
     else:
+        # TODO: Should the server be dictating the messages to the user???
         response = json.dumps({
             "message": "This game is already full, try again later."
         })
@@ -97,8 +99,15 @@ def state():
 
 @app.route("/move", methods=["PATCH"])
 def move():
-    # TODO: Column may be full?
     column = request.json.get("column")
     name = request.json.get("name")
-    Game.make_move(column, name)
+    move = Game.make_move(column, name)
+    if move is None:
+        # TODO: Should the server be dictating the messages to the user???
+        message = f"Column {column} is full, please try another: "
+        return app.response_class(
+            response=json.dumps({"message": message}),
+            status=400,
+            mimetype='application/json'
+        )
     return "OK"

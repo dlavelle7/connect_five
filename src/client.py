@@ -41,13 +41,16 @@ def make_move(name):
         except (AssertionError, ValueError):
             message = "Invalid choice, please enter column (1 - 9): "
         else:
-            break
-    data = {
-        "column": column,
-        "name": name,
-    }
-    requests.patch(MOVE_URL, json=data)
-    # TODO: Was that a valid move (e.g. full -> 400 bad request)
+            data = {
+                "column": column,
+                "name": name,
+            }
+            response = requests.patch(MOVE_URL, json=data)
+            if response.status_code == requests.codes.bad_request:
+                message = response.json().get("message")
+            # TODO: Request error handlin for all requests (raise_for_status())
+            else:
+                break
 
 
 def get_game_state(name):
