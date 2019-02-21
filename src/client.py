@@ -8,6 +8,7 @@ CONNECT_URL = f"{SERVER_URL}/connect"
 STATE_URL = f"{SERVER_URL}/state"
 MOVE_URL = f"{SERVER_URL}/move"
 WAIT_INTERVAL = 2.5
+ACCEPTED_COLUMNS = [num for num in range(1, 10)]
 
 
 def prompt_user(message):
@@ -32,12 +33,11 @@ def display_board(board):
 
 def make_move(name):
     message = f"It's your turn {name}, please enter column (1 - 9): "
-    accepted_columns = range(1, 9)
     while True:
         column = prompt_user(message)
         try:
             column = int(column)
-            assert column in accepted_columns
+            assert column in ACCEPTED_COLUMNS
         except (AssertionError, ValueError):
             message = "Invalid choice, please enter column (1 - 9): "
         else:
