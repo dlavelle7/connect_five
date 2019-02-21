@@ -1,4 +1,4 @@
-# Connect 5
+# Connect 5 [![Build Status](https://travis-ci.com/dlavelle7/connect_five.svg?branch=master)](https://travis-ci.com/dlavelle7/connect_five)
 
 ## Dependencies
 * Python 3.6
