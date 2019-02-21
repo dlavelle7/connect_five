@@ -3,8 +3,9 @@ from flask import Flask, request, json, jsonify
 app = Flask(__name__)
 
 
-# TODO: Do i need a lock here?
+# TODO: Make players & turn test/set Thread safe with a RLock
 class Game(object):
+    # TODO: Put turn, board, players into a dict (atomic)
     turn = None
     board = None
     players = []
@@ -98,6 +99,7 @@ def state():
 def move():
     # TODO: Column may be full?
     column = request.json.get("column")
+    import ipdb; ipdb.set_trace();  # XXX Breakpoint
     name = request.json.get("name")
     Game.make_move(column, name)
     return "OK"

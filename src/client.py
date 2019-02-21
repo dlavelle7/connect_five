@@ -7,11 +7,16 @@ SERVER_URL = "http://127.0.0.1:5000"
 CONNECT_URL = f"{SERVER_URL}/connect"
 STATE_URL = f"{SERVER_URL}/state"
 MOVE_URL = f"{SERVER_URL}/move"
-WAIT_INTERVAL = 3
+WAIT_INTERVAL = 2.5
+
+
+def prompt_user(message):
+    return input(message)
 
 
 def connect():
-    name = input("Enter your name: ")
+    # TODO: Validate name not already in use (409 Conflict)
+    name = prompt_user("Enter name: ")
     response = requests.post(CONNECT_URL, json={"name": name})
     if response.status_code != requests.codes.created:
         print(response.json().get("message"))
@@ -26,8 +31,17 @@ def display_board(board):
 
 
 def make_move(name):
-    # TODO: Validatioin
-    column = input(f"It's your turn {name}, please enter column (1 - 9): ")
+    message = f"It's your turn {name}, please enter column (1 - 9): "
+    accepted_columns = range(1, 9)
+    while True:
+        column = prompt_user(message)
+        try:
+            column = int(column)
+            assert column in accepted_columns
+        except (AssertionError, ValueError):
+            message = "Invalid choice, please enter column (1 - 9): "
+        else:
+            break
     data = {
         "column": column,
         "name": name,
