@@ -9,9 +9,9 @@ class Game(object):
     board = None
     players = []
     EMPTY = "-"
-    X = "x"
-    O = "o"
-    player_discs = (X, O)
+    Xs = "x"
+    Os = "o"
+    player_discs = (Xs, Os)
 
     @classmethod
     def new_player(cls, name):

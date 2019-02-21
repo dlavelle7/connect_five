@@ -32,7 +32,9 @@ def make_move(name):
         "column": column,
         "name": name,
     }
-    response = requests.patch(MOVE_URL, json=data)
+    requests.patch(MOVE_URL, json=data)
+    # TODO: Was that a valid move (e.g. full -> 400 bad request)
+
 
 def get_game_state(name):
     response = requests.get(STATE_URL)
