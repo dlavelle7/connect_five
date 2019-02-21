@@ -30,7 +30,7 @@ class TestClient(TestCase):
             call(first_promt),
             call(retry_prompt),
             call(retry_prompt),
-            call(retry_prompt), 
+            call(retry_prompt),
             call(retry_prompt)
         ]
         self.assertListEqual(mock_prompt.call_args_list, expected_calls)

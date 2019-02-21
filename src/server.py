@@ -99,7 +99,6 @@ def state():
 def move():
     # TODO: Column may be full?
     column = request.json.get("column")
-    import ipdb; ipdb.set_trace();  # XXX Breakpoint
     name = request.json.get("name")
     Game.make_move(column, name)
     return "OK"
