@@ -129,11 +129,12 @@ class Game(object):
                 break
         return False
 
+    # TODO: Refactor the check methods after basic functionality tested
     @classmethod
     def check_diagonal(cls, disc, column, row):
         """Check from coordinates diagonally (left and right, up and down)"""
         count = 1
-        # TODO: Count matching down and to the right
+        # Count matching down and to the right
         column_idx = column + 1
         row_idx = row + 1
         for i in range(0, 4):
@@ -144,9 +145,13 @@ class Game(object):
                     break
             except IndexError:
                 break
+            column_idx +=1
+            row_idx += 1
 
         if count == 5:
             return True
+
+        # TODO: Count matching up and to the left
 
         return False
 

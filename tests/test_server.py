@@ -101,7 +101,7 @@ class TestServer(TestCase):
         self.assertFalse(has_won)
 
     def test_check_diagonal_positive_1(self):
-        """Os win -> 5 in a row, rhs and down"""
+        """Os win -> 4 Os to the rhs."""
         test_board = [
             [Game.Os],
             [Game.EMPTY, Game.Os],
@@ -115,4 +115,21 @@ class TestServer(TestCase):
         ]
         with patch("src.server.Game.board", test_board):
             has_won = Game.check_diagonal(Game.Os, 0, 0)
+        self.assertTrue(has_won)
+
+    def test_check_diagonal_positive_2(self):
+        """Os win -> 2 Os to the rhs down & 2 Os to the lhs down."""
+        test_board = [
+            [Game.Xs],
+            [Game.EMPTY, Game.Os],
+            [Game.EMPTY, Game.EMPTY, Game.Os],
+            [Game.EMPTY, Game.EMPTY, Game.EMPTY, Game.Os],
+            [Game.EMPTY, Game.EMPTY, Game.Xs, Game.Xs, Game.Os],
+            [Game.EMPTY, Game.EMPTY, Game.EMPTY, Game.Xs, Game.Xs, Game.Os],
+            [Game.EMPTY * 6],
+            [Game.EMPTY * 6],
+            [Game.EMPTY * 6],
+        ]
+        with patch("src.server.Game.board", test_board):
+            has_won = Game.check_diagonal(Game.Os, 3, 3)
         self.assertTrue(has_won)
