@@ -7,7 +7,7 @@ SERVER_URL = "http://127.0.0.1:5000"
 CONNECT_URL = f"{SERVER_URL}/connect"
 STATE_URL = f"{SERVER_URL}/state"
 MOVE_URL = f"{SERVER_URL}/move"
-WAIT_INTERVAL = 2.5
+WAIT_INTERVAL = 2
 ACCEPTED_COLUMNS = [num for num in range(1, 10)]
 
 WIN_RESPONSE = "Win"
@@ -107,5 +107,3 @@ if __name__ == "__main__":
     except requests.HTTPError as exc:
         disconnect(f"Game over, request failed with: "
                    f"{exc.response.status_code} {exc.response.reason}.")
-    except Exception:
-        disconnect("Game over, an unexpected error occurred.")

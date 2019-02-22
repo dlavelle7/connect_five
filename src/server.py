@@ -128,7 +128,7 @@ class Game(object):
                     return True
             else:
                 break
-        return count == 5
+        return False
 
     # FIXME: MAJOR REFACTOR NEEDED: Checks are using same logic
     # TODO: Refactor the check methods after basic functionality tested
