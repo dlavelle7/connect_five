@@ -80,6 +80,7 @@ class TestClient2(TestCase):
         self.assertFalse(mock_disconnect.called)
         mock_post.assert_called_once_with(
             'http://127.0.0.1:5000/connect', json={'name': 'eric'})
+        mock_prompt.assert_called_once_with("Enter name: ")
 
     @patch("src.client.prompt_user", return_value="john")
     def test_connect_negative_1(self, mock_prompt, mock_post):
@@ -89,3 +90,22 @@ class TestClient2(TestCase):
             client.connect()
         mock_post.assert_called_once_with(
             'http://127.0.0.1:5000/connect', json={'name': 'john'})
+        mock_prompt.assert_called_once_with("Enter name: ")
+
+    @patch("src.client.prompt_user", side_effect=["terry", "michael"])
+    @patch("src.client.disconnect")
+    def test_connect_negative_2(self, mock_disconnect, mock_prompt, mock_post):
+        """Assert when the name conflicts, user is re prompted."""
+        mock_post.side_effect = [Mock(status_code=409), Mock(status_code=201)]
+        self.assertEqual(client.connect(), "michael")
+        self.assertFalse(mock_disconnect.called)
+        expected_prompts = [
+            call('Enter name: '),
+            call('That name is already taken, please enter a different name: ')
+        ]
+        self.assertListEqual(mock_prompt.call_args_list, expected_prompts)
+        expected_posts = [
+            call('http://127.0.0.1:5000/connect', json={'name': 'terry'}),
+            call('http://127.0.0.1:5000/connect', json={'name': 'michael'})
+        ]
+        self.assertListEqual(mock_post.call_args_list, expected_posts)
