@@ -88,16 +88,32 @@ class Game(object):
     def check_horizontal(cls, disc, column, row):
         """Check from coordinates horizontally (left and right)"""
         count = 1
+        # Check vertically to the right
         next_rhs_col_idx = column + 1
         for column_idx in range(next_rhs_col_idx, next_rhs_col_idx + 4):
-            if cls.board[column_idx][row] == disc:
-                count += 1
-                continue
-            break
+            try:
+                if cls.board[column_idx][row] == disc:
+                    count += 1
+                else:
+                    break
+            except IndexError:
+                break
         if count == 5:
             return True
-        # TODO: Check lhs
-        return count == 5
+
+        # TODO: Check vertically to the left
+        next_lhs_col_idx = column - 1
+        for column_idx in range(next_lhs_col_idx, next_lhs_col_idx - 4, -1):
+            try:
+                if cls.board[column_idx][row] == disc:
+                    count += 1
+                    if count == 5:
+                        return True
+                else:
+                    break
+            except IndexError:
+                break
+        return False
 
     @classmethod
     def check_diagonal(cls, disc, column, row):
