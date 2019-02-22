@@ -11,7 +11,12 @@ class TestServer(TestCase):
     def test_check_vertical_positive_1(self):
         """Xs wins -> 5 in a row down."""
         test_board = [
-            [Game.EMPTY, Game.Xs, Game.Xs, Game.Xs, Game.Xs, Game.Xs]
+            [Game.EMPTY,
+             Game.Xs,
+             Game.Xs,
+             Game.Xs,
+             Game.Xs,
+             Game.Xs]
         ]
         with patch("src.server.Game.board", test_board):
             has_won = Game.check_vertical(Game.Xs, 0, 1)
@@ -94,3 +99,20 @@ class TestServer(TestCase):
         with patch("src.server.Game.board", test_board):
             has_won = Game.check_horizontal(Game.Xs, 1, 0)
         self.assertFalse(has_won)
+
+    def test_check_diagonal_positive_1(self):
+        """Os win -> 5 in a row, rhs and down"""
+        test_board = [
+            [Game.Os],
+            [Game.EMPTY, Game.Os],
+            [Game.EMPTY, Game.EMPTY, Game.Os],
+            [Game.EMPTY, Game.EMPTY, Game.Xs, Game.Os],
+            [Game.EMPTY, Game.EMPTY, Game.Xs, Game.Xs, Game.Os],
+            [Game.EMPTY * 6],
+            [Game.EMPTY * 6],
+            [Game.EMPTY * 6],
+            [Game.EMPTY * 6],
+        ]
+        with patch("src.server.Game.board", test_board):
+            has_won = Game.check_diagonal(Game.Os, 0, 0)
+        self.assertTrue(has_won)

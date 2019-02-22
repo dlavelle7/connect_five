@@ -132,7 +132,22 @@ class Game(object):
     @classmethod
     def check_diagonal(cls, disc, column, row):
         """Check from coordinates diagonally (left and right, up and down)"""
-        # TODO:
+        count = 1
+        # TODO: Count matching down and to the right
+        column_idx = column + 1
+        row_idx = row + 1
+        for i in range(0, 4):
+            try:
+                if cls.board[column_idx][row_idx] == disc:
+                    count += 1
+                else:
+                    break
+            except IndexError:
+                break
+
+        if count == 5:
+            return True
+
         return False
 
     @classmethod
