@@ -129,6 +129,7 @@ class Game(object):
                 break
         return False
 
+    # FIXME: MAJOR REFACTOR NEEDED: Checks are using same logic
     # TODO: Refactor the check methods after basic functionality tested
     @classmethod
     def check_diagonal(cls, disc, column, row):
@@ -151,7 +152,25 @@ class Game(object):
         if count == 5:
             return True
 
-        # TODO: Count matching up and to the left
+        # Count matching up and to the left
+        column_idx = max(0, column - 1)
+        row_idx = max(0, row - 1)
+        for i in range(0, 4):
+            try:
+                if cls.board[column_idx][row_idx] == disc:
+                    count += 1
+                    if count == 5:
+                        return True
+                else:
+                    break
+            except IndexError:
+                break
+            column_idx -= 1
+            row_idx -= 1
+
+        if count == 5:
+            return True
+
 
         return False
 
