@@ -38,7 +38,6 @@ def connect():
             message = (
                 "That name is already taken, please enter a different name: ")
         else:
-            # TODO: Request error handling
             response.raise_for_status()
 
 
@@ -94,10 +93,17 @@ def get_game_state(name):
         time.sleep(WAIT_INTERVAL)
 
 
+# TODO: signals for SIG_TERM => DELETE /connect
 if __name__ == "__main__":
-    # TODO: signals for SIG_TERM => DELETE /connect
-    # TODO: Error handling (Requests.raise_for_status)
-    name = connect()
-    while True:
-        # TODO: The client should be a Class instance
-        get_game_state(name)
+    try:
+        name = connect()
+        while True:
+            # TODO: The client should be a Class instance
+            get_game_state(name)
+    except requests.ConnectionError:
+        disconnect("Could not connect to the game server, is it started?")
+    except requests.HTTPError as exc:
+        # TODO: Improve error message
+        disconnect("Game over, request error.")
+    except Exception:
+        disconnect("Game over, an unexpected error occurred.")
