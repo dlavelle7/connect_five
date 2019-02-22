@@ -57,7 +57,7 @@ def make_move(name):
                     sys.exit()
                 break
             else:
-                # TODO: Request error handlin for all requests (raise_for_status())
+                # TODO: Request error handlin for all requests
                 response.raise_for_status()
 
 

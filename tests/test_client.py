@@ -51,8 +51,7 @@ class TestClient(TestCase):
         # mock response from server, column is full
         mock_body = {"message": retry_prompt}
         mock_response = Mock(status_code=400, json=lambda: mock_body)
-        mock_patch.side_effect = [mock_response,
-                                           Mock(status_code=200)]
+        mock_patch.side_effect = [mock_response, Mock(status_code=200)]
 
         client.make_move("lola")
         first_promt = "It's your turn lola, please enter column (1 - 9): "
