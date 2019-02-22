@@ -43,24 +43,26 @@ class TestClient(TestCase):
             expected_url, json=expected_payload)
 
     @patch("src.client.prompt_user", side_effect=['2', '3'])
-    def skip_test_make_move_negative_2(self, mock_prompt, mock_requests):
+    def test_make_move_negative_2(self, mock_prompt, mock_requests):
         """Assert user is informed if column is full and is re-prompted."""
+        mock_requests.codes.bad_request = 400
         retry_prompt = 'Column 2 is full, please try another: '
+        # mock response from server, column is full
         mock_body = {"message": retry_prompt}
         mock_response = Mock(status_code=400, json=lambda: mock_body)
-        mock_requests.patch.return_value = mock_response
-        # FIXME: all of requests is mocked, so too the status codes!
+        mock_requests.patch.side_effect = [mock_response,
+                                           Mock(status_code=200)]
+
         client.make_move("lola")
         first_promt = "It's your turn lola, please enter column (1 - 9): "
-        expected_calls = [
+        expected_prompts = [
             call(first_promt),
             call(retry_prompt),
         ]
-        self.assertListEqual(mock_prompt.call_args_list, expected_calls)
-        expected_payload = {
-            "name": "lola",
-            "column": 3,
-        }
+        self.assertListEqual(mock_prompt.call_args_list, expected_prompts)
         expected_url = "http://127.0.0.1:5000/move"
-        mock_requests.patch.assert_called_once_with(
-            expected_url, json=expected_payload)
+        expected_calls = [
+            call(expected_url, json={'column': 2, 'name': 'lola'}),
+            call(expected_url, json={'column': 3, 'name': 'lola'})]
+        self.assertListEqual(mock_requests.patch.call_args_list,
+                             expected_calls)
