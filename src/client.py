@@ -9,6 +9,7 @@ STATE_URL = f"{SERVER_URL}/state"
 MOVE_URL = f"{SERVER_URL}/move"
 WAIT_INTERVAL = 2.5
 ACCEPTED_COLUMNS = [num for num in range(1, 10)]
+WIN_RESPONSE = "Win"
 
 
 def prompt_user(message):
@@ -47,10 +48,17 @@ def make_move(name):
             }
             response = requests.patch(MOVE_URL, json=data)
             if response.status_code == requests.codes.bad_request:
+                # TODO: CLient should determine user message not server
                 message = response.json().get("message")
-            # TODO: Request error handlin for all requests (raise_for_status())
-            else:
+            elif response.status_code == requests.codes.ok:
+                message = response.json().get("message")
+                if message == WIN_RESPONSE:
+                    print("Congrats, you have won!")
+                    sys.exit()
                 break
+            else:
+                # TODO: Request error handlin for all requests (raise_for_status())
+                response.raise_for_status()
 
 
 def get_game_state(name):

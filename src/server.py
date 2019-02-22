@@ -14,6 +14,7 @@ class Game(object):
     Xs = "x"
     Os = "o"
     player_discs = (Xs, Os)
+    WIN_RESPONSE = "Win"
 
     @classmethod
     def new_player(cls, name):
@@ -144,10 +145,13 @@ def move():
             mimetype='application/json'
         )
     if Game.has_won(disc, coordinates):
-        return app.response_class(
-            response=json.dumps({"message": "Win"}),
-            status=200,
-            mimetype='application/json'
-        )
-    Game.toggle_turn(name)
-    return "OK"
+        message = Game.WIN_RESPONSE
+        # TODO: Tell other user its over
+    else:
+        message = "OK"
+        Game.toggle_turn(name)
+    return app.response_class(
+        response=json.dumps({"message": message}),
+        status=200,
+        mimetype='application/json'
+    )
