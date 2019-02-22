@@ -76,6 +76,7 @@ def make_move(name):
 
 
 def get_game_state(name):
+    # TODO: raise_for_status()
     response = requests.get(STATE_URL)
     response_data = response.json()
     turn = response_data["turn"]
@@ -103,7 +104,7 @@ if __name__ == "__main__":
     except requests.ConnectionError:
         disconnect("Could not connect to the game server, is it started?")
     except requests.HTTPError as exc:
-        # TODO: Improve error message
-        disconnect("Game over, request error.")
+        disconnect(f"Game over, request failed with: "
+                   f"{exc.response.status_code} {exc.response.reason}.")
     except Exception:
         disconnect("Game over, an unexpected error occurred.")
