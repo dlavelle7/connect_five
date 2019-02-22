@@ -1,13 +1,19 @@
+import threading
+
+from requests import codes
 from flask import Flask, request, json, jsonify
+
 
 # TODO: Flask-API???
 app = Flask(__name__)
 
 WIN_RESPONSE = "Win"
 
+lock = threading.RLock()
+
 
 # TODO: Move game to own module (src.server.game.py)
-# TODO: Make players & turn test/set Thread safe with a RLock
+# TODO: Make players, status & turn test/set Thread safe with a RLock
 class Game(object):
 
     # TODO: Put game_status, turn, board, players into a dict (atomic)
@@ -25,15 +31,25 @@ class Game(object):
 
     @classmethod
     def new_player(cls, name):
-        if len(cls.players) < 2:
-            cls.players.append(name)
-            if len(cls.players) == 1:
-                cls.start_new_game()
-            if cls.turn is None:
-                cls.turn = name
-        else:
-            return False
-        return True
+        """Add new player if possible.
+
+        Return whether or not player was added and corresponding
+        status code for response.
+        """
+        # TODO: Test lock with time.sleep()
+        # TODO: Lock Decorator?
+        with lock:
+            if len(cls.players) < 2:
+                if name in cls.players:
+                    return False, codes.conflict
+                cls.players.append(name)
+                if len(cls.players) == 1:
+                    cls.start_new_game()
+                if cls.turn is None:
+                    cls.turn = name
+            else:
+                return False, codes.forbidden
+            return True, codes.created
 
     @classmethod
     def start_new_game(cls):
@@ -139,21 +155,20 @@ class Game(object):
 @app.route("/connect", methods=["POST"])
 def connect():
     name = request.json.get("name")
-    if Game.new_player(name):
+    player_added, status_code = Game.new_player(name)
+    if player_added:
         response = json.dumps({
             "message": "OK",
             "board": Game.board,
             "turn": Game.turn,
         })
-        status = 201
     else:
         response = json.dumps({
             "message": "Forbidden, no new players allowed."
         })
-        status = 403
     response = app.response_class(
         response=response,
-        status=status,
+        status=status_code,
         mimetype='application/json'
     )
     return response
@@ -180,7 +195,7 @@ def move():
         message = f"Column {column} is full, please try another: "
         return app.response_class(
             response=json.dumps({"message": message}),
-            status=400,
+            status=codes.bad_request,
             mimetype='application/json'
         )
     if Game.has_won(disc, coordinates):
@@ -191,6 +206,6 @@ def move():
         Game.toggle_turn(name)
     return app.response_class(
         response=json.dumps({"message": message}),
-        status=200,
+        status=codes.ok,
         mimetype='application/json'
     )

@@ -25,16 +25,21 @@ def disconnect(message):
 
 
 def connect():
-    # TODO: Validate name not already in use (409 Conflict)
-    name = prompt_user("Enter name: ")
-    response = requests.post(CONNECT_URL, json={"name": name})
-    if response.status_code == requests.codes.created:
-        return name
-    elif response.status_code == requests.codes.forbidden:
-        disconnect("This game is already full, try again later.")
-    else:
-        # TODO: Request error handling
-        response.raise_for_status()
+    # TODO: Test
+    message = "Enter name: "
+    while True:
+        name = prompt_user(message)
+        response = requests.post(CONNECT_URL, json={"name": name})
+        if response.status_code == requests.codes.created:
+            return name
+        elif response.status_code == requests.codes.forbidden:
+            disconnect("This game is already full, try again later.")
+        elif response.status_code == requests.codes.conflict:
+            message = (
+                "That name is already taken, please enter a different name: ")
+        else:
+            # TODO: Request error handling
+            response.raise_for_status()
 
 
 def display_board(board):
@@ -91,6 +96,7 @@ def get_game_state(name):
 
 if __name__ == "__main__":
     # TODO: signals for SIG_TERM => DELETE /connect
+    # TODO: Error handling (Requests.raise_for_status)
     name = connect()
     while True:
         # TODO: The client should be a Class instance
