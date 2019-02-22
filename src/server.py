@@ -89,14 +89,15 @@ class Game(object):
         """Check from coordinates horizontally (left and right)"""
         count = 1
         next_rhs_col_idx = column + 1
-        for column_idx in range(next_rhs_col_idx, 4):
+        for column_idx in range(next_rhs_col_idx, next_rhs_col_idx + 4):
             if cls.board[column_idx][row] == disc:
                 count += 1
                 continue
             break
-        else:
+        if count == 5:
             return True
-        return False
+        # TODO: Check lhs
+        return count == 5
 
     @classmethod
     def check_diagonal(cls, disc, column, row):
