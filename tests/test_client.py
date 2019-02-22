@@ -66,3 +66,17 @@ class TestClient(TestCase):
             call(expected_url, json={'column': 3, 'name': 'lola'})]
         self.assertListEqual(mock_patch.call_args_list,
                              expected_calls)
+
+
+@patch("src.client.requests.post")
+class TestClient2(TestCase):
+
+    @patch("src.client.prompt_user", return_value="eric")
+    @patch("src.client.disconnect")
+    def test_connect_positive_1(self, mock_disconnect, mock_prompt, mock_post):
+        """Assert that with an acceptable name, user is prompted once."""
+        mock_post.return_value = Mock(status_code=201)
+        self.assertEqual(client.connect(), "eric")
+        self.assertFalse(mock_disconnect.called)
+        mock_post.assert_called_once_with(
+            'http://127.0.0.1:5000/connect', json={'name': 'eric'})
