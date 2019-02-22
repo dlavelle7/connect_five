@@ -31,7 +31,6 @@ class Game(object):
 
     @classmethod
     def new_player(cls, name):
-        raise
         """Add new player if possible.
 
         Return whether or not player was added and corresponding
