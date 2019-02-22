@@ -94,5 +94,3 @@ class TestServer(TestCase):
         with patch("src.server.Game.board", test_board):
             has_won = Game.check_horizontal(Game.Xs, 1, 0)
         self.assertFalse(has_won)
-
-

@@ -75,8 +75,8 @@ class Game(object):
     @classmethod
     def check_vertical(cls, disc, column, row):
         """Check from coordinates down"""
-        next_idx = row + 1
-        for idx in range(next_idx, next_idx + 4):
+        next_row = row + 1
+        for idx in range(next_row, next_row + 4):
             try:
                 if cls.board[column][idx] != disc:
                     return False
@@ -89,8 +89,8 @@ class Game(object):
         """Check from coordinates horizontally (left and right)"""
         count = 1
         # Count matching discs to the right
-        next_rhs_col_idx = column + 1
-        for column_idx in range(next_rhs_col_idx, next_rhs_col_idx + 4):
+        next_rhs_col = column + 1
+        for column_idx in range(next_rhs_col, next_rhs_col + 4):
             try:
                 if cls.board[column_idx][row] == disc:
                     count += 1
@@ -103,8 +103,8 @@ class Game(object):
             return True
 
         # Count matching discs to the left
-        next_lhs_col_idx = column - 1
-        for column_idx in range(next_lhs_col_idx, next_lhs_col_idx - 4, -1):
+        next_lhs_col = column - 1
+        for column_idx in range(next_lhs_col, next_lhs_col - 4, -1):
             # TODO: Replace this with max(next_lhs_col, 0)
             if column_idx < 0:
                 break
