@@ -32,8 +32,8 @@ class Game(object):
         cls.board = [[cls.EMPTY for i in range(6)] for j in range(9)]
 
     @classmethod
-    def make_move(cls, move, name):
-        """Make move on board and return position of move."""
+    def make_move(cls, move, disc):
+        """Make move on board and return coordinates of move."""
         column = int(move) - 1
         # Check if this row is already full
         if cls.board[column][0] != cls.EMPTY:
@@ -41,19 +41,51 @@ class Game(object):
         # Drop disc
         for idx, cell in enumerate(cls.board[column]):
             if cell != cls.EMPTY:
-                position = idx - 1
+                row = idx - 1
                 break
         else:
-            position = idx
-        disc = cls.get_player_disc_colour(name)
-        cls.board[column][position] = disc
-        cls.toggle_turn(name)
-        return position
+            row = idx
+        cls.board[column][row] = disc
+        return (column, row)
 
     @classmethod
     def get_player_disc_colour(cls, name):
         """Return the player's disc colour (Player 1 is always 'X')."""
         return cls.player_discs[cls.players.index(name)]
+
+    @classmethod
+    def has_won(cls, disc, coordinates):
+        """Returns True if move wins, otherwise returns False"""
+        check_methods = [cls.check_vertical, cls.check_horizontal,
+                         cls.check_diagonal]
+        for check_method in check_methods:
+            if check_method(disc, *coordinates) is True:
+                return True
+        return False
+
+    @classmethod
+    def check_vertical(cls, disc, column, row):
+        """Check from coordinates down"""
+        next_idx = row + 1
+        for idx in range(next_idx, next_idx + 4):
+            try:
+                if cls.board[column][idx] != disc:
+                    return False
+            except IndexError:
+                return False
+        return True
+
+    @classmethod
+    def check_horizontal(cls, disc, column, row):
+        """Check from coordinates horizontally (left and right)"""
+        # TODO:
+        return False
+
+    @classmethod
+    def check_diagonal(cls, disc, column, row):
+        """Check from coordinates diagonally (left and right, up and down)"""
+        # TODO:
+        return False
 
     @classmethod
     def toggle_turn(cls, just_moved):
@@ -67,7 +99,7 @@ class Game(object):
             cls.turn = cls.players[0]
 
 
-# TODO: A delete method to end game
+# TODO: A delete method to end game?
 @app.route("/connect", methods=["POST"])
 def join():
     name = request.json.get("name")
@@ -79,7 +111,7 @@ def join():
         })
         status = 201
     else:
-        # TODO: Should the server be dictating the messages to the user???
+        # TODO: The server should not be dictating the messages to the user
         response = json.dumps({
             "message": "This game is already full, try again later."
         })
@@ -101,13 +133,21 @@ def state():
 def move():
     column = request.json.get("column")
     name = request.json.get("name")
-    move = Game.make_move(column, name)
-    if move is None:
-        # TODO: Should the server be dictating the messages to the user???
+    disc = Game.get_player_disc_colour(name)
+    coordinates = Game.make_move(column, disc)
+    if coordinates is None:
+        # TODO: The server should not be dictating the messages to the user
         message = f"Column {column} is full, please try another: "
         return app.response_class(
             response=json.dumps({"message": message}),
             status=400,
             mimetype='application/json'
         )
+    if Game.has_won(disc, coordinates):
+        return app.response_class(
+            response=json.dumps({"message": "Win"}),
+            status=200,
+            mimetype='application/json'
+        )
+    Game.toggle_turn(name)
     return "OK"

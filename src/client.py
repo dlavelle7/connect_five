@@ -72,4 +72,5 @@ if __name__ == "__main__":
     # TODO: signals for SIG_TERM => DELETE /connect
     name = connect()
     while True:
+        # TODO: The client should be a Class instance
         get_game_state(name)
