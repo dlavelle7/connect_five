@@ -20,6 +20,7 @@ def prompt_user(message):
 
 def disconnect(message):
     # TODO: Send DELETE /connection request (to reset game state)
+    # TODO: Not all disconnections should end the game (e.g. 3rd wheel)
     print(message)
     sys.exit(0)
 

@@ -80,3 +80,12 @@ class TestClient2(TestCase):
         self.assertFalse(mock_disconnect.called)
         mock_post.assert_called_once_with(
             'http://127.0.0.1:5000/connect', json={'name': 'eric'})
+
+    @patch("src.client.prompt_user", return_value="john")
+    def test_connect_negative_1(self, mock_prompt, mock_post):
+        """Assert that when the game is full, new connections disconnected."""
+        mock_post.return_value = Mock(status_code=403)
+        with self.assertRaises(SystemExit):
+            client.connect()
+        mock_post.assert_called_once_with(
+            'http://127.0.0.1:5000/connect', json={'name': 'john'})
