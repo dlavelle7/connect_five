@@ -18,14 +18,23 @@ def prompt_user(message):
     return input(message)
 
 
+def disconnect(message):
+    # TODO: Send DELETE /connection request (to reset game state)
+    print(message)
+    sys.exit(0)
+
+
 def connect():
     # TODO: Validate name not already in use (409 Conflict)
     name = prompt_user("Enter name: ")
     response = requests.post(CONNECT_URL, json={"name": name})
-    if response.status_code != requests.codes.created:
-        print(response.json().get("message"))
-        sys.exit()
-    return name
+    if response.status_code == requests.codes.created:
+        return name
+    elif response.status_code == requests.codes.forbidden:
+        disconnect("This game is already full, try again later.")
+    else:
+        # TODO: Request error handling
+        response.raise_for_status()
 
 
 def display_board(board):
@@ -55,8 +64,7 @@ def make_move(name):
             elif response.status_code == requests.codes.ok:
                 message = response.json().get("message")
                 if message == WIN_RESPONSE:
-                    print("Congrats, you have won!")
-                    sys.exit()
+                    disconnect("Congrats, you have won!")
                 break
             else:
                 # TODO: Request error handlin for all requests
@@ -69,8 +77,7 @@ def get_game_state(name):
     turn = response_data["turn"]
     game_status = response_data["game_status"]
     if game_status is OVER:
-        print(f"Game over, {turn} has won.")
-        sys.exit()
+        disconnect(f"Game over, {turn} has won.")
     if turn == name:
         display_board(response_data["board"])
         make_move(name)

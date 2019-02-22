@@ -135,9 +135,9 @@ class Game(object):
         cls.status = cls.OVER
 
 
-# TODO: A delete method to end game?
+# TODO: A delete method to end game and reset game state
 @app.route("/connect", methods=["POST"])
-def join():
+def connect():
     name = request.json.get("name")
     if Game.new_player(name):
         response = json.dumps({
@@ -147,9 +147,8 @@ def join():
         })
         status = 201
     else:
-        # TODO: The server should not be dictating the messages to the user
         response = json.dumps({
-            "message": "This game is already full, try again later."
+            "message": "Forbidden, no new players allowed."
         })
         status = 403
     response = app.response_class(
