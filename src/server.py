@@ -120,14 +120,16 @@ class Game(object):
 
         # Count matching discs to the left
         next_lhs_col = max(0, column - 1)
-        for column_idx in range(next_lhs_col, max(0, next_lhs_col - 4), -1):
+        for column_idx in range(next_lhs_col, next_lhs_col - 4, -1):
+            if column_idx < 0:
+                break
             if cls.board[column_idx][row] == disc:
                 count += 1
                 if count == 5:
                     return True
             else:
                 break
-        return False
+        return count == 5
 
     # FIXME: MAJOR REFACTOR NEEDED: Checks are using same logic
     # TODO: Refactor the check methods after basic functionality tested
@@ -153,25 +155,27 @@ class Game(object):
             return True
 
         # Count matching up and to the left
-        column_idx = max(0, column - 1)
-        row_idx = max(0, row - 1)
+        column_idx = column - 1
+        row_idx = row - 1
         for i in range(0, 4):
-            try:
-                if cls.board[column_idx][row_idx] == disc:
-                    count += 1
-                    if count == 5:
-                        return True
-                else:
-                    break
-            except IndexError:
+            if column_idx < 0 or row_idx < 0:
+                break
+            if cls.board[column_idx][row_idx] == disc:
+                count += 1
+                if count == 5:
+                    return True
+            else:
                 break
             column_idx -= 1
             row_idx -= 1
 
         return False
 
+    @classmethod
     def check_diagonal_2(cls, disc, column, row):
         """Check diagonal in '/' direction."""
+        # TODO:
+        pass
 
     @classmethod
     def toggle_turn(cls, just_moved):
