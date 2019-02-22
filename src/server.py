@@ -6,6 +6,7 @@ app = Flask(__name__)
 WIN_RESPONSE = "Win"
 
 
+# TODO: Move game to own module (src.server.game.py)
 # TODO: Make players & turn test/set Thread safe with a RLock
 class Game(object):
 
@@ -86,7 +87,6 @@ class Game(object):
     @classmethod
     def check_horizontal(cls, disc, column, row):
         """Check from coordinates horizontally (left and right)"""
-        # TODO:
         return False
 
     @classmethod

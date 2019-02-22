@@ -9,7 +9,7 @@ from src.server import Game
 class TestServer(TestCase):
 
     def test_check_vertical_positive_1(self):
-        """Xs wins."""
+        """Xs wins -> 5 in a row down."""
         test_board = [
             [Game.EMPTY, Game.Xs, Game.Xs, Game.Xs, Game.Xs, Game.Xs]
         ]
@@ -34,3 +34,15 @@ class TestServer(TestCase):
         with patch("src.server.Game.board", test_board):
             has_won = Game.check_vertical(Game.Os, 0, 4)
         self.assertFalse(has_won)
+
+    def test_check_horizontal_positive_1(self):
+        """Xs wins -> 5 in a row horizontally accross top of board (right)."""
+        test_board = [
+            [Game.Os], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs],
+            [Game.Os], [Game.Os], [Game.Xs]
+        ]
+        with patch("src.server.Game.board", test_board):
+            has_won = Game.check_vertical(Game.Os, 1, 0)
+        self.assertTrue(has_won)
+
+
