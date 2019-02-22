@@ -88,7 +88,7 @@ class Game(object):
     def check_horizontal(cls, disc, column, row):
         """Check from coordinates horizontally (left and right)"""
         count = 1
-        # Check vertically to the right
+        # Count matching discs to the right
         next_rhs_col_idx = column + 1
         for column_idx in range(next_rhs_col_idx, next_rhs_col_idx + 4):
             try:
@@ -102,18 +102,17 @@ class Game(object):
         if count == 5:
             return True
 
-        # FIXME: Decrementing below 0 bug, goes to end of list
-        # Check vertically to the left
+        # Count matching discs to the left
         next_lhs_col_idx = column - 1
         for column_idx in range(next_lhs_col_idx, next_lhs_col_idx - 4, -1):
-            try:
-                if cls.board[column_idx][row] == disc:
-                    count += 1
-                    if count == 5:
-                        return True
-                else:
-                    break
-            except IndexError:
+            # TODO: Replace this with max(next_lhs_col, 0)
+            if column_idx < 0:
+                break
+            if cls.board[column_idx][row] == disc:
+                count += 1
+                if count == 5:
+                    return True
+            else:
                 break
         return False
 
