@@ -82,7 +82,7 @@ class Game(object):
     def has_won(cls, disc, coordinates):
         """Returns True if move wins, otherwise returns False"""
         check_methods = [cls.check_vertical, cls.check_horizontal,
-                         cls.check_diagonal]
+                         cls.check_diagonal_1, cls.check_diagonal_2]
         for check_method in check_methods:
             if check_method(disc, *coordinates) is True:
                 return True
@@ -132,8 +132,8 @@ class Game(object):
     # FIXME: MAJOR REFACTOR NEEDED: Checks are using same logic
     # TODO: Refactor the check methods after basic functionality tested
     @classmethod
-    def check_diagonal(cls, disc, column, row):
-        """Check from coordinates diagonally (left and right, up and down)"""
+    def check_diagonal_1(cls, disc, column, row):
+        """Check diagonal in '\' direction."""
         count = 1
         # Count matching down and to the right
         column_idx = column + 1
@@ -146,7 +146,7 @@ class Game(object):
                     break
             except IndexError:
                 break
-            column_idx +=1
+            column_idx += 1
             row_idx += 1
 
         if count == 5:
@@ -168,11 +168,10 @@ class Game(object):
             column_idx -= 1
             row_idx -= 1
 
-        if count == 5:
-            return True
-
-
         return False
+
+    def check_diagonal_2(cls, disc, column, row):
+        """Check diagonal in '/' direction."""
 
     @classmethod
     def toggle_turn(cls, just_moved):
