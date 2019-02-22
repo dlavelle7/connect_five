@@ -9,7 +9,9 @@ STATE_URL = f"{SERVER_URL}/state"
 MOVE_URL = f"{SERVER_URL}/move"
 WAIT_INTERVAL = 2.5
 ACCEPTED_COLUMNS = [num for num in range(1, 10)]
+
 WIN_RESPONSE = "Win"
+OVER = 0
 
 
 def prompt_user(message):
@@ -65,6 +67,10 @@ def get_game_state(name):
     response = requests.get(STATE_URL)
     response_data = response.json()
     turn = response_data["turn"]
+    game_status = response_data["game_status"]
+    if game_status is OVER:
+        print(f"Game over, {turn} has won.")
+        sys.exit()
     if turn == name:
         display_board(response_data["board"])
         make_move(name)

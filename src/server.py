@@ -3,18 +3,24 @@ from flask import Flask, request, json, jsonify
 # TODO: Flask-API???
 app = Flask(__name__)
 
+WIN_RESPONSE = "Win"
+
 
 # TODO: Make players & turn test/set Thread safe with a RLock
 class Game(object):
-    # TODO: Put turn, board, players into a dict (atomic)
+
+    # TODO: Put game_status, turn, board, players into a dict (atomic)
+    status = None
     turn = None
     board = None
     players = []
+
     EMPTY = "-"
     Xs = "x"
     Os = "o"
     player_discs = (Xs, Os)
-    WIN_RESPONSE = "Win"
+    PLAY = 1
+    OVER = 0
 
     @classmethod
     def new_player(cls, name):
@@ -31,6 +37,7 @@ class Game(object):
     @classmethod
     def start_new_game(cls):
         cls.board = [[cls.EMPTY for i in range(6)] for j in range(9)]
+        cls.status = cls.PLAY
 
     @classmethod
     def make_move(cls, move, disc):
@@ -99,6 +106,10 @@ class Game(object):
         else:
             cls.turn = cls.players[0]
 
+    @classmethod
+    def game_over(cls):
+        cls.status = cls.OVER
+
 
 # TODO: A delete method to end game?
 @app.route("/connect", methods=["POST"])
@@ -127,7 +138,12 @@ def join():
 
 @app.route("/state", methods=["GET"])
 def state():
-    return jsonify({"turn": Game.turn, "board": Game.board})
+    state = {
+        "turn": Game.turn,
+        "board": Game.board,
+        "game_status": Game.status
+    }
+    return jsonify(state)
 
 
 @app.route("/move", methods=["PATCH"])
@@ -145,8 +161,8 @@ def move():
             mimetype='application/json'
         )
     if Game.has_won(disc, coordinates):
-        message = Game.WIN_RESPONSE
-        # TODO: Tell other user its over
+        message = WIN_RESPONSE
+        Game.game_over()
     else:
         message = "OK"
         Game.toggle_turn(name)
