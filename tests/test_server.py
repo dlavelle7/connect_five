@@ -42,7 +42,7 @@ class TestServer(TestCase):
             [Game.Os], [Game.Os], [Game.Xs]
         ]
         with patch("src.server.Game.board", test_board):
-            has_won = Game.check_vertical(Game.Os, 1, 0)
+            has_won = Game.check_horizontal(Game.Xs, 1, 0)
         self.assertTrue(has_won)
 
 
