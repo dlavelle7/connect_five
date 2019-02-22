@@ -98,10 +98,12 @@ class Game(object):
                     break
             except IndexError:
                 break
+
         if count == 5:
             return True
 
-        # TODO: Check vertically to the left
+        # FIXME: Decrementing below 0 bug, goes to end of list
+        # Check vertically to the left
         next_lhs_col_idx = column - 1
         for column_idx in range(next_lhs_col_idx, next_lhs_col_idx - 4, -1):
             try:

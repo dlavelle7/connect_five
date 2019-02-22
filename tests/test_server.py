@@ -55,4 +55,44 @@ class TestServer(TestCase):
             has_won = Game.check_horizontal(Game.Xs, 5, 0)
         self.assertTrue(has_won)
 
+    def test_check_horizontal_positive_3(self):
+        """Xs wins -> 5 in a row horizontally accross top (left and right)"""
+        test_board = [
+            [Game.Os], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs],
+            [Game.Os], [Game.Os], [Game.Xs]
+        ]
+        with patch("src.server.Game.board", test_board):
+            has_won = Game.check_horizontal(Game.Xs, 3, 0)
+        self.assertTrue(has_won)
+
+    def test_check_horizontal_negative_1(self):
+        """Xs doesn't win -> 1 X to the rhs & 2 Xs to the lhs."""
+        test_board = [
+            [Game.Os], [Game.Os], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs],
+            [Game.Os], [Game.Os], [Game.Xs]
+        ]
+        with patch("src.server.Game.board", test_board):
+            has_won = Game.check_horizontal(Game.Xs, 4, 0)
+        self.assertFalse(has_won)
+
+    def test_check_horizontal_negative_2(self):
+        """Xs doesn't win -> Noting to rhs, and 3 Xs to the left."""
+        test_board = [
+            [Game.Os], [Game.Os], [Game.Xs], [Game.Os],
+            [Game.EMPTY], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs]
+        ]
+        with patch("src.server.Game.board", test_board):
+            has_won = Game.check_horizontal(Game.Xs, 8, 0)
+        self.assertFalse(has_won)
+
+    def test_check_horizontal_negative_3(self):
+        """Xs doesn't win -> 1 X to lhs, and 1 X to the rhs."""
+        test_board = [
+            [Game.Xs], [Game.Xs], [Game.Xs], [Game.Os],
+            [Game.EMPTY], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs]
+        ]
+        with patch("src.server.Game.board", test_board):
+            has_won = Game.check_horizontal(Game.Xs, 1, 0)
+        self.assertFalse(has_won)
+
 
