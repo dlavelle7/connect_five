@@ -23,7 +23,6 @@ class Game(object):
     WON = "won"
     DISCONNECTED = "disconnected"
 
-
     @classmethod
     def new_player(cls, name):
         """Add new player if possible.
