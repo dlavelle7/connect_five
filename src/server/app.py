@@ -45,8 +45,8 @@ def state():
 
 @app.route("/move", methods=["PATCH"])
 def move():
-    column = request.json.get("column")
-    name = request.json.get("name")
+    column = request.json["column"]
+    name = request.json["name"]
     disc = Game.get_player_disc_colour(name)
     coordinates = Game.make_move(column, disc)
     if coordinates is None:

@@ -9,7 +9,7 @@ lock = threading.RLock()
 class Game(object):
     """Class to hold state of application and business logic."""
 
-    # TODO: Put game_status, turn, board, players into a dict (atomic)
+    # Game state
     status = None
     turn = None
     board = None

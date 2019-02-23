@@ -277,6 +277,14 @@ class TestServer(TestCase):
         """Game already full."""
         with patch("src.server.game.Game.players", ["foo", "bar"]):
             added, code = Game.new_player("eggs")
-            pass
         self.assertFalse(added)
         self.assertEqual(403, code)
+
+    def test_new_player_negative_2(self):
+        """Player name already in use, return 409."""
+        with patch("src.server.game.Game.players", ["terry"]):
+            added, code = Game.new_player("terry")
+        self.assertFalse(added)
+        self.assertEqual(409, code)
+
+    # TODO: Get player disc colour
