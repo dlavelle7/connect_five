@@ -48,3 +48,31 @@ request will be handled in a separate thread.
 In the event of a draw game, players will disconnect themselves.
 
 A subsequent new game requires the server to be restarted.
+
+## Testing
+
+Pytest was chosen as the test runner. The unit tests themselves are written
+using the `unittest` framework.
+
+Run the unit tests:
+```
+pip install -r requirement_test.txt
+
+pytest tests/
+```
+
+Tox was chosen as the CI automation too and runs the following tests:
+* unit tests
+* unit test coverage (greater than 70%)
+* static code analysis `flake8`
+
+Run the CI build locally:
+```
+pip install -r requirements_ci.txt
+
+tox
+```
+
+Travis CI is used as to automate the CI build (tox) whenever change is
+detected to a branch on GitHub (click the "build" image on this readme for
+build info).
