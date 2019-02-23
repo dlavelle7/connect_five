@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import time
+import signal
 import requests
 
 SERVER_URL = "http://127.0.0.1:5000"
@@ -85,7 +86,7 @@ def get_game_state(name):
         board = response.json().get("board")
         display_board(board)
         disconnect(f"Game over, {turn} has won.")
-    if turn == name:
+    elif turn == name:
         display_board(response_data["board"])
         make_move(name)
     else:
@@ -96,10 +97,26 @@ def get_game_state(name):
         time.sleep(WAIT_INTERVAL)
 
 
-# TODO: signals for SIG_TERM => DELETE /connect
+def sigterm_handler(sig_num, frame):
+    disconnect("Game over, you disconnected.")
+
+
+# TODO: maybe only do it when you have connected to server
+def register_signal_handlers():
+    """Register hanlders for client disconnections such as:
+
+    - Hang up signal
+    - Interrupt signal
+    - Termination signal
+    """
+    for sig_num in {signal.SIGTERM, signal.SIGINT, signal.SIGHUP}:
+        signal.signal(sig_num, sigterm_handler)
+
+
 if __name__ == "__main__":
     try:
         name = connect()
+        register_signal_handlers()
         while True:
             # TODO: The client should be a Class instance
             get_game_state(name)
