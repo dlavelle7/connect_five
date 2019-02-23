@@ -26,7 +26,6 @@ def disconnect(message):
 
 
 def connect():
-    # TODO: Test
     message = "Enter name: "
     while True:
         name = prompt_user(message)
@@ -64,15 +63,13 @@ def make_move(name):
             }
             response = requests.patch(MOVE_URL, json=data)
             if response.status_code == requests.codes.bad_request:
-                # TODO: CLient should determine user message not server
-                message = response.json().get("message")
+                message = f"Column {column} is full, please try another: "
             elif response.status_code == requests.codes.ok:
                 message = response.json().get("message")
                 if message == WIN_RESPONSE:
                     disconnect("Congrats, you have won!")
                 break
             else:
-                # TODO: Request error handlin for all requests
                 response.raise_for_status()
 
 

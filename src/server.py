@@ -270,8 +270,7 @@ def move():
     disc = Game.get_player_disc_colour(name)
     coordinates = Game.make_move(column, disc)
     if coordinates is None:
-        # TODO: The server should not be dictating the messages to the user
-        message = f"Column {column} is full, please try another: "
+        message = f"Bad request, column full."
         return app.response_class(
             response=json.dumps({"message": message}),
             status=codes.bad_request,
