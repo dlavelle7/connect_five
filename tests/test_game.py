@@ -18,7 +18,7 @@ class TestServer(TestCase):
              Game.Xs,
              Game.Xs]
         ]
-        with patch("src.server.Game.board", test_board):
+        with patch("src.server.game.Game.board", test_board):
             has_won = Game.check_vertical(Game.Xs, 0, 1)
         self.assertTrue(has_won)
 
@@ -27,7 +27,7 @@ class TestServer(TestCase):
         test_board = [
             [Game.Xs, Game.Os, Game.Xs, Game.Xs, Game.Xs, Game.Xs]
         ]
-        with patch("src.server.Game.board", test_board):
+        with patch("src.server.game.Game.board", test_board):
             has_won = Game.check_vertical(Game.Xs, 0, 0)
         self.assertFalse(has_won)
 
@@ -36,7 +36,7 @@ class TestServer(TestCase):
         test_board = [
             [Game.EMPTY, Game.EMPTY, Game.EMPTY, Game.EMPTY, Game.Os, Game.Os]
         ]
-        with patch("src.server.Game.board", test_board):
+        with patch("src.server.game.Game.board", test_board):
             has_won = Game.check_vertical(Game.Os, 0, 4)
         self.assertFalse(has_won)
 
@@ -46,7 +46,7 @@ class TestServer(TestCase):
             [Game.Os], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs],
             [Game.Os], [Game.Os], [Game.Xs]
         ]
-        with patch("src.server.Game.board", test_board):
+        with patch("src.server.game.Game.board", test_board):
             has_won = Game.check_horizontal(Game.Xs, 1, 0)
         self.assertTrue(has_won)
 
@@ -56,7 +56,7 @@ class TestServer(TestCase):
             [Game.Os], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs],
             [Game.Os], [Game.Os], [Game.Xs]
         ]
-        with patch("src.server.Game.board", test_board):
+        with patch("src.server.game.Game.board", test_board):
             has_won = Game.check_horizontal(Game.Xs, 5, 0)
         self.assertTrue(has_won)
 
@@ -66,7 +66,7 @@ class TestServer(TestCase):
             [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs],
             [Game.Os], [Game.Os], [Game.Os], [Game.Xs]
         ]
-        with patch("src.server.Game.board", test_board):
+        with patch("src.server.game.Game.board", test_board):
             has_won = Game.check_horizontal(Game.Xs, 4, 0)
         self.assertTrue(has_won)
 
@@ -76,7 +76,7 @@ class TestServer(TestCase):
             [Game.Os], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs],
             [Game.Os], [Game.Os], [Game.Xs]
         ]
-        with patch("src.server.Game.board", test_board):
+        with patch("src.server.game.Game.board", test_board):
             has_won = Game.check_horizontal(Game.Xs, 3, 0)
         self.assertTrue(has_won)
 
@@ -86,7 +86,7 @@ class TestServer(TestCase):
             [Game.Os], [Game.Os], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs],
             [Game.Os], [Game.Os], [Game.Xs]
         ]
-        with patch("src.server.Game.board", test_board):
+        with patch("src.server.game.Game.board", test_board):
             has_won = Game.check_horizontal(Game.Xs, 4, 0)
         self.assertFalse(has_won)
 
@@ -96,7 +96,7 @@ class TestServer(TestCase):
             [Game.Os], [Game.Os], [Game.Xs], [Game.Os],
             [Game.EMPTY], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs]
         ]
-        with patch("src.server.Game.board", test_board):
+        with patch("src.server.game.Game.board", test_board):
             has_won = Game.check_horizontal(Game.Xs, 8, 0)
         self.assertFalse(has_won)
 
@@ -106,7 +106,7 @@ class TestServer(TestCase):
             [Game.Xs], [Game.Xs], [Game.Xs], [Game.Os],
             [Game.EMPTY], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs]
         ]
-        with patch("src.server.Game.board", test_board):
+        with patch("src.server.game.Game.board", test_board):
             has_won = Game.check_horizontal(Game.Xs, 1, 0)
         self.assertFalse(has_won)
 
@@ -123,7 +123,7 @@ class TestServer(TestCase):
             [Game.EMPTY * 6],
             [Game.EMPTY * 6],
         ]
-        with patch("src.server.Game.board", test_board):
+        with patch("src.server.game.Game.board", test_board):
             has_won = Game.check_diagonal_1(Game.Os, 0, 0)
         self.assertTrue(has_won)
 
@@ -140,7 +140,7 @@ class TestServer(TestCase):
             [Game.EMPTY * 6],
             [Game.EMPTY * 6],
         ]
-        with patch("src.server.Game.board", test_board):
+        with patch("src.server.game.Game.board", test_board):
             has_won = Game.check_diagonal_1(Game.Os, 3, 3)
         self.assertTrue(has_won)
 
@@ -157,7 +157,7 @@ class TestServer(TestCase):
             [Game.EMPTY * 6],
             [Game.EMPTY * 6],
         ]
-        with patch("src.server.Game.board", test_board):
+        with patch("src.server.game.Game.board", test_board):
             has_won = Game.check_diagonal_1(Game.Os, 3, 3)
         self.assertFalse(has_won)
 
@@ -174,7 +174,7 @@ class TestServer(TestCase):
             [Game.EMPTY * 6],
             [Game.EMPTY * 6],
         ]
-        with patch("src.server.Game.board", test_board):
+        with patch("src.server.game.Game.board", test_board):
             has_won = Game.check_diagonal_2(Game.Xs, 1, 3)
         self.assertTrue(has_won)
 
@@ -191,7 +191,7 @@ class TestServer(TestCase):
             [Game.EMPTY * 6],
             [Game.EMPTY * 6],
         ]
-        with patch("src.server.Game.board", test_board):
+        with patch("src.server.game.Game.board", test_board):
             has_won = Game.check_diagonal_2(Game.Xs, 4, 0)
         self.assertTrue(has_won)
 
@@ -208,7 +208,7 @@ class TestServer(TestCase):
             [Game.EMPTY * 6],
             [Game.EMPTY * 6],
         ]
-        with patch("src.server.Game.board", test_board):
+        with patch("src.server.game.Game.board", test_board):
             has_won = Game.check_diagonal_2(Game.Xs, 0, 4)
         self.assertTrue(has_won)
 
@@ -225,14 +225,14 @@ class TestServer(TestCase):
             [Game.EMPTY * 6],
             [Game.EMPTY * 6],
         ]
-        with patch("src.server.Game.board", test_board):
+        with patch("src.server.game.Game.board", test_board):
             has_won = Game.check_diagonal_2(Game.Os, 1, 3)
         self.assertFalse(has_won)
 
-    @patch("src.server.Game.check_diagonal_2", return_value=False)
-    @patch("src.server.Game.check_diagonal_1", return_value=True)
-    @patch("src.server.Game.check_horizontal", return_value=False)
-    @patch("src.server.Game.check_vertical", return_value=False)
+    @patch("src.server.game.Game.check_diagonal_2", return_value=False)
+    @patch("src.server.game.Game.check_diagonal_1", return_value=True)
+    @patch("src.server.game.Game.check_horizontal", return_value=False)
+    @patch("src.server.game.Game.check_vertical", return_value=False)
     def test_has_won_positive(self, mock_vert, mock_horiz, mock_d1, mock_d2):
         """Assert if one of the 'check' functions returns True, player wins"""
         self.assertTrue(Game.has_won('x', (0, 1)))
@@ -241,10 +241,10 @@ class TestServer(TestCase):
         mock_d1.assert_called_once_with('x', 0, 1)
         self.assertFalse(mock_d2.called)
 
-    @patch("src.server.Game.check_diagonal_2", return_value=False)
-    @patch("src.server.Game.check_diagonal_1", return_value=False)
-    @patch("src.server.Game.check_horizontal", return_value=False)
-    @patch("src.server.Game.check_vertical", return_value=False)
+    @patch("src.server.game.Game.check_diagonal_2", return_value=False)
+    @patch("src.server.game.Game.check_diagonal_1", return_value=False)
+    @patch("src.server.game.Game.check_horizontal", return_value=False)
+    @patch("src.server.game.Game.check_vertical", return_value=False)
     def test_has_won_negative(self, mock_vert, mock_horiz, mock_d1, mock_d2):
         """Assert if none of the 'check' functions return True game still on"""
         self.assertFalse(Game.has_won('x', (0, 1)))

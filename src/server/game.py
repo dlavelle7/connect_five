@@ -220,5 +220,3 @@ class Game(object):
     @classmethod
     def game_over(cls):
         cls.status = cls.OVER
-
-
