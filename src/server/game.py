@@ -19,8 +19,10 @@ class Game(object):
     Xs = "x"
     Os = "o"
     player_discs = (Xs, Os)
-    PLAY = 1
-    OVER = 0
+    PLAYING = "playing"
+    WON = "won"
+    DISCONNECTED = "disconnected"
+
 
     @classmethod
     def new_player(cls, name):
@@ -47,7 +49,7 @@ class Game(object):
     @classmethod
     def start_new_game(cls):
         cls.board = [[cls.EMPTY for i in range(6)] for j in range(9)]
-        cls.status = cls.PLAY
+        cls.status = cls.PLAYING
 
     @classmethod
     def make_move(cls, move, disc):
@@ -219,5 +221,5 @@ class Game(object):
             cls.turn = cls.players[0]
 
     @classmethod
-    def game_over(cls):
-        cls.status = cls.OVER
+    def game_over(cls, won=True):
+        cls.status = cls.WON if won is True else cls.DISCONNECTED

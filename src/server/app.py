@@ -6,15 +6,12 @@ from src.server.game import Game
 
 app = Flask(__name__)
 
-WIN_RESPONSE = "Win"
-
 
 @app.route("/connect", methods=["POST", "DELETE"])
 def connect():
     name = request.json.get("name")
     if request.method == 'DELETE':
-        # TODO: Game over to be words ("won", "disconnected")
-        Game.game_over()
+        Game.game_over(won=False)
         return "OK"
     player_added, status_code = Game.new_player(name)
     if player_added:
@@ -55,7 +52,7 @@ def move():
         message = f"Bad request, column full."
         status_code = codes.bad_request
     elif Game.has_won(disc, coordinates):
-        message = WIN_RESPONSE
+        message = Game.WON
         status_code = codes.ok
         Game.game_over()
     else:

@@ -11,8 +11,8 @@ MOVE_URL = f"{SERVER_URL}/move"
 WAIT_INTERVAL = 2
 ACCEPTED_COLUMNS = [num for num in range(1, 10)]
 
-WIN_RESPONSE = "Win"
-OVER = 0
+WIN_RESPONSE = "won"
+DISCONNECTED_RESPONSE = "disconnected"
 
 
 def prompt_user(message):
@@ -85,11 +85,12 @@ def get_game_state(name):
     response_data = response.json()
     turn = response_data["turn"]
     game_status = response_data["game_status"]
-    if game_status is OVER:
-        # TODO: Make game status words, OVER=("won", "disconnected")
+    if game_status == WIN_RESPONSE:
         board = response.json().get("board")
         display_board(board)
         disconnect(f"Game over, {turn} has won.", name)
+    elif game_status == DISCONNECTED_RESPONSE:
+        disconnect(f"Game over, other player disconnected.")
     elif turn == name:
         display_board(response_data["board"])
         make_move(name)
