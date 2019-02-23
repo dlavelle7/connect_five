@@ -30,8 +30,6 @@ class Game(object):
         Return whether or not player was added and corresponding
         status code for response.
         """
-        # TODO: Test lock with time.sleep()
-        # TODO: Lock Decorator?
         with lock:
             if len(cls.players) < 2:
                 if name in cls.players:

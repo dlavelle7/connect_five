@@ -13,3 +13,5 @@ class TestApp(TestCase):
     def test_state(self):
         response = self.client.get("/state")
         self.assertEqual(200, response.status_code)
+        self.assertListEqual(["board", "game_status", "turn"],
+                             list(response.json.keys()))
