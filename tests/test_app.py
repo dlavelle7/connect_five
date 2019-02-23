@@ -1,16 +1,15 @@
-import pytest
+from unittest import TestCase
 
 from src.server import app
 
 
-@pytest.fixture
-def client():
-    """Test client for testing requests to the application."""
-    app.app.config['TESTING'] = True
-    client = app.app.test_client()
-    yield client
+class TestApp(TestCase):
 
+    def setUp(self):
+        """Test client for testing requests to the application."""
+        app.app.testing = True
+        self.client = app.app.test_client()
 
-def test_state_endpoint(client):
-    response = client.get("/state")
-    assert response.status_code == 200
+    def test_state(self):
+        response = self.client.get("/state")
+        self.assertEqual(200, response.status_code)
