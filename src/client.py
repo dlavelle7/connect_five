@@ -65,6 +65,8 @@ def make_move(name):
             if response.status_code == requests.codes.bad_request:
                 message = f"Column {column} is full, please try another: "
             elif response.status_code == requests.codes.ok:
+                board = response.json().get("board")
+                display_board(board)
                 message = response.json().get("message")
                 if message == WIN_RESPONSE:
                     disconnect("Congrats, you have won!")

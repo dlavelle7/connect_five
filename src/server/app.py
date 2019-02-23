@@ -49,20 +49,18 @@ def move():
     coordinates = Game.make_move(column, disc)
     if coordinates is None:
         message = f"Bad request, column full."
-        return app.response_class(
-            response=json.dumps({"message": message}),
-            status=codes.bad_request,
-            mimetype='application/json'
-        )
-    if Game.has_won(disc, coordinates):
+        status_code = codes.bad_request
+    elif Game.has_won(disc, coordinates):
         message = WIN_RESPONSE
+        status_code = codes.ok
         Game.game_over()
     else:
         message = "OK"
+        status_code = codes.ok
         Game.toggle_turn(name)
-    # TODO: Show user their last move (also for winning move)
+    response_data = {"message": message, "board": Game.board}
     return app.response_class(
-        response=json.dumps({"message": message}),
-        status=codes.ok,
+        response=json.dumps(response_data),
+        status=status_code,
         mimetype='application/json'
     )
