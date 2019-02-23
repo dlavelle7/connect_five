@@ -1,11 +1,16 @@
-from unittest import TestCase
+import pytest
 
 from src.server import app
 
 
-# TODO: View tests with Flask Test request client
-class TestApp(TestCase):
+@pytest.fixture
+def client():
+    """Test client for testing requests to the application."""
+    app.app.config['TESTING'] = True
+    client = app.app.test_client()
+    yield client
 
-    def test_(self):
-        # TODO:
-        app
+
+def test_state_endpoint(client):
+    response = client.get("/state")
+    assert response.status_code == 200

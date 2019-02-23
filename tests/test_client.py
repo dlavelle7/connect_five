@@ -78,19 +78,20 @@ class TestClient(TestCase):
 class TestClient2(TestCase):
 
     @patch("src.client.prompt_user", return_value="eric")
-    @patch("src.client.disconnect")
-    def test_connect_positive_1(self, mock_disconnect, mock_prompt, mock_post):
+    @patch("src.client.exit")
+    def test_connect_positive_1(self, mock_exit, mock_prompt, mock_post):
         """Assert that with an acceptable name, user is prompted once."""
         mock_post.return_value = Mock(status_code=201)
         self.assertEqual(client.connect(), "eric")
-        self.assertFalse(mock_disconnect.called)
+        self.assertFalse(mock_exit.called)
         mock_post.assert_called_once_with(
             'http://127.0.0.1:5000/connect', json={'name': 'eric'})
         mock_prompt.assert_called_once_with("Enter name: ")
 
     @patch("src.client.prompt_user", return_value="john")
-    def test_connect_negative_1(self, mock_prompt, mock_post):
-        """Assert that when the game is full, new connections disconnected."""
+    @patch("src.client.exit")
+    def test_connect_negative_1(self, mock_exit, mock_prompt, mock_post):
+        """Assert that when the game is full, new connections not allowed."""
         mock_post.return_value = Mock(status_code=403)
         with self.assertRaises(SystemExit):
             client.connect()
@@ -99,12 +100,12 @@ class TestClient2(TestCase):
         mock_prompt.assert_called_once_with("Enter name: ")
 
     @patch("src.client.prompt_user", side_effect=["terry", "michael"])
-    @patch("src.client.disconnect")
-    def test_connect_negative_2(self, mock_disconnect, mock_prompt, mock_post):
+    @patch("src.client.exit")
+    def test_connect_negative_2(self, mock_exit, mock_prompt, mock_post):
         """Assert when the name conflicts, user is re prompted."""
         mock_post.side_effect = [Mock(status_code=409), Mock(status_code=201)]
         self.assertEqual(client.connect(), "michael")
-        self.assertFalse(mock_disconnect.called)
+        self.assertFalse(mock_exit.called)
         expected_prompts = [
             call('Enter name: '),
             call('That name is already taken, please enter a different name: ')
