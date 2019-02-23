@@ -82,6 +82,8 @@ def get_game_state(name):
     turn = response_data["turn"]
     game_status = response_data["game_status"]
     if game_status is OVER:
+        board = response.json().get("board")
+        display_board(board)
         disconnect(f"Game over, {turn} has won.")
     if turn == name:
         display_board(response_data["board"])
