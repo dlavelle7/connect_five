@@ -8,10 +8,14 @@ app = Flask(__name__)
 
 WIN_RESPONSE = "Win"
 
-# TODO: A delete method to end game and reset game state
-@app.route("/connect", methods=["POST"])
+
+@app.route("/connect", methods=["POST", "DELETE"])
 def connect():
     name = request.json.get("name")
+    if request.method == 'DELETE':
+        # TODO: Game over to be words ("won", "disconnected")
+        Game.game_over()
+        return "OK"
     player_added, status_code = Game.new_player(name)
     if player_added:
         response = json.dumps({

@@ -19,9 +19,11 @@ def prompt_user(message):
     return input(message)
 
 
-def disconnect(message):
+def disconnect(message, name, end_game=True):
     # TODO: Send DELETE /connection request (to reset game state)
     # TODO: Not all disconnections should end the game (e.g. 3rd wheel)
+    if end_game is True:
+        requests.delete(CONNECT_URL, json={"name": name})
     print(message)
     sys.exit(0)
 
@@ -34,7 +36,8 @@ def connect():
         if response.status_code == requests.codes.created:
             return name
         elif response.status_code == requests.codes.forbidden:
-            disconnect("This game is already full, try again later.")
+            disconnect("This game is already full, try again later.",
+                       name, end_game=False)
         elif response.status_code == requests.codes.conflict:
             message = (
                 "That name is already taken, please enter a different name: ")
@@ -70,7 +73,7 @@ def make_move(name):
                 display_board(board)
                 message = response.json().get("message")
                 if message == WIN_RESPONSE:
-                    disconnect("Congrats, you have won!")
+                    disconnect("Congrats, you have won!", name)
                 break
             else:
                 response.raise_for_status()
@@ -83,9 +86,10 @@ def get_game_state(name):
     turn = response_data["turn"]
     game_status = response_data["game_status"]
     if game_status is OVER:
+        # TODO: Make game status words, OVER=("won", "disconnected")
         board = response.json().get("board")
         display_board(board)
-        disconnect(f"Game over, {turn} has won.")
+        disconnect(f"Game over, {turn} has won.", name)
     elif turn == name:
         display_board(response_data["board"])
         make_move(name)
@@ -98,7 +102,7 @@ def get_game_state(name):
 
 
 def sigterm_handler(sig_num, frame):
-    disconnect("Game over, you disconnected.")
+    disconnect("Game over, you disconnected.", name)
 
 
 # TODO: maybe only do it when you have connected to server
@@ -121,7 +125,9 @@ if __name__ == "__main__":
             # TODO: The client should be a Class instance
             get_game_state(name)
     except requests.ConnectionError:
-        disconnect("Could not connect to the game server, is it started?")
+        disconnect("Could not connect to the game server, is it started?",
+                   name, end_game=False)
     except requests.HTTPError as exc:
         disconnect(f"Game over, request failed with: "
-                   f"{exc.response.status_code} {exc.response.reason}.")
+                   f"{exc.response.status_code} {exc.response.reason}.",
+                   name)
