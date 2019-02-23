@@ -212,7 +212,6 @@ class TestServer(TestCase):
             has_won = Game.check_diagonal_2(Game.Xs, 0, 4)
         self.assertTrue(has_won)
 
-
     def test_check_diagonal_2_negative_1(self):
         """Xs doesn't win -> not enough Xs left or right (Direction '/')"""
         test_board = [
