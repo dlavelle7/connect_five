@@ -287,4 +287,20 @@ class TestServer(TestCase):
         self.assertFalse(added)
         self.assertEqual(409, code)
 
-    # TODO: Get player disc colour
+    def test_get_player_disc_colour_positive_1(self):
+        """Test with one player, 2nd player hasn't joined yet"""
+        with patch("src.server.game.Game.players", ["john"]):
+            disc = Game.get_player_disc_colour("john")
+        self.assertEqual("x", disc)
+
+    def test_get_player_disc_colour_positive_2(self):
+        """Player 1 is Xs"""
+        with patch("src.server.game.Game.players", ["robin", "brian"]):
+            disc = Game.get_player_disc_colour("robin")
+        self.assertEqual("x", disc)
+
+    def test_get_player_disc_colour_positive_3(self):
+        """Player 2 is Ys"""
+        with patch("src.server.game.Game.players", ["robin", "brian"]):
+            disc = Game.get_player_disc_colour("brian")
+        self.assertEqual("o", disc)
