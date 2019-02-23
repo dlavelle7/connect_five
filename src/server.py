@@ -141,7 +141,7 @@ class Game(object):
         # Count matching down and to the right
         column_idx = column + 1
         row_idx = row + 1
-        for i in range(0, 4):
+        for _ in range(0, 4):
             try:
                 if cls.board[column_idx][row_idx] == disc:
                     count += 1
@@ -158,7 +158,7 @@ class Game(object):
         # Count matching up and to the left
         column_idx = column - 1
         row_idx = row - 1
-        for i in range(0, 4):
+        for _ in range(0, 4):
             if column_idx < 0 or row_idx < 0:
                 break
             if cls.board[column_idx][row_idx] == disc:
@@ -176,6 +176,25 @@ class Game(object):
     def check_diagonal_2(cls, disc, column, row):
         """Check diagonal in '/' direction."""
         # TODO: Count matching discs up and to the right
+        count = 1
+        column_idx = column + 1
+        row_idx = row - 1
+        for _ in range(0, 4):
+            if row_idx < 0:
+                break
+            try:
+                if cls.board[column_idx][row_idx] == disc:
+                    count += 1
+                else:
+                    break
+            except IndexError:
+                break
+            column_idx += 1
+            row_idx -= 1
+
+        if count == 5:
+            return True
+
         # TODO: Count matching discs down and to the left
         return False
 

@@ -13,6 +13,29 @@ cd connect_five
 pip install -r requirements.txt
 ```
 
+## Usage
+Run the server:
+```
+FLASK_APP=src.server.py flask run
+```
+
+In a separate shell, run the first client:
+```
+python src/client.py
+```
+
+In a separate shell, run the second client:
+```
+python src/client.py
+```
+
+## Approach
+
+The board is a list of lists. Each "column" in the board is a list. The far
+left column on the users screen is the first position in the board list.
+
+The bottom of a "column" corresponds to the last position in that list.
+
 ## Assumptions / Simplifications
 
 For the purpose of this exercise I have chosen to run the server application
