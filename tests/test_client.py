@@ -7,11 +7,12 @@ from src import client
 @patch("src.client.requests.patch")
 class TestClient(TestCase):
 
-    @patch("src.client.display_board")
+    @patch("src.client.Client.display_board")
     @patch("src.client.prompt_user", return_value='1')
     def test_make_move_positive(self, mock_prompt, mock_display, mock_patch):
         mock_patch.return_value = Mock(status_code=200)
-        client.make_move("foo")
+        test_client = client.Client("foo")
+        test_client.make_move()
         expected_message = "It's your turn foo, please enter column (1 - 9): "
         mock_prompt.assert_called_once_with(expected_message)
         expected_payload = {
@@ -23,12 +24,13 @@ class TestClient(TestCase):
             expected_url, json=expected_payload)
         mock_display.assert_called_once()
 
-    @patch("src.client.display_board")
+    @patch("src.client.Client.display_board")
     @patch("src.client.prompt_user", side_effect=["", "a", '0', '10', '9'])
     def test_make_move_negative(self, mock_prompt, mock_display, mock_patch):
         """Assert the user is prompted until a valid column is chosen."""
         mock_patch.return_value = Mock(status_code=200)
-        client.make_move("bar")
+        test_client = client.Client("bar")
+        test_client.make_move()
         first_promt = "It's your turn bar, please enter column (1 - 9): "
         retry_prompt = 'Invalid choice, please enter column (1 - 9): '
         expected_calls = [
@@ -48,7 +50,7 @@ class TestClient(TestCase):
             expected_url, json=expected_payload)
         mock_display.assert_called_once()
 
-    @patch("src.client.display_board")
+    @patch("src.client.Client.display_board")
     @patch("src.client.prompt_user", side_effect=['2', '3'])
     def test_make_move_negative_2(self, mock_prompt, mock_display, mock_patch):
         """Assert user is informed if column is full and is re-prompted."""
@@ -58,7 +60,8 @@ class TestClient(TestCase):
         mock_response = Mock(status_code=400, json=lambda: mock_body)
         mock_patch.side_effect = [mock_response, Mock(status_code=200)]
 
-        client.make_move("lola")
+        test_client = client.Client("lola")
+        test_client.make_move()
         first_promt = "It's your turn lola, please enter column (1 - 9): "
         expected_prompts = [
             call(first_promt),

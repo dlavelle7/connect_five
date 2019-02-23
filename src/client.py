@@ -46,61 +46,65 @@ def connect():
             response.raise_for_status()
 
 
-def display_board(board):
-    for row_idx in range(6):
-        row = " ".join(board[col_idx][row_idx] for col_idx in range(9))
-        print(row)
+class Client(object):
 
+    def __init__(self, name):
+        self.name = name
 
-def make_move(name):
-    message = f"It's your turn {name}, please enter column (1 - 9): "
-    while True:
-        column = prompt_user(message)
-        try:
-            column = int(column)
-            assert column in ACCEPTED_COLUMNS
-        except (AssertionError, ValueError):
-            message = "Invalid choice, please enter column (1 - 9): "
+    def get_game_state(self):
+        response = requests.get(STATE_URL)
+        response.raise_for_status()
+        response_data = response.json()
+        turn = response_data["turn"]
+        game_status = response_data["game_status"]
+        if game_status == WIN_RESPONSE:
+            board = response.json().get("board")
+            self.display_board(board)
+            exit_game(f"Game over, {turn} has won.")
+        elif game_status == DISCONNECTED_RESPONSE:
+            exit_game(f"Game over, other player disconnected.")
+        elif turn == self.name:
+            self.display_board(response_data["board"])
+            self.make_move()
         else:
-            data = {
-                "column": column,
-                "name": name,
-            }
-            response = requests.patch(MOVE_URL, json=data)
-            if response.status_code == requests.codes.bad_request:
-                message = f"Column {column} is full, please try another: "
-            elif response.status_code == requests.codes.ok:
-                board = response.json().get("board")
-                display_board(board)
-                message = response.json().get("message")
-                if message == WIN_RESPONSE:
-                    exit_game("Congrats, you have won!")
-                break
+            if turn is None:
+                print("Waiting for another player to join . . .")
             else:
-                response.raise_for_status()
+                print(f"Waiting on player {turn} . . .")
+            time.sleep(WAIT_INTERVAL)
 
+    def make_move(self):
+        message = f"It's your turn {self.name}, please enter column (1 - 9): "
+        while True:
+            column = prompt_user(message)
+            try:
+                column = int(column)
+                assert column in ACCEPTED_COLUMNS
+            except (AssertionError, ValueError):
+                message = "Invalid choice, please enter column (1 - 9): "
+            else:
+                data = {
+                    "column": column,
+                    "name": self.name,
+                }
+                response = requests.patch(MOVE_URL, json=data)
+                if response.status_code == requests.codes.bad_request:
+                    message = f"Column {column} is full, please try another: "
+                elif response.status_code == requests.codes.ok:
+                    board = response.json().get("board")
+                    self.display_board(board)
+                    message = response.json().get("message")
+                    if message == WIN_RESPONSE:
+                        exit_game("Congrats, you have won!")
+                    break
+                else:
+                    response.raise_for_status()
 
-def get_game_state(name):
-    response = requests.get(STATE_URL)
-    response.raise_for_status()
-    response_data = response.json()
-    turn = response_data["turn"]
-    game_status = response_data["game_status"]
-    if game_status == WIN_RESPONSE:
-        board = response.json().get("board")
-        display_board(board)
-        exit_game(f"Game over, {turn} has won.")
-    elif game_status == DISCONNECTED_RESPONSE:
-        exit_game(f"Game over, other player disconnected.")
-    elif turn == name:
-        display_board(response_data["board"])
-        make_move(name)
-    else:
-        if turn is None:
-            print("Waiting for another player to join . . .")
-        else:
-            print(f"Waiting on player {turn} . . .")
-        time.sleep(WAIT_INTERVAL)
+    @staticmethod
+    def display_board(board):
+        for row_idx in range(6):
+            row = " ".join(board[col_idx][row_idx] for col_idx in range(9))
+            print(row)
 
 
 def sigterm_handler(sig_num, frame):
@@ -121,10 +125,10 @@ def register_signal_handlers():
 if __name__ == "__main__":
     try:
         name = connect()
+        client = Client(name)
         register_signal_handlers()
         while True:
-            # TODO: The client should be a Class instance
-            get_game_state(name)
+            client.get_game_state()
     except requests.ConnectionError:
         exit_game("Could not connect to the game server, is it started?")
     except requests.HTTPError as exc:
