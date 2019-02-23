@@ -16,7 +16,7 @@ pip install -r requirements.txt
 ## Usage
 Run the server:
 ```
-FLASK_APP=src.server.py flask run
+FLASK_APP=src.server.app.py flask run
 ```
 
 In a separate shell, run the first client:
