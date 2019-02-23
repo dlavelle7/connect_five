@@ -130,7 +130,7 @@ if __name__ == "__main__":
         while True:
             client.get_game_state()
     except requests.ConnectionError:
-        exit_game("Could not connect to the game server, is it started?")
+        exit_game("Could not connect to the game server, is it running?")
     except requests.HTTPError as exc:
         disconnect(f"Game over, request failed with: "
                    f"{exc.response.status_code} {exc.response.reason}.",

@@ -49,6 +49,8 @@ In the event of a draw game, players will disconnect themselves.
 
 A subsequent new game requires the server to be restarted.
 
+Clients are considered "connected" after they has entered an appropriate name.
+
 ## Testing
 
 Pytest was chosen as the test runner. The unit tests themselves are written
