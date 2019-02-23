@@ -228,3 +228,27 @@ class TestServer(TestCase):
         with patch("src.server.Game.board", test_board):
             has_won = Game.check_diagonal_2(Game.Os, 1, 3)
         self.assertFalse(has_won)
+
+    @patch("src.server.Game.check_diagonal_2", return_value=False)
+    @patch("src.server.Game.check_diagonal_1", return_value=True)
+    @patch("src.server.Game.check_horizontal", return_value=False)
+    @patch("src.server.Game.check_vertical", return_value=False)
+    def test_has_won_positive(self, mock_vert, mock_horiz, mock_d1, mock_d2):
+        """Assert if one of the 'check' functions returns True, player wins"""
+        self.assertTrue(Game.has_won('x', (0, 1)))
+        mock_vert.assert_called_once_with('x', 0, 1)
+        mock_horiz.assert_called_once_with('x', 0, 1)
+        mock_d1.assert_called_once_with('x', 0, 1)
+        self.assertFalse(mock_d2.called)
+
+    @patch("src.server.Game.check_diagonal_2", return_value=False)
+    @patch("src.server.Game.check_diagonal_1", return_value=False)
+    @patch("src.server.Game.check_horizontal", return_value=False)
+    @patch("src.server.Game.check_vertical", return_value=False)
+    def test_has_won_negative(self, mock_vert, mock_horiz, mock_d1, mock_d2):
+        """Assert if none of the 'check' functions return True game still on"""
+        self.assertFalse(Game.has_won('x', (0, 1)))
+        mock_vert.assert_called_once_with('x', 0, 1)
+        mock_horiz.assert_called_once_with('x', 0, 1)
+        mock_d1.assert_called_once_with('x', 0, 1)
+        mock_d2.assert_called_once_with('x', 0, 1)
