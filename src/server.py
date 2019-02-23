@@ -119,9 +119,11 @@ class Game(object):
             return True
 
         # Count matching discs to the left (can only go left to index 0)
-        next_lhs_col = max(0, column - 1)
-        to_lhs = max(0, next_lhs_col - 4)
+        next_lhs_col = column - 1
+        to_lhs = next_lhs_col - 4
         for column_idx in range(next_lhs_col, to_lhs, -1):
+            if column_idx < 0:
+                break
             if cls.board[column_idx][row] == disc:
                 count += 1
                 if count == 5:

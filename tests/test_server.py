@@ -60,6 +60,17 @@ class TestServer(TestCase):
             has_won = Game.check_horizontal(Game.Xs, 5, 0)
         self.assertTrue(has_won)
 
+    def test_check_horizontal_bug(self):
+        """Xs wins -> 5 in a row (left): Off by one error."""
+        test_board = [
+            [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs],
+            [Game.Os], [Game.Os], [Game.Os], [Game.Xs]
+        ]
+        with patch("src.server.Game.board", test_board):
+            has_won = Game.check_horizontal(Game.Xs, 4, 0)
+        self.assertTrue(has_won)
+
+
     def test_check_horizontal_positive_3(self):
         """Xs wins -> 5 in a row horizontally accross top (left and right)"""
         test_board = [
