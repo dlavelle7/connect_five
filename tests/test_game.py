@@ -250,3 +250,33 @@ class TestServer(TestCase):
         mock_horiz.assert_called_once_with('x', 0, 1)
         mock_d1.assert_called_once_with('x', 0, 1)
         mock_d2.assert_called_once_with('x', 0, 1)
+
+    @patch("src.server.game.Game.start_new_game")
+    def test_new_player_positive_1(self, mock_start_new_game):
+        """1st new player, gets added, their turn and board created."""
+        with patch("src.server.game.Game.players", []) as mock_players:
+            added, code = Game.new_player("dave")
+            self.assertEqual("dave", Game.turn)
+        self.assertListEqual(["dave"], mock_players)
+        self.assertTrue(added)
+        self.assertEqual(201, code)
+        mock_start_new_game.assert_called_once()
+
+    @patch("src.server.game.Game.start_new_game")
+    def test_new_player_positive_2(self, mock_start_new_game):
+        """2nd new player, gets added, not their turn and board not created."""
+        with patch("src.server.game.Game.players", ["dom"]) as mock_players:
+            added, code = Game.new_player("mary")
+            self.assertNotEqual("mary", Game.turn)
+        self.assertListEqual(["dom", "mary"], mock_players)
+        self.assertTrue(added)
+        self.assertEqual(201, code)
+        self.assertFalse(mock_start_new_game.called)
+
+    def test_new_player_negative_1(self):
+        """Game already full."""
+        with patch("src.server.game.Game.players", ["foo", "bar"]):
+            added, code = Game.new_player("eggs")
+            pass
+        self.assertFalse(added)
+        self.assertEqual(403, code)

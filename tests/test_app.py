@@ -15,3 +15,5 @@ class TestApp(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertListEqual(["board", "game_status", "turn"],
                              list(response.json.keys()))
+
+    # TODO: Test other endpoints

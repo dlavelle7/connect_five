@@ -38,9 +38,14 @@ The bottom of a "column" corresponds to the last position in that list.
 
 ## Assumptions / Simplifications
 
+[TODO]: Restarting server simplification?
+
 For the purpose of this exercise I have chosen to run the server application
 using Flask's development server. In a production setting this would need to be
 replaced by a WSGI HTTP server like `gunicorn` or `uwsgi`.
 
 The development server has threaded mode enabled by default, meaning each
 request will be handled in a separate thread.
+
+For simplicity, in the event of a draw game, players will disconnect
+themselves.
