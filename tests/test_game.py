@@ -4,8 +4,6 @@ from unittest.mock import patch
 from src.server.game import Game
 
 
-# TODO: View tests with Flask Test request client
-
 class TestServer(TestCase):
 
     def test_check_vertical_positive_1(self):
