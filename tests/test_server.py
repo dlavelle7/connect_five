@@ -144,6 +144,23 @@ class TestServer(TestCase):
             has_won = Game.check_diagonal_1(Game.Os, 3, 3)
         self.assertTrue(has_won)
 
+    def test_check_diagonal_1_negative_1(self):
+        """Os doesn't win -> not enough Os left or right (Direction: '\')"""
+        test_board = [
+            [Game.Xs],
+            [Game.EMPTY, Game.Os],
+            [Game.EMPTY, Game.EMPTY, Game.Os],
+            [Game.EMPTY, Game.EMPTY, Game.EMPTY, Game.Os],
+            [Game.EMPTY, Game.EMPTY, Game.Xs, Game.Xs, Game.Os],
+            [Game.EMPTY, Game.EMPTY, Game.EMPTY, Game.Xs, Game.Xs, Game.Xs],
+            [Game.EMPTY * 6],
+            [Game.EMPTY * 6],
+            [Game.EMPTY * 6],
+        ]
+        with patch("src.server.Game.board", test_board):
+            has_won = Game.check_diagonal_1(Game.Os, 3, 3)
+        self.assertFalse(has_won)
+
     def test_check_diagonal_2_positive_1(self):
         """Xs win -> 1 Xs lhs down & 3 Os rhs up (Direction '/')"""
         test_board = [
@@ -158,7 +175,7 @@ class TestServer(TestCase):
             [Game.EMPTY * 6],
         ]
         with patch("src.server.Game.board", test_board):
-            has_won = Game.check_diagonal_1(Game.Os, 1, 3)
+            has_won = Game.check_diagonal_2(Game.Os, 1, 3)
         self.assertTrue(has_won)
 
     def test_check_diagonal_2_positive_2(self):
@@ -175,5 +192,22 @@ class TestServer(TestCase):
             [Game.EMPTY * 6],
         ]
         with patch("src.server.Game.board", test_board):
-            has_won = Game.check_diagonal_1(Game.Os, 4, 0)
+            has_won = Game.check_diagonal_2(Game.Os, 4, 0)
         self.assertTrue(has_won)
+
+    def test_check_diagonal_2_negative_1(self):
+        """Xs doesn't win -> not enough Xs left or right (Direction '/')"""
+        test_board = [
+            [Game.EMPTY], [Game.EMPTY], [Game.EMPTY], [Game.EMPTY], [Game.Xs],
+            [Game.EMPTY], [Game.EMPTY], [Game.EMPTY], [Game.Xs],
+            [Game.EMPTY], [Game.EMPTY], [Game.Xs],
+            [Game.EMPTY], [Game.Os],
+            [Game.Xs],
+            [Game.EMPTY * 6],
+            [Game.EMPTY * 6],
+            [Game.EMPTY * 6],
+            [Game.EMPTY * 6],
+        ]
+        with patch("src.server.Game.board", test_board):
+            has_won = Game.check_diagonal_2(Game.Os, 1, 3)
+        self.assertFalse(has_won)

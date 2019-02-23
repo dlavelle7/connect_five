@@ -175,8 +175,9 @@ class Game(object):
     @classmethod
     def check_diagonal_2(cls, disc, column, row):
         """Check diagonal in '/' direction."""
-        # TODO:
-        pass
+        # TODO: Count matching discs up and to the right
+        # TODO: Count matching discs down and to the left
+        return False
 
     @classmethod
     def toggle_turn(cls, just_moved):
