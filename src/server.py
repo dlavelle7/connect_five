@@ -247,6 +247,7 @@ def move():
     else:
         message = "OK"
         Game.toggle_turn(name)
+    # TODO: Show user their last move (also for winning move)
     return app.response_class(
         response=json.dumps({"message": message}),
         status=codes.ok,
