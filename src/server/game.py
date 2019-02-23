@@ -5,7 +5,6 @@ from requests import codes
 lock = threading.RLock()
 
 
-# TODO: Make players, status & turn test/set Thread safe with a RLock
 class Game(object):
     """Class to hold state of application and business logic."""
 

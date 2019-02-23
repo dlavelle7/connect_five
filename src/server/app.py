@@ -11,7 +11,6 @@ app = Flask(__name__)
 def connect():
     name = request.json.get("name")
     if request.method == 'DELETE':
-        # TODO: A nice to have -> don't need to restart server for new game
         Game.game_over(won=False)
         return "OK"
     player_added, status_code = Game.new_player(name)
