@@ -132,8 +132,6 @@ class Game(object):
                 break
         return False
 
-    # FIXME: MAJOR REFACTOR NEEDED: Checks are using same logic
-    # TODO: Refactor the check methods after basic functionality tested
     @classmethod
     def check_diagonal_1(cls, disc, column, row):
         """Check diagonal in '\' direction."""
@@ -175,8 +173,9 @@ class Game(object):
     @classmethod
     def check_diagonal_2(cls, disc, column, row):
         """Check diagonal in '/' direction."""
-        # TODO: Count matching discs up and to the right
+        # TODO: Diagonal methods are similar, see if you can refactor into one
         count = 1
+        # Count matching discs up and to the right
         column_idx = column + 1
         row_idx = row - 1
         for _ in range(0, 4):
@@ -195,7 +194,24 @@ class Game(object):
         if count == 5:
             return True
 
-        # TODO: Count matching discs down and to the left
+        # Count matching discs down and to the left
+        column_idx = column - 1
+        row_idx = row + 1
+        for _ in range(0, 4):
+            if column_idx < 0:
+                break
+            try:
+                if cls.board[column_idx][row_idx] == disc:
+                    count += 1
+                    if count == 5:
+                        return True
+                else:
+                    break
+            except IndexError:
+                break
+            column_idx -= 1
+            row_idx += 1
+
         return False
 
     @classmethod
