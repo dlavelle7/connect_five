@@ -81,8 +81,8 @@ def make_move(name):
 
 
 def get_game_state(name):
-    # TODO: raise_for_status()
     response = requests.get(STATE_URL)
+    response.raise_for_status()
     response_data = response.json()
     turn = response_data["turn"]
     game_status = response_data["game_status"]
@@ -107,7 +107,6 @@ def sigterm_handler(sig_num, frame):
     disconnect("Game over, you disconnected.", name)
 
 
-# TODO: maybe only do it when you have connected to server
 def register_signal_handlers():
     """Register hanlders for client disconnections such as:
 
