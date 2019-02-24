@@ -48,6 +48,13 @@ def connect():
             response.raise_for_status()
 
 
+def display_board(board):
+    """Display the state of the board to the user."""
+    for row_idx in range(6):
+        row = " ".join(board[col_idx][row_idx] for col_idx in range(9))
+        print(row)
+
+
 def sigterm_handler(sig_num, frame):
     disconnect("Game over, you disconnected.", name)
 
@@ -64,11 +71,13 @@ def register_signal_handlers():
 
 
 class Client:
+    """Class representing a connected player in game."""
 
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, player_name):
+        self.name = player_name
 
     def get_game_state(self):
+        """Poll server for current game state."""
         response = requests.get(STATE_URL)
         response.raise_for_status()
         response_data = response.json()
@@ -76,12 +85,12 @@ class Client:
         game_status = response_data["game_status"]
         if game_status == WIN_RESPONSE:
             board = response.json().get("board")
-            self.display_board(board)
+            display_board(board)
             exit_game(f"Game over, {turn} has won.")
         elif game_status == DISCONNECTED_RESPONSE:
             exit_game(f"Game over, other player disconnected.")
         elif turn == self.name:
-            self.display_board(response_data["board"])
+            display_board(response_data["board"])
             self.make_move()
         else:
             if turn is None:
@@ -91,6 +100,7 @@ class Client:
             time.sleep(WAIT_INTERVAL)
 
     def make_move(self):
+        """Get valid move from player and communicate move to server."""
         message = f"It's your turn {self.name}, please enter column (1 - 9): "
         while True:
             column = prompt_user(message)
@@ -109,27 +119,13 @@ class Client:
                     message = f"Column {column} is full, please try another: "
                 elif response.status_code == requests.codes.ok:
                     board = response.json().get("board")
-                    self.display_board(board)
+                    display_board(board)
                     message = response.json().get("message")
                     if message == WIN_RESPONSE:
                         exit_game("Congrats, you have won!")
                     break
                 else:
                     response.raise_for_status()
-
-    @staticmethod
-    def display_board(board):
-        """Display the state of the board to the user.
-
-        Each 'column' on the board is an individual list.
-        The bottom of a column corresponds to the last position in that
-        column's list.
-        The far left column displayed on the screen, is the first position in
-        the board list.
-        """
-        for row_idx in range(6):
-            row = " ".join(board[col_idx][row_idx] for col_idx in range(9))
-            print(row)
 
 
 if __name__ == "__main__":
