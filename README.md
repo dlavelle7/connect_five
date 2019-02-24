@@ -32,7 +32,7 @@ python src/client.py
 ## Approach
 
 The server is written using the Flask framework and the clients communicate
-with the server HTTP using the `requests` library.
+with the server over HTTP using the `requests` library.
 
 The board is a list of lists. Each "column" in the board is an individual list.
 The far left column on the user's screen is the first position in the board
@@ -50,9 +50,9 @@ using Flask's development server. In a production setting this would need to be
 replaced by a WSGI HTTP server like `gunicorn` or `uwsgi`.
 
 The game state is stored in memory by the `Game` class. In a production
-environment this need to be changed to an external DB or cache (e.g. `Redis`),
-so that the state could be shared between multiple processes running the
-application.
+environment this would need to be changed to an external DB or cache
+(e.g. `Redis`), so that the state could be shared between multiple processes
+running the application.
 
 In the event of a draw game, players will disconnect themselves.
 
@@ -86,6 +86,6 @@ pip install -r requirements_ci.txt
 tox
 ```
 
-Travis CI is used as to automate the CI build (tox), whenever change is
+Travis CI is used to automate the CI build (tox), whenever a change is
 detected to a branch on GitHub (click the "build" image on this readme for
 build info).
