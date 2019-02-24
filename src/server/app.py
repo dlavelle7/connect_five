@@ -1,5 +1,6 @@
+"""Server module containing application instance and RESTful API."""
 from requests import codes
-from flask import Flask, request, json, jsonify
+from flask import Flask, request, json
 
 from src.server.game import Game
 
@@ -9,6 +10,7 @@ app = Flask(__name__)
 
 @app.route("/connect", methods=["POST", "DELETE"])
 def connect():
+    """Handle new user connections and current user disconnections."""
     name = request.json.get("name")
     if request.method == 'DELETE':
         Game.game_over(won=False)
@@ -34,16 +36,22 @@ def connect():
 
 @app.route("/state", methods=["GET"])
 def state():
-    state = {
+    """Return the current state of the game."""
+    game_state = {
         "turn": Game.turn,
         "board": Game.board,
         "game_status": Game.status
     }
-    return jsonify(state)
+    return app.response_class(
+        response=json.dumps(game_state),
+        status=codes.ok,
+        mimetype='application/json'
+    )
 
 
 @app.route("/move", methods=["PATCH"])
 def move():
+    """Apply client move if valid and check if it's a winning move."""
     column = request.json["column"]
     name = request.json["name"]
     disc = Game.get_player_disc_colour(name)
