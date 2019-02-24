@@ -21,13 +21,11 @@ def connect():
     name = request.json.get("name")
     player_added, status_code = Game.new_player(name)
     if player_added:
-        response_data = json.dumps({"message": "OK"})
+        message = "OK"
     else:
-        response_data = json.dumps({
-            "message": "Forbidden, no new players allowed."
-        })
+        message = "Forbidden, no new players allowed."
     response = app.response_class(
-        response=response_data,
+        response=json.dumps({"message": message}),
         status=status_code,
         mimetype='application/json'
     )
