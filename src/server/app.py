@@ -23,7 +23,7 @@ def connect():
     if player_added:
         message = "OK"
     else:
-        message = "Forbidden, no new players allowed."
+        message = "Could not add new player."
     response = app.response_class(
         response=json.dumps({"message": message}),
         status=status_code,
