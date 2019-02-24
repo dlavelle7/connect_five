@@ -107,8 +107,7 @@ class Game:
                     break
             except IndexError:
                 break
-
-        if count == 5:
+        else:
             return True
 
         # Count matching discs to the left (can only go left to index 0)
@@ -142,8 +141,7 @@ class Game:
                 break
             column_idx += 1
             row_idx += 1
-
-        if count == 5:
+        else:
             return True
 
         # Count matching up and to the left
@@ -183,8 +181,7 @@ class Game:
                 break
             column_idx += 1
             row_idx -= 1
-
-        if count == 5:
+        else:
             return True
 
         # Count matching discs down and to the left
