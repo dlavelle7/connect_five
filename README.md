@@ -31,23 +31,34 @@ python src/client.py
 
 ## Approach
 
-The board is a list of lists. Each "column" in the board is a list. The far
-left column on the users screen is the first position in the board list.
+The server is written using the Flask framework and the clients communicate
+with the server HTTP using the `requests` library.
+
+The board is a list of lists. Each "column" in the board is an individual list.
+The far left column on the user's screen is the first position in the board
+list.
 
 The bottom of a "column" corresponds to the last position in that list.
 
+The server has threaded mode enabled by default, meaning each request will be
+handled in a separate thread.
+
 ## Simplifications
 
-For the purpose of this exercise I have chosen to run the server application
+For the purpose of this exercise, I have chosen to run the server application
 using Flask's development server. In a production setting this would need to be
 replaced by a WSGI HTTP server like `gunicorn` or `uwsgi`.
 
-The development server has threaded mode enabled by default, meaning each
-request will be handled in a separate thread.
+The game state is stored in memory by the `Game` class. In a production
+environment this need to be changed to an external DB or cache (e.g. `Redis`),
+so that the state could be shared between multiple processes running the
+application.
 
 In the event of a draw game, players will disconnect themselves.
 
 A subsequent new game requires the server to be restarted.
+
+## Assumptions
 
 Clients are considered "connected" after they has entered an appropriate name.
 
@@ -63,7 +74,7 @@ pip install -r requirement_test.txt
 pytest tests/
 ```
 
-Tox was chosen as the CI automation too and runs the following tests:
+Tox was chosen as the CI automation tool and runs the following tests:
 * unit tests
 * unit test coverage (greater than 70%)
 * static code analysis `flake8`
@@ -75,6 +86,6 @@ pip install -r requirements_ci.txt
 tox
 ```
 
-Travis CI is used as to automate the CI build (tox) whenever change is
+Travis CI is used as to automate the CI build (tox), whenever change is
 detected to a branch on GitHub (click the "build" image on this readme for
 build info).
