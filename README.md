@@ -62,6 +62,8 @@ A subsequent new game requires the server to be restarted.
 
 Clients are considered "connected" after they has entered an appropriate name.
 
+The first player to connect will go first and be assigned "Xs".
+
 ## Testing
 
 Pytest was chosen as the test runner. The unit tests themselves are written
@@ -69,7 +71,7 @@ using the `unittest` framework.
 
 Run the unit tests:
 ```
-pip install -r requirement_test.txt
+pip install -r requirements_test.txt
 
 pytest tests/
 ```
