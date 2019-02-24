@@ -37,6 +37,7 @@ class Game:
                 cls.players.append(name)
                 if len(cls.players) == 1:
                     cls.start_new_game()
+                if cls.turn is None:
                     cls.turn = name
             else:
                 return False, codes.forbidden
@@ -51,7 +52,7 @@ class Game:
     @classmethod
     def make_move(cls, move, disc):
         """Make move on board and return coordinates of move."""
-        column = int(move) - 1
+        column = move - 1
         # Check if this row is already full
         if cls.board[column][0] != cls.EMPTY:
             return None
