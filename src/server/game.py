@@ -37,7 +37,6 @@ class Game:
                 cls.players.append(name)
                 if len(cls.players) == 1:
                     cls.start_new_game()
-                if cls.turn is None:
                     cls.turn = name
             else:
                 return False, codes.forbidden
