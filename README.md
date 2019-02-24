@@ -69,7 +69,7 @@ using the `unittest` framework.
 
 Run the unit tests:
 ```
-pip install -r requirement_test.txt
+pip install -r requirements_test.txt
 
 pytest tests/
 ```
