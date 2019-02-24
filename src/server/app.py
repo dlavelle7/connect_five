@@ -11,10 +11,10 @@ app = Flask(__name__)
 @app.route("/connect", methods=["POST", "DELETE"])
 def connect():
     """Handle new user connections and current user disconnections."""
-    name = request.json.get("name")
     if request.method == 'DELETE':
         Game.game_over(won=False)
         return "OK"
+    name = request.json.get("name")
     player_added, status_code = Game.new_player(name)
     if player_added:
         response = json.dumps({
