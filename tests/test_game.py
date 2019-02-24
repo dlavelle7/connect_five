@@ -304,3 +304,19 @@ class TestServer(TestCase):
         with patch("src.server.game.Game.players", ["robin", "brian"]):
             disc = Game.get_player_disc_colour("brian")
         self.assertEqual("o", disc)
+
+    def test_toggle_turn_positive_1(self):
+        with patch("src.server.game.Game.players", ["arthur", "billy"]):
+            Game.toggle_turn("arthur")
+            self.assertEqual(Game.turn, "billy")
+
+    def test_toggle_turn_positive_2(self):
+        with patch("src.server.game.Game.players", ["dingo", "zoot"]):
+            Game.toggle_turn("zoot")
+            self.assertEqual(Game.turn, "dingo")
+
+    def test_toggle_turn_negative_1(self):
+        """2nd player hasn't joined yet, turn = None."""
+        with patch("src.server.game.Game.players", ["galahad"]):
+            Game.toggle_turn("galahad")
+            self.assertIsNone(Game.turn)

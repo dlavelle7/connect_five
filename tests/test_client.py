@@ -7,7 +7,7 @@ from src import client
 @patch("src.client.requests.patch")
 class TestClient(TestCase):
 
-    @patch("src.client.Client.display_board")
+    @patch("src.client.display_board")
     @patch("src.client.prompt_user", return_value='1')
     def test_make_move_positive(self, mock_prompt, mock_display, mock_patch):
         mock_patch.return_value = Mock(status_code=200)
@@ -24,7 +24,7 @@ class TestClient(TestCase):
             expected_url, json=expected_payload)
         mock_display.assert_called_once()
 
-    @patch("src.client.Client.display_board")
+    @patch("src.client.display_board")
     @patch("src.client.prompt_user", side_effect=["", "a", '0', '10', '9'])
     def test_make_move_negative(self, mock_prompt, mock_display, mock_patch):
         """Assert the user is prompted until a valid column is chosen."""
@@ -50,7 +50,7 @@ class TestClient(TestCase):
             expected_url, json=expected_payload)
         mock_display.assert_called_once()
 
-    @patch("src.client.Client.display_board")
+    @patch("src.client.display_board")
     @patch("src.client.prompt_user", side_effect=['2', '3'])
     def test_make_move_negative_2(self, mock_prompt, mock_display, mock_patch):
         """Assert user is informed if column is full and is re-prompted."""
