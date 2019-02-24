@@ -13,21 +13,25 @@ def connect():
     """Handle new user connections and current user disconnections."""
     if request.method == 'DELETE':
         Game.game_over(won=False)
-        return "OK"
+        return app.response_class(
+            response=json.dumps({"message": "OK"}),
+            status=codes.ok,
+            mimetype='application/json'
+        )
     name = request.json.get("name")
     player_added, status_code = Game.new_player(name)
     if player_added:
-        response = json.dumps({
+        response_data = json.dumps({
             "message": "OK",
             "board": Game.board,
             "turn": Game.turn,
         })
     else:
-        response = json.dumps({
+        response_data = json.dumps({
             "message": "Forbidden, no new players allowed."
         })
     response = app.response_class(
-        response=response,
+        response=response_data,
         status=status_code,
         mimetype='application/json'
     )
