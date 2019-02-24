@@ -1,11 +1,12 @@
+"""Server module for holding game state and business logic."""
 import threading
 
 from requests import codes
 
-lock = threading.RLock()
+LOCK = threading.RLock()
 
 
-class Game(object):
+class Game:
     """Class to hold state of application and business logic."""
 
     # Game state
@@ -29,7 +30,7 @@ class Game(object):
         Return whether or not player was added and corresponding
         status code for response.
         """
-        with lock:
+        with LOCK:
             if len(cls.players) < 2:
                 if name in cls.players:
                     return False, codes.conflict
@@ -44,6 +45,7 @@ class Game(object):
 
     @classmethod
     def start_new_game(cls):
+        """Create new board and set game state to 'playing'."""
         cls.board = [[cls.EMPTY for i in range(6)] for j in range(9)]
         cls.status = cls.PLAYING
 
@@ -83,9 +85,9 @@ class Game(object):
     def check_vertical(cls, disc, column, row):
         """Check from coordinates down"""
         next_row = row + 1
-        for idx in range(next_row, next_row + 4):
+        for row_idx in range(next_row, next_row + 4):
             try:
-                if cls.board[column][idx] != disc:
+                if cls.board[column][row_idx] != disc:
                     return False
             except IndexError:
                 return False
@@ -207,6 +209,7 @@ class Game(object):
 
     @classmethod
     def toggle_turn(cls, just_moved):
+        """Swap the 'turn' from player who has just moved."""
         if just_moved == cls.players[0]:
             try:
                 cls.turn = cls.players[1]
@@ -218,4 +221,5 @@ class Game(object):
 
     @classmethod
     def game_over(cls, won=True):
+        """Set state to a game over state (player won / player disconnected)"""
         cls.status = cls.WON if won is True else cls.DISCONNECTED

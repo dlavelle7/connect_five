@@ -46,7 +46,22 @@ def connect():
             response.raise_for_status()
 
 
-class Client(object):
+def sigterm_handler(sig_num, frame):
+    disconnect("Game over, you disconnected.", name)
+
+
+def register_signal_handlers():
+    """Register hanlders for client disconnections such as:
+
+    - Hang up signal
+    - Interrupt signal
+    - Termination signal
+    """
+    for sig_num in {signal.SIGTERM, signal.SIGINT, signal.SIGHUP}:
+        signal.signal(sig_num, sigterm_handler)
+
+
+class Client:
 
     def __init__(self, name):
         self.name = name
@@ -105,21 +120,6 @@ class Client(object):
         for row_idx in range(6):
             row = " ".join(board[col_idx][row_idx] for col_idx in range(9))
             print(row)
-
-
-def sigterm_handler(sig_num, frame):
-    disconnect("Game over, you disconnected.", name)
-
-
-def register_signal_handlers():
-    """Register hanlders for client disconnections such as:
-
-    - Hang up signal
-    - Interrupt signal
-    - Termination signal
-    """
-    for sig_num in {signal.SIGTERM, signal.SIGINT, signal.SIGHUP}:
-        signal.signal(sig_num, sigterm_handler)
 
 
 if __name__ == "__main__":
