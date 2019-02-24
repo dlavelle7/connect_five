@@ -25,9 +25,9 @@ def exit_game(message):
     sys.exit(0)
 
 
-def disconnect(message, name):
+def disconnect(message):
     """Connected client leaves the game, inform server."""
-    requests.delete(CONNECT_URL, json={"name": name})
+    requests.delete(CONNECT_URL)
     exit_game(message)
 
 
@@ -56,7 +56,7 @@ def display_board(board):
 
 
 def sigterm_handler(sig_num, frame):
-    disconnect("Game over, you disconnected.", name)
+    disconnect("Game over, you disconnected.")
 
 
 def register_signal_handlers():
@@ -140,4 +140,4 @@ if __name__ == "__main__":
         exit_game("Could not connect to the game server, is it running?")
     except requests.HTTPError as exc:
         print(f"{exc.response.status_code} {exc.response.reason}.")  # log
-        disconnect("Game over, could not process request. ", name)
+        disconnect("Game over, could not process request.")
