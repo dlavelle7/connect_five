@@ -62,6 +62,8 @@ A subsequent new game requires the server to be restarted.
 
 Clients are considered "connected" after they has entered an appropriate name.
 
+The first player to join will go first and be assigned "Xs".
+
 ## Testing
 
 Pytest was chosen as the test runner. The unit tests themselves are written
