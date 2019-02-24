@@ -62,7 +62,7 @@ A subsequent new game requires the server to be restarted.
 
 Clients are considered "connected" after they has entered an appropriate name.
 
-The first player to join will go first and be assigned "Xs".
+The first player to connect will go first and be assigned "Xs".
 
 ## Testing
 

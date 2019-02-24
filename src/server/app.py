@@ -21,11 +21,7 @@ def connect():
     name = request.json.get("name")
     player_added, status_code = Game.new_player(name)
     if player_added:
-        response_data = json.dumps({
-            "message": "OK",
-            "board": Game.board,
-            "turn": Game.turn,
-        })
+        response_data = json.dumps({"message": "OK"})
     else:
         response_data = json.dumps({
             "message": "Forbidden, no new players allowed."
