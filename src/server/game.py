@@ -12,7 +12,7 @@ class Game:
     # Game state
     status = None
     turn = None
-    board = None
+    board = []
     players = []
 
     EMPTY = "-"

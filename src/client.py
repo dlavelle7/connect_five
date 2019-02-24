@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Client module for communicating with server and displaying game state."""
 import sys
 import time
 import signal
@@ -25,12 +26,13 @@ def exit_game(message):
 
 
 def disconnect(message, name):
-    """Connect client leaves the game, inform server."""
+    """Connected client leaves the game, inform server."""
     requests.delete(CONNECT_URL, json={"name": name})
     exit_game(message)
 
 
 def connect():
+    """Get player name from user and request to server to join game."""
     message = "Enter name: "
     while True:
         name = prompt_user(message)
@@ -117,6 +119,14 @@ class Client:
 
     @staticmethod
     def display_board(board):
+        """Display the state of the board to the user.
+
+        Each 'column' on the board is an individual list.
+        The bottom of a column corresponds to the last position in that
+        column's list.
+        The far left column displayed on the screen, is the first position in
+        the board list.
+        """
         for row_idx in range(6):
             row = " ".join(board[col_idx][row_idx] for col_idx in range(9))
             print(row)
@@ -129,9 +139,9 @@ if __name__ == "__main__":
         register_signal_handlers()
         while True:
             client.get_game_state()
-    except requests.ConnectionError:
+    except requests.ConnectionError as exc:
+        print(exc)  # log
         exit_game("Could not connect to the game server, is it running?")
     except requests.HTTPError as exc:
-        disconnect(f"Game over, request failed with: "
-                   f"{exc.response.status_code} {exc.response.reason}.",
-                   name)
+        print(f"{exc.response.status_code} {exc.response.reason}.")  # log
+        disconnect("Game over, could not process request. ", name)
