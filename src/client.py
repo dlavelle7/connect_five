@@ -75,7 +75,7 @@ class Client:
 
     def get_game_state(self):
         """Poll server for current game state."""
-        response = requests.get(STATE_URL)
+        response = requests.get(STATE_URL, params={"game_id": self.game_id})
         response.raise_for_status()
         response_data = response.json()
         turn = response_data["turn"]

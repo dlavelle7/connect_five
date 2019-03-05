@@ -31,8 +31,9 @@ def connect():
 @app.route("/state", methods=["GET"])
 def state():
     """Return the current state of the game."""
+    game_id = request.args.get("game_id")
     return app.response_class(
-        response=json.dumps(Game.state),
+        response=json.dumps(Game.state[game_id]),
         status=codes.ok,
         mimetype='application/json'
     )

@@ -33,10 +33,10 @@ class Game:
             for game_id, existing_game in cls.state.items():
                 if len(existing_game["players"]) < 2 and \
                         name not in existing_game["players"]:
-                    self.join_existing_game(name, game_id)
+                    cls.join_existing_game(name, game_id)
                     break
             else:
-                game_id = self.start_new_game(name)
+                game_id = cls.start_new_game(name)
             return game_id
 
     @classmethod
@@ -54,7 +54,7 @@ class Game:
             "players": [name],
             "turn": name,
         }
-        new_game_id = uuid.uuid4()
+        new_game_id = str(uuid.uuid4())
         cls.state[new_game_id] = new_game
         return new_game_id
 
