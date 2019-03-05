@@ -19,14 +19,10 @@ def connect():
             mimetype='application/json'
         )
     name = request.json.get("name")
-    player_added, status_code = Game.new_player(name)
-    if player_added:
-        message = "OK"
-    else:
-        message = "Could not add new player."
+    game_id = Game.new_player(name)
     response = app.response_class(
-        response=json.dumps({"message": message}),
-        status=status_code,
+        response=json.dumps({"game_id": game_id}),
+        status=codes.created,
         mimetype='application/json'
     )
     return response

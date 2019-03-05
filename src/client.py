@@ -38,12 +38,8 @@ def connect():
         name = prompt_user(message)
         response = requests.post(CONNECT_URL, json={"name": name})
         if response.status_code == requests.codes.created:
-            return name
-        elif response.status_code == requests.codes.forbidden:
-            exit_game("This game is already full, try again later.")
-        elif response.status_code == requests.codes.conflict:
-            message = (
-                "That name is already taken, please enter a different name: ")
+            game_id = response.json()["game_id"]
+            return name, game_id
         else:
             response.raise_for_status()
 
@@ -73,8 +69,9 @@ def register_signal_handlers():
 class Client:
     """Class representing a connected player in game."""
 
-    def __init__(self, player_name):
+    def __init__(self, player_name, game_id):
         self.name = player_name
+        self.game_id = game_id
 
     def get_game_state(self):
         """Poll server for current game state."""
@@ -130,8 +127,8 @@ class Client:
 
 if __name__ == "__main__":
     try:
-        name = connect()
-        client = Client(name)
+        name, game_id = connect()
+        client = Client(name, game_id)
         register_signal_handlers()
         while True:
             client.get_game_state()

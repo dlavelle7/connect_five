@@ -1,7 +1,6 @@
 """Server module for holding game state and business logic."""
+import uuid
 import threading
-
-from requests import codes
 
 LOCK = threading.RLock()
 
@@ -9,13 +8,8 @@ LOCK = threading.RLock()
 class Game:
     """Class to hold state of application and business logic."""
 
-    # Game state
-    state = {
-        "game_status": None,
-        "turn": None,
-        "board": [],
-        "players": [],
-    }
+    # Games state
+    state = {}
 
     EMPTY = "-"
     Xs = "x"
@@ -27,29 +21,42 @@ class Game:
 
     @classmethod
     def new_player(cls, name):
-        """Add new player if possible.
+        """Add new player to a game.
 
-        Return whether or not player was added and corresponding
-        status code for response.
+        If there is an open space in an existing game, add the player to that,
+        otherwise create a new game for that user.
+
+        Return the game_id of the game that the user joined.
         """
         with LOCK:
-            if len(cls.state["players"]) < 2:
-                if name in cls.state["players"]:
-                    return False, codes.conflict
-                cls.state["players"].append(name)
-                if len(cls.state["players"]) == 1:
-                    cls.start_new_game()
-                if cls.state["turn"] is None:
-                    cls.state["turn"] = name
+            # Check for a space in an existing game for our new player to join
+            for game_id, existing_game in cls.state.items():
+                if len(existing_game["players"]) < 2 and \
+                        name not in existing_game["players"]:
+                    self.join_existing_game(name, game_id)
+                    break
             else:
-                return False, codes.forbidden
-            return True, codes.created
+                game_id = self.start_new_game(name)
+            return game_id
 
     @classmethod
-    def start_new_game(cls):
-        """Create new board and set game state to 'playing'."""
-        cls.state["board"] = [[cls.EMPTY for i in range(6)] for j in range(9)]
-        cls.state["game_status"] = cls.PLAYING
+    def join_existing_game(cls, name, game_id):
+        cls.state[game_id]["players"].append(name)
+        if cls.state[game_id]["turn"] is None:
+            cls.state[game_id]["turn"] = name
+
+    @classmethod
+    def start_new_game(cls, name):
+        """Create a new game id and new game state. Return new game ID."""
+        new_game = {
+            "board": [[cls.EMPTY for i in range(6)] for j in range(9)],
+            "game_status": cls.PLAYING,
+            "players": [name],
+            "turn": name,
+        }
+        new_game_id = uuid.uuid4()
+        cls.state[new_game_id] = new_game
+        return new_game_id
 
     @classmethod
     def make_move(cls, move, disc):
