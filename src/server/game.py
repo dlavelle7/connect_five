@@ -10,10 +10,12 @@ class Game:
     """Class to hold state of application and business logic."""
 
     # Game state
-    status = None
-    turn = None
-    board = []
-    players = []
+    state = {
+        "game_status": None,
+        "turn": None,
+        "board": [],
+        "players": [],
+    }
 
     EMPTY = "-"
     Xs = "x"
@@ -31,14 +33,14 @@ class Game:
         status code for response.
         """
         with LOCK:
-            if len(cls.players) < 2:
-                if name in cls.players:
+            if len(cls.state["players"]) < 2:
+                if name in cls.state["players"]:
                     return False, codes.conflict
-                cls.players.append(name)
-                if len(cls.players) == 1:
+                cls.state["players"].append(name)
+                if len(cls.state["players"]) == 1:
                     cls.start_new_game()
-                if cls.turn is None:
-                    cls.turn = name
+                if cls.state["turn"] is None:
+                    cls.state["turn"] = name
             else:
                 return False, codes.forbidden
             return True, codes.created
@@ -46,30 +48,30 @@ class Game:
     @classmethod
     def start_new_game(cls):
         """Create new board and set game state to 'playing'."""
-        cls.board = [[cls.EMPTY for i in range(6)] for j in range(9)]
-        cls.status = cls.PLAYING
+        cls.state["board"] = [[cls.EMPTY for i in range(6)] for j in range(9)]
+        cls.state["game_status"] = cls.PLAYING
 
     @classmethod
     def make_move(cls, move, disc):
         """Make move on board and return coordinates of move."""
         column = move - 1
         # Check if this row is already full
-        if cls.board[column][0] != cls.EMPTY:
+        if cls.state["board"][column][0] != cls.EMPTY:
             return None
         # Drop disc
-        for idx, cell in enumerate(cls.board[column]):
+        for idx, cell in enumerate(cls.state["board"][column]):
             if cell != cls.EMPTY:
                 row = idx - 1
                 break
         else:
             row = idx
-        cls.board[column][row] = disc
+        cls.state["board"][column][row] = disc
         return (column, row)
 
     @classmethod
     def get_player_disc_colour(cls, name):
         """Return the player's disc colour (Player 1 is always 'X')."""
-        return cls.player_discs[cls.players.index(name)]
+        return cls.player_discs[cls.state["players"].index(name)]
 
     @classmethod
     def has_won(cls, disc, coordinates):
@@ -87,7 +89,7 @@ class Game:
         next_row = row + 1
         for row_idx in range(next_row, next_row + 4):
             try:
-                if cls.board[column][row_idx] != disc:
+                if cls.state["board"][column][row_idx] != disc:
                     return False
             except IndexError:
                 return False
@@ -101,7 +103,7 @@ class Game:
         next_rhs_col = column + 1
         for column_idx in range(next_rhs_col, next_rhs_col + 4):
             try:
-                if cls.board[column_idx][row] == disc:
+                if cls.state["board"][column_idx][row] == disc:
                     count += 1
                 else:
                     break
@@ -116,7 +118,7 @@ class Game:
         for column_idx in range(next_lhs_col, to_lhs, -1):
             if column_idx < 0:
                 break
-            if cls.board[column_idx][row] == disc:
+            if cls.state["board"][column_idx][row] == disc:
                 count += 1
                 if count == 5:
                     return True
@@ -133,7 +135,7 @@ class Game:
         row_idx = row + 1
         for _ in range(0, 4):
             try:
-                if cls.board[column_idx][row_idx] == disc:
+                if cls.state["board"][column_idx][row_idx] == disc:
                     count += 1
                 else:
                     break
@@ -150,7 +152,7 @@ class Game:
         for _ in range(0, 4):
             if column_idx < 0 or row_idx < 0:
                 break
-            if cls.board[column_idx][row_idx] == disc:
+            if cls.state["board"][column_idx][row_idx] == disc:
                 count += 1
                 if count == 5:
                     return True
@@ -173,7 +175,7 @@ class Game:
             if row_idx < 0:
                 break
             try:
-                if cls.board[column_idx][row_idx] == disc:
+                if cls.state["board"][column_idx][row_idx] == disc:
                     count += 1
                 else:
                     break
@@ -191,7 +193,7 @@ class Game:
             if column_idx < 0:
                 break
             try:
-                if cls.board[column_idx][row_idx] == disc:
+                if cls.state["board"][column_idx][row_idx] == disc:
                     count += 1
                     if count == 5:
                         return True
@@ -207,16 +209,16 @@ class Game:
     @classmethod
     def toggle_turn(cls, just_moved):
         """Swap the 'turn' from player who has just moved."""
-        if just_moved == cls.players[0]:
+        if just_moved == cls.state["players"][0]:
             try:
-                cls.turn = cls.players[1]
+                cls.state["turn"] = cls.state["players"][1]
             except IndexError:
                 # other player may not have joined yet
-                cls.turn = None
+                cls.state["turn"] = None
         else:
-            cls.turn = cls.players[0]
+            cls.state["turn"] = cls.state["players"][0]
 
     @classmethod
     def game_over(cls, won=True):
         """Set state to a game over state (player won / player disconnected)"""
-        cls.status = cls.WON if won is True else cls.DISCONNECTED
+        cls.state["game_status"] = cls.WON if won is True else cls.DISCONNECTED

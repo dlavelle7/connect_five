@@ -35,13 +35,8 @@ def connect():
 @app.route("/state", methods=["GET"])
 def state():
     """Return the current state of the game."""
-    game_state = {
-        "turn": Game.turn,
-        "board": Game.board,
-        "game_status": Game.status
-    }
     return app.response_class(
-        response=json.dumps(game_state),
+        response=json.dumps(Game.state),
         status=codes.ok,
         mimetype='application/json'
     )
@@ -65,9 +60,9 @@ def move():
         message = "OK"
         status_code = codes.ok
         Game.toggle_turn(name)
-    response_data = {"message": message, "board": Game.board}
+    #response_data = {"message": message, "board": Game.board}
     return app.response_class(
-        response=json.dumps(response_data),
+        response=json.dumps(Game.state),
         status=status_code,
         mimetype='application/json'
     )

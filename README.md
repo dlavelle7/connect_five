@@ -56,6 +56,7 @@ running the application.
 
 In the event of a draw game, players will disconnect themselves.
 
+[TODO] Remove
 A subsequent new game requires the server to be restarted.
 
 ## Assumptions
