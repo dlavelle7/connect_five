@@ -6,9 +6,8 @@ import signal
 import requests
 
 SERVER_URL = "http://127.0.0.1:5000"
-CONNECT_URL = f"{SERVER_URL}/connect"
-STATE_URL = f"{SERVER_URL}/state"
-MOVE_URL = f"{SERVER_URL}/move"
+GAME_URL = f"{SERVER_URL}/game"
+
 WAIT_INTERVAL = 2
 ACCEPTED_COLUMNS = [num for num in range(1, 10)]
 
@@ -27,7 +26,7 @@ def exit_game(message):
 
 def disconnect(message):
     """Connected client leaves the game, inform server."""
-    requests.delete(CONNECT_URL)
+    requests.delete(GAME_URL)
     exit_game(message)
 
 
@@ -36,7 +35,7 @@ def connect():
     message = "Enter name: "
     while True:
         name = prompt_user(message)
-        response = requests.post(CONNECT_URL, json={"name": name})
+        response = requests.post(GAME_URL, json={"name": name})
         if response.status_code == requests.codes.created:
             game_id = response.json()["game_id"]
             return name, game_id
@@ -52,6 +51,7 @@ def display_board(board):
 
 
 def sigterm_handler(sig_num, frame):
+    # TODO: Hmmmmm game_id, need to set the game_id somewhere???
     disconnect("Game over, you disconnected.")
 
 
@@ -73,9 +73,13 @@ class Client:
         self.name = player_name
         self.game_id = game_id
 
+    @property
+    def client_game_url(self):
+        return f"{GAME_URL}/{self.game_id}"
+
     def get_game_state(self):
         """Poll server for current game state."""
-        response = requests.get(STATE_URL, params={"game_id": self.game_id})
+        response = requests.get(self.client_game_url)
         response.raise_for_status()
         response_data = response.json()
         turn = response_data["turn"]
@@ -91,7 +95,8 @@ class Client:
             self.make_move()
         else:
             if turn is None:
-                print("Waiting for another player to join . . .")
+                print("Started new game, "
+                      "waiting for another player to join . . .")
             else:
                 print(f"Waiting on player {turn} . . .")
             time.sleep(WAIT_INTERVAL)
@@ -111,7 +116,7 @@ class Client:
                     "column": column,
                     "name": self.name,
                 }
-                response = requests.patch(MOVE_URL, json=data)
+                response = requests.patch(self.client_game_url, json=data)
                 if response.status_code == requests.codes.bad_request:
                     message = f"Column {column} is full, please try another: "
                 elif response.status_code == requests.codes.ok:

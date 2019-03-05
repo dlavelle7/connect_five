@@ -1,5 +1,9 @@
 # Connect 5 [![Build Status](https://travis-ci.com/dlavelle7/connect_five.svg?branch=master)](https://travis-ci.com/dlavelle7/connect_five)
 
+## What's New
+* Game server now supports multiple concurrent games (no more restarting)
+* More RESTful URIs ("game" resource being manipulated and accessed via /game)
+
 ## Dependencies
 * Python 3.6
 * pip
