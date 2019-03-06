@@ -60,7 +60,7 @@ class Client:
             self.get_game_state()
         except requests.HTTPError as exc:
             print(f"{exc.response.status_code} {exc.response.reason}.")  # log
-            disconnect("Game over, could not process request.")
+            self.disconnect("Game over, could not process request.")
 
     def get_game_state(self):
         """Poll server for current game state."""

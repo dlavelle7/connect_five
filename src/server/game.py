@@ -83,7 +83,7 @@ class Game:
         return cls.player_discs[player_number]
 
     @classmethod
-    def has_won(cls,game_id, disc, coordinates):
+    def has_won(cls, game_id, disc, coordinates):
         """Returns True if move wins, otherwise returns False"""
         board = cls.state[game_id]["board"]
         check_methods = [cls.check_vertical, cls.check_horizontal,
