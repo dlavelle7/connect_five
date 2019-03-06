@@ -27,14 +27,13 @@ def exit_game(message):
 def connect():
     """Get player name from user and request to server to join game."""
     message = "Enter name: "
-    while True:
-        name = prompt_user(message)
-        response = requests.post(GAME_URL, json={"name": name})
-        if response.status_code == requests.codes.created:
-            game_id = response.json()["game_id"]
-            return name, game_id
-        else:
-            response.raise_for_status()
+    name = prompt_user(message)
+    response = requests.post(GAME_URL, json={"name": name})
+    if response.status_code == requests.codes.created:
+        game_id = response.json()["game_id"]
+        return name, game_id
+    else:
+        response.raise_for_status()
 
 
 def display_board(board):
