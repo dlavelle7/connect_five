@@ -24,12 +24,6 @@ def exit_game(message):
     sys.exit(0)
 
 
-def disconnect(message):
-    """Connected client leaves the game, inform server."""
-    requests.delete(GAME_URL)
-    exit_game(message)
-
-
 def connect():
     """Get player name from user and request to server to join game."""
     message = "Enter name: "
@@ -50,22 +44,6 @@ def display_board(board):
         print(row)
 
 
-def sigterm_handler(sig_num, frame):
-    # TODO: Hmmmmm game_id, need to set the game_id somewhere???
-    disconnect("Game over, you disconnected.")
-
-
-def register_signal_handlers():
-    """Register hanlders for client disconnections such as:
-
-    - Hang up signal
-    - Interrupt signal
-    - Termination signal
-    """
-    for sig_num in {signal.SIGTERM, signal.SIGINT, signal.SIGHUP}:
-        signal.signal(sig_num, sigterm_handler)
-
-
 class Client:
     """Class representing a connected player in game."""
 
@@ -76,6 +54,13 @@ class Client:
     @property
     def client_game_url(self):
         return f"{GAME_URL}/{self.game_id}"
+
+    def play(self):
+        try:
+            self.get_game_state()
+        except requests.HTTPError as exc:
+            print(f"{exc.response.status_code} {exc.response.reason}.")  # log
+            disconnect("Game over, could not process request.")
 
     def get_game_state(self):
         """Poll server for current game state."""
@@ -129,17 +114,32 @@ class Client:
                 else:
                     response.raise_for_status()
 
+    def signal_handler(self, sig_num, frame):
+        self.disconnect("Game over, you disconnected.")
+
+    def register_signal_handlers(self):
+        """Register hanlders for client disconnections such as:
+
+        - Hang up signal
+        - Interrupt signal
+        - Termination signal
+        """
+        for sig_num in {signal.SIGTERM, signal.SIGINT, signal.SIGHUP}:
+            signal.signal(sig_num, self.signal_handler)
+
+    def disconnect(self, message):
+        """Connected client leaves the game, inform server to end game."""
+        requests.delete(self.client_game_url)
+        exit_game(message)
+
 
 if __name__ == "__main__":
     try:
         name, game_id = connect()
         client = Client(name, game_id)
-        register_signal_handlers()
+        client.register_signal_handlers()
         while True:
-            client.get_game_state()
+            client.play()
     except requests.ConnectionError as exc:
         print(exc)  # log
         exit_game("Could not connect to the game server, is it running?")
-    except requests.HTTPError as exc:
-        print(f"{exc.response.status_code} {exc.response.reason}.")  # log
-        disconnect("Game over, could not process request.")
