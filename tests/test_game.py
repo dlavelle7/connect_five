@@ -210,29 +210,31 @@ class TestGame(TestCase):
         has_won = Game.check_diagonal_2(test_board, Game.Os, 1, 3)
         self.assertFalse(has_won)
 
+    @patch("src.server.game.Game.state", {"123": {"board": []}})
     @patch("src.server.game.Game.check_diagonal_2", return_value=False)
     @patch("src.server.game.Game.check_diagonal_1", return_value=True)
     @patch("src.server.game.Game.check_horizontal", return_value=False)
     @patch("src.server.game.Game.check_vertical", return_value=False)
     def test_has_won_positive(self, mock_vert, mock_horiz, mock_d1, mock_d2):
         """Assert if one of the 'check' functions returns True, player wins"""
-        self.assertTrue(Game.has_won('x', (0, 1)))
-        mock_vert.assert_called_once_with('x', 0, 1)
-        mock_horiz.assert_called_once_with('x', 0, 1)
-        mock_d1.assert_called_once_with('x', 0, 1)
+        self.assertTrue(Game.has_won('123', 'x', (0, 1)))
+        mock_vert.assert_called_once_with([], 'x', 0, 1)
+        mock_horiz.assert_called_once_with([], 'x', 0, 1)
+        mock_d1.assert_called_once_with([], 'x', 0, 1)
         self.assertFalse(mock_d2.called)
 
+    @patch("src.server.game.Game.state", {"123": {"board": []}})
     @patch("src.server.game.Game.check_diagonal_2", return_value=False)
     @patch("src.server.game.Game.check_diagonal_1", return_value=False)
     @patch("src.server.game.Game.check_horizontal", return_value=False)
     @patch("src.server.game.Game.check_vertical", return_value=False)
     def test_has_won_negative(self, mock_vert, mock_horiz, mock_d1, mock_d2):
         """Assert if none of the 'check' functions return True game still on"""
-        self.assertFalse(Game.has_won('x', (0, 1)))
-        mock_vert.assert_called_once_with('x', 0, 1)
-        mock_horiz.assert_called_once_with('x', 0, 1)
-        mock_d1.assert_called_once_with('x', 0, 1)
-        mock_d2.assert_called_once_with('x', 0, 1)
+        self.assertFalse(Game.has_won('123', 'x', (0, 1)))
+        mock_vert.assert_called_once_with([], 'x', 0, 1)
+        mock_horiz.assert_called_once_with([], 'x', 0, 1)
+        mock_d1.assert_called_once_with([], 'x', 0, 1)
+        mock_d2.assert_called_once_with([], 'x', 0, 1)
 
     def test_new_player_positive_1(self):
         """1st new player, gets added, their turn and board created."""
@@ -277,20 +279,26 @@ class TestGame(TestCase):
 
     def test_get_player_disc_colour_positive_1(self):
         """Test with one player, 2nd player hasn't joined yet"""
-        with patch("src.server.game.Game.players", ["john"]):
-            disc = Game.get_player_disc_colour("john")
+        game_id = "1"
+        test_state = {game_id: {"players": ["john"]}}
+        with patch("src.server.game.Game.state", test_state):
+            disc = Game.get_player_disc_colour(game_id, "john")
         self.assertEqual("x", disc)
 
     def test_get_player_disc_colour_positive_2(self):
         """Player 1 is Xs"""
-        with patch("src.server.game.Game.players", ["robin", "brian"]):
-            disc = Game.get_player_disc_colour("robin")
+        game_id = "1"
+        test_state = {game_id: {"players": ["robin", "brian"]}}
+        with patch("src.server.game.Game.state", test_state):
+            disc = Game.get_player_disc_colour(game_id, "robin")
         self.assertEqual("x", disc)
 
     def test_get_player_disc_colour_positive_3(self):
         """Player 2 is Ys"""
-        with patch("src.server.game.Game.players", ["robin", "brian"]):
-            disc = Game.get_player_disc_colour("brian")
+        game_id = "1"
+        test_state = {game_id: {"players": ["robin", "brian"]}}
+        with patch("src.server.game.Game.state", test_state):
+            disc = Game.get_player_disc_colour(game_id, "brian")
         self.assertEqual("o", disc)
 
     def test_toggle_turn_positive_1(self):
