@@ -234,16 +234,16 @@ class TestGame(TestCase):
         mock_d1.assert_called_once_with('x', 0, 1)
         mock_d2.assert_called_once_with('x', 0, 1)
 
-    @patch("src.server.game.Game.start_new_game")
-    def test_new_player_positive_1(self, mock_start_new_game):
+    def test_new_player_positive_1(self):
         """1st new player, gets added, their turn and board created."""
-        with patch("src.server.game.Game.players", []) as mock_players:
-            added, code = Game.new_player("dave")
-            self.assertEqual("dave", Game.turn)
-        self.assertListEqual(["dave"], mock_players)
-        self.assertTrue(added)
-        self.assertEqual(201, code)
-        mock_start_new_game.assert_called_once()
+        test_state = {}
+        with patch("src.server.game.Game.state", test_state):
+            game_id = Game.new_player("dave")
+        self.assertIsInstance(game_id, str)
+        self.assertIsInstance(test_state[game_id]["board"], list)
+        self.assertEqual("dave", test_state[game_id]["turn"])
+        self.assertListEqual(["dave"], test_state[game_id]["players"])
+        self.assertEqual("playing", test_state[game_id]["game_status"])
 
     @patch("src.server.game.Game.start_new_game")
     def test_new_player_positive_2(self, mock_start_new_game):
