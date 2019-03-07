@@ -248,20 +248,32 @@ class TestGame(TestCase):
     @patch("src.server.game.Game.start_new_game")
     def test_new_player_positive_2(self, mock_start_new_game):
         """2nd new player, gets added, not their turn and board not created."""
-        with patch("src.server.game.Game.players", ["dom"]) as mock_players:
-            added, code = Game.new_player("mary")
-            self.assertNotEqual("mary", Game.turn)
-        self.assertListEqual(["dom", "mary"], mock_players)
-        self.assertTrue(added)
-        self.assertEqual(201, code)
+        game_id = "246"
+        test_state = {
+            game_id: {
+                "turn": "dom",
+                "players": ["dom"],
+            }
+        }
+        with patch("src.server.game.Game.state", test_state):
+            joined_game_id = Game.new_player("mary")
+
+        self.assertNotEqual("mary", test_state[game_id]["turn"])
+        self.assertListEqual(["dom", "mary"], test_state[game_id]["players"])
+        self.assertEqual(joined_game_id, game_id)
         self.assertFalse(mock_start_new_game.called)
 
     def test_new_player_negative_2(self):
-        """Player name already in use, return 409."""
-        with patch("src.server.game.Game.players", ["terry"]):
-            added, code = Game.new_player("terry")
-        self.assertFalse(added)
-        self.assertEqual(409, code)
+        """Player name already in use, don't add to same game."""
+        test_state = {
+            "222": {
+                "turn": "terry",
+                "players": ["terry"],
+            }
+        }
+        with patch("src.server.game.Game.state", test_state):
+            game_id = Game.new_player("terry")
+        self.assertNotEqual("222", game_id)
 
     def test_get_player_disc_colour_positive_1(self):
         """Test with one player, 2nd player hasn't joined yet"""
