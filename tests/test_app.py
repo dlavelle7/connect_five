@@ -11,26 +11,33 @@ class TestApp(TestCase):
         app.app.testing = True
         self.client = app.app.test_client()
 
-    def test_state(self):
-        response = self.client.get("/state")
+    def test_get_state(self):
+        test_state = {
+            "1": {"board": [], "game_status": "playing", "turn": "foo"}
+        }
+        with patch("src.server.game.Game.state", test_state):
+            response = self.client.get("/game/1")
         self.assertEqual(200, response.status_code)
-        self.assertListEqual(["board", "game_status", "turn"],
-                             list(response.json.keys()))
+        self.assertEqual(test_state["1"], response.json)
 
     @patch("src.server.game.Game.get_player_disc_colour", return_value="x")
     @patch("src.server.game.Game.make_move", return_value=None)
     def test_move_negative_1(self, mock_move, mock_get_disc):
         """Column full, return 400"""
+        test_state = {
+            "2": {"board": [], "game_status": "playing", "turn": "foo"}
+        }
         test_payload = {
             "name": "foo",
             "column": 1,
         }
-        response = self.client.patch("/move", json=test_payload)
+        with patch("src.server.game.Game.state", test_state):
+            response = self.client.patch("/game/2", json=test_payload)
         self.assertEqual(400, response.status_code)
-        self.assertListEqual(["board", "message"],
-                             list(response.json.keys()))
-        mock_move.assert_called_once_with(1, "x")
-        mock_get_disc.assert_called_once_with("foo")
+        test_state["2"].update({'message': 'Bad request, column full.'})
+        self.assertDictEqual(test_state["2"], response.json)
+        mock_move.assert_called_once_with("2", 1, "x")
+        mock_get_disc.assert_called_once_with("2", "foo")
 
     @patch("src.server.game.Game.game_over")
     @patch("src.server.game.Game.has_won", return_value=True)
@@ -43,7 +50,7 @@ class TestApp(TestCase):
             "name": "foo",
             "column": 1,
         }
-        response = self.client.patch("/move", json=test_payload)
+        response = self.client.patch("/game", json=test_payload)
         self.assertEqual(200, response.status_code)
         self.assertListEqual(["board", "message"],
                              list(response.json.keys()))
@@ -65,7 +72,7 @@ class TestApp(TestCase):
             "name": "foo",
             "column": 1,
         }
-        response = self.client.patch("/move", json=test_payload)
+        response = self.client.patch("/game", json=test_payload)
         self.assertEqual(200, response.status_code)
         self.assertListEqual(["board", "message"],
                              list(response.json.keys()))
