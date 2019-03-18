@@ -16,7 +16,7 @@ def connect():
     response = app.response_class(
         response=json.dumps({"game_id": game_id}),
         status=codes.created,
-        mimetype='application/json'
+        content_type='application/json'
     )
     return response
 
@@ -27,7 +27,7 @@ def disconnect(game_id):
     return app.response_class(
         response=json.dumps({"message": "OK"}),
         status=codes.ok,
-        mimetype='application/json'
+        content_type='application/json'
     )
 
 
@@ -37,7 +37,7 @@ def state(game_id):
     return app.response_class(
         response=json.dumps(Game.state[game_id]),
         status=codes.ok,
-        mimetype='application/json'
+        content_type='application/json'
     )
 
 
@@ -64,5 +64,5 @@ def move(game_id):
     return app.response_class(
         response=json.dumps(response_data),
         status=status_code,
-        mimetype='application/json'
+        content_type='application/json'
     )
