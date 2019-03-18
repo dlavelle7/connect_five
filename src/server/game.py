@@ -2,6 +2,8 @@
 import uuid
 import threading
 
+from operator import add, sub
+
 LOCK = threading.RLock()
 
 
@@ -142,53 +144,20 @@ class Game:
         return False
 
     @classmethod
-    def check_diagonal_1(cls, board, disc, column, row):
-        """Check diagonal in '\' direction."""
+    def _check_diagonal(cls, board, disc, column, row, direction):
+        operators = {
+            "\\": [(add, add), (sub, sub)],
+            "//": [(add, sub), (sub, add)]
+        }
         count = 1
-        # Count matching down and to the right
-        column_idx = column + 1
-        row_idx = row + 1
-        for _ in range(cls.MAX_COUNT):
-            try:
-                if board[column_idx][row_idx] == disc:
-                    count += 1
-                else:
-                    break
-            except IndexError:
-                break
-            column_idx += 1
-            row_idx += 1
-        else:
-            return True
 
-        # Count matching up and to the left
-        column_idx = column - 1
-        row_idx = row - 1
+        # Count 1st direction (has to at least get to end of 1st loop)
+        col_operator, row_operator = operators.get(direction)[0]
+        column_idx = col_operator(column, 1)
+        row_idx = row_operator(row, 1)
         for _ in range(cls.MAX_COUNT):
             if column_idx < 0 or row_idx < 0:
                 break
-            if board[column_idx][row_idx] == disc:
-                count += 1
-                if count == cls.WINNING_COUNT:
-                    return True
-            else:
-                break
-            column_idx -= 1
-            row_idx -= 1
-
-        return False
-
-    @classmethod
-    def check_diagonal_2(cls, board, disc, column, row):
-        """Check diagonal in '/' direction."""
-        # TODO: Diagonal methods are similar, see if you can refactor into one
-        count = 1
-        # Count matching discs up and to the right
-        column_idx = column + 1
-        row_idx = row - 1
-        for _ in range(cls.MAX_COUNT):
-            if row_idx < 0:
-                break
             try:
                 if board[column_idx][row_idx] == disc:
                     count += 1
@@ -196,16 +165,17 @@ class Game:
                     break
             except IndexError:
                 break
-            column_idx += 1
-            row_idx -= 1
+            column_idx = col_operator(column_idx, 1)
+            row_idx = row_operator(row_idx, 1)
         else:
             return True
 
-        # Count matching discs down and to the left
-        column_idx = column - 1
-        row_idx = row + 1
+        # Count 2nd direction (check if won at each matched disc)
+        col_operator, row_operator = operators.get(direction)[1]
+        column_idx = col_operator(column, 1)
+        row_idx = row_operator(row, 1)
         for _ in range(cls.MAX_COUNT):
-            if column_idx < 0:
+            if column_idx < 0 or row_idx < 0:
                 break
             try:
                 if board[column_idx][row_idx] == disc:
@@ -216,10 +186,17 @@ class Game:
                     break
             except IndexError:
                 break
-            column_idx -= 1
-            row_idx += 1
-
+            column_idx = col_operator(column_idx, 1)
+            row_idx = row_operator(row_idx, 1)
         return False
+
+    @classmethod
+    def check_diagonal_1(cls, board, disc, column, row):
+        return cls._check_diagonal(board, disc, column, row, "\\")
+
+    @classmethod
+    def check_diagonal_2(cls, board, disc, column, row):
+        return cls._check_diagonal(board, disc, column, row, "//")
 
     @classmethod
     def toggle_turn(cls, game_id, just_moved):

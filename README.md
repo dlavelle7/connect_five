@@ -3,6 +3,7 @@
 ## What's New
 [v2.0.1 TBC]
 * Code refactor:
+** Refactored similar "check" functions
 ** Board dimensions and winning count number can now be easily changed
 
 [v2.0 TBC]
