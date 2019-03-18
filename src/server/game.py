@@ -18,6 +18,9 @@ class Game:
     PLAYING = "playing"
     WON = "won"
     DISCONNECTED = "disconnected"
+    WINNING_COUNT = 5
+    BOARD_ROWS = 6
+    BOARD_COLS = 9
 
     @classmethod
     def new_player(cls, name):
@@ -49,7 +52,8 @@ class Game:
     def start_new_game(cls, name):
         """Create a new game id and new game state. Return new game ID."""
         new_game = {
-            "board": [[cls.EMPTY for i in range(6)] for j in range(9)],
+            "board": [[cls.EMPTY for i in range(cls.BOARD_ROWS)]
+                      for j in range(cls.BOARD_COLS)],
             "game_status": cls.PLAYING,
             "players": [name],
             "turn": name,
@@ -130,7 +134,7 @@ class Game:
                 break
             if board[column_idx][row] == disc:
                 count += 1
-                if count == 5:
+                if count == cls.WINNING_COUNT:
                     return True
             else:
                 break
@@ -164,7 +168,7 @@ class Game:
                 break
             if board[column_idx][row_idx] == disc:
                 count += 1
-                if count == 5:
+                if count == cls.WINNING_COUNT:
                     return True
             else:
                 break
@@ -205,7 +209,7 @@ class Game:
             try:
                 if board[column_idx][row_idx] == disc:
                     count += 1
-                    if count == 5:
+                    if count == cls.WINNING_COUNT:
                         return True
                 else:
                     break
