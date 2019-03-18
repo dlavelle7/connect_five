@@ -19,6 +19,7 @@ class Game:
     WON = "won"
     DISCONNECTED = "disconnected"
     WINNING_COUNT = 5
+    MAX_COUNT = WINNING_COUNT - 1
     BOARD_ROWS = 6
     BOARD_COLS = 9
 
@@ -101,7 +102,7 @@ class Game:
     def check_vertical(cls, board, disc, column, row):
         """Check from coordinates down"""
         next_row = row + 1
-        for row_idx in range(next_row, next_row + 4):
+        for row_idx in range(next_row, next_row + cls.MAX_COUNT):
             try:
                 if board[column][row_idx] != disc:
                     return False
@@ -115,7 +116,7 @@ class Game:
         count = 1
         # Count matching discs to the right
         next_rhs_col = column + 1
-        for column_idx in range(next_rhs_col, next_rhs_col + 4):
+        for column_idx in range(next_rhs_col, next_rhs_col + cls.MAX_COUNT):
             try:
                 if board[column_idx][row] == disc:
                     count += 1
@@ -128,7 +129,7 @@ class Game:
 
         # Count matching discs to the left (can only go left to index 0)
         next_lhs_col = column - 1
-        to_lhs = next_lhs_col - 4
+        to_lhs = next_lhs_col - cls.MAX_COUNT
         for column_idx in range(next_lhs_col, to_lhs, -1):
             if column_idx < 0:
                 break
@@ -147,7 +148,7 @@ class Game:
         # Count matching down and to the right
         column_idx = column + 1
         row_idx = row + 1
-        for _ in range(4):
+        for _ in range(cls.MAX_COUNT):
             try:
                 if board[column_idx][row_idx] == disc:
                     count += 1
@@ -163,7 +164,7 @@ class Game:
         # Count matching up and to the left
         column_idx = column - 1
         row_idx = row - 1
-        for _ in range(4):
+        for _ in range(cls.MAX_COUNT):
             if column_idx < 0 or row_idx < 0:
                 break
             if board[column_idx][row_idx] == disc:
@@ -185,7 +186,7 @@ class Game:
         # Count matching discs up and to the right
         column_idx = column + 1
         row_idx = row - 1
-        for _ in range(4):
+        for _ in range(cls.MAX_COUNT):
             if row_idx < 0:
                 break
             try:
@@ -203,7 +204,7 @@ class Game:
         # Count matching discs down and to the left
         column_idx = column - 1
         row_idx = row + 1
-        for _ in range(4):
+        for _ in range(cls.MAX_COUNT):
             if column_idx < 0:
                 break
             try:

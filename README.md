@@ -1,6 +1,11 @@
 # Connect 5 [![Build Status](https://travis-ci.com/dlavelle7/connect_five.svg?branch=master)](https://travis-ci.com/dlavelle7/connect_five)
 
 ## What's New
+[v2.0.1 TBC]
+* Code refactor:
+** Board dimensions and winning count number can now be easily changed
+
+[v2.0 TBC]
 * Game server now supports multiple concurrent games (no more restarting)
 * More RESTful URIs ("game" resource being manipulated and accessed via /game)
 
