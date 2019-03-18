@@ -147,7 +147,7 @@ class Game:
         # Count matching down and to the right
         column_idx = column + 1
         row_idx = row + 1
-        for _ in range(0, 4):
+        for _ in range(4):
             try:
                 if board[column_idx][row_idx] == disc:
                     count += 1
@@ -163,7 +163,7 @@ class Game:
         # Count matching up and to the left
         column_idx = column - 1
         row_idx = row - 1
-        for _ in range(0, 4):
+        for _ in range(4):
             if column_idx < 0 or row_idx < 0:
                 break
             if board[column_idx][row_idx] == disc:
@@ -185,7 +185,7 @@ class Game:
         # Count matching discs up and to the right
         column_idx = column + 1
         row_idx = row - 1
-        for _ in range(0, 4):
+        for _ in range(4):
             if row_idx < 0:
                 break
             try:
@@ -203,7 +203,7 @@ class Game:
         # Count matching discs down and to the left
         column_idx = column - 1
         row_idx = row + 1
-        for _ in range(0, 4):
+        for _ in range(4):
             if column_idx < 0:
                 break
             try:
