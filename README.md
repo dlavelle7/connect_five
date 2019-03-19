@@ -4,7 +4,7 @@
 [v2.0.1 TBC]
 * Code refactor:
 ** Refactored similar "check" functions
-** Board dimensions and winning count number can now be easily changed
+** Removed hardcoded board dimensions and winning count number
 
 [v2.0 TBC]
 * Game server now supports multiple concurrent games (no more restarting)
