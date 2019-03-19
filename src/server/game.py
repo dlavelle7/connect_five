@@ -152,7 +152,7 @@ class Game:
         count = 1
 
         # Count 1st direction (has to at least get to end of 1st loop)
-        col_operator, row_operator = operators.get(direction)[0]
+        col_operator, row_operator = operators[direction][0]
         column_idx = col_operator(column, 1)
         row_idx = row_operator(row, 1)
         for _ in range(cls.MAX_COUNT):
@@ -171,7 +171,7 @@ class Game:
             return True
 
         # Count 2nd direction (check if won at each matched disc)
-        col_operator, row_operator = operators.get(direction)[1]
+        col_operator, row_operator = operators[direction][1]
         column_idx = col_operator(column, 1)
         row_idx = row_operator(row, 1)
         for _ in range(cls.MAX_COUNT):
