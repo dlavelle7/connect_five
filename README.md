@@ -27,7 +27,7 @@ pip install -r requirements.txt
 ## Usage
 Run the server:
 ```
-FLASK_APP=src.server.app.py flask run
+docker-compose up --build
 ```
 
 In a separate shell, run the first client:
@@ -38,6 +38,12 @@ python src/client.py
 In a separate shell, run the second client:
 ```
 python src/client.py
+```
+
+### Debugging
+Run the server in "debug" mode:
+```
+docke-compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 ```
 
 ## Approach
@@ -55,15 +61,6 @@ The server has threaded mode enabled by default, meaning each request will be
 handled in a separate thread.
 
 ## Simplifications
-
-For the purpose of this exercise, I have chosen to run the server application
-using Flask's development server. In a production setting this would need to be
-replaced by a WSGI HTTP server like `gunicorn` or `uwsgi`.
-
-The game state is stored in memory by the `Game` class. In a production
-environment this would need to be changed to an external DB or cache
-(e.g. `Redis`), so that the state could be shared between multiple processes
-running the application.
 
 In the event of a draw game, players will disconnect themselves.
 

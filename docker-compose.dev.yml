@@ -5,8 +5,12 @@ services:
     container_name: con5_debug
     environment:
       - FLASK_APP=src.server.app.py 
+      - FLASK_DEBUG=1
     # 'stdin_open' & 'tty' allow you to attach to pdb breakpoint
     stdin_open: true
     tty: true
+    # mount local source code to server container for development
+    volumes:
+      - ./src:/code/src
     # override with devserver for debugging
     command: "flask run --host=0.0.0.0 --port=8000"

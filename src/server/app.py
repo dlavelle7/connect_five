@@ -1,6 +1,4 @@
 """Server module containing application instance and RESTful API."""
-import redis
-
 from requests import codes
 from flask import Flask, request, json
 
@@ -8,9 +6,6 @@ from src.server.game import Game
 
 
 app = Flask(__name__)
-
-# 'redis' is the hostname of the redis conainer
-db = redis.Redis(host='redis', port=6379)
 
 
 @app.route("/game", methods=["POST"])

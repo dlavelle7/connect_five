@@ -1,8 +1,12 @@
 """Server module for holding game state and business logic."""
 import uuid
+import redis
 import threading
 
 from operator import add, sub
+
+# 'redis' is the hostname of the redis conainer
+db = redis.Redis(host='redis', port=6379)
 
 LOCK = threading.RLock()
 
@@ -34,6 +38,7 @@ class Game:
 
         Return the game_id of the game that the user joined.
         """
+        import pdb; pdb.set_trace();  # XXX Breakpoint
         with LOCK:
             # Check for a space in an existing game for our new player to join
             for game_id, existing_game in cls.state.items():
