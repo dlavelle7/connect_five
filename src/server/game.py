@@ -42,7 +42,7 @@ class Game:
                 break
         else:
             game_id = cls.start_new_game(name)
-        return str(game_id)
+        return game_id
 
     @classmethod
     def join_existing_game(cls, name, game_id, game):
@@ -66,10 +66,10 @@ class Game:
         return new_game_id
 
     @classmethod
-    def make_move(cls, game_id, move, disc):
+    def make_move(cls, game, move, disc):
         """Make move on board and return coordinates of move."""
         column = move - 1
-        board = cls.state[game_id]["board"]
+        board = game["board"]
         # Check if this row is already full
         if board[column][0] != cls.EMPTY:
             return None
@@ -84,15 +84,15 @@ class Game:
         return (column, row)
 
     @classmethod
-    def get_player_disc_colour(cls, game_id, name):
+    def get_player_disc_colour(cls, game, name):
         """Return the player's disc colour (Player 1 is always 'X')."""
-        player_number = cls.state[game_id]["players"].index(name)
+        player_number = game["players"].index(name)
         return cls.player_discs[player_number]
 
     @classmethod
-    def has_won(cls, game_id, disc, coordinates):
+    def has_won(cls, game, disc, coordinates):
         """Returns True if move wins, otherwise returns False"""
-        board = cls.state[game_id]["board"]
+        board = game["board"]
         check_methods = [cls.check_vertical, cls.check_horizontal,
                          cls.check_diagonal_1, cls.check_diagonal_2]
         for check_method in check_methods:
@@ -199,9 +199,8 @@ class Game:
         return cls._check_diagonal(board, disc, column, row, "//")
 
     @classmethod
-    def toggle_turn(cls, game_id, just_moved):
+    def toggle_turn(cls, game, just_moved):
         """Swap the 'turn' from player who has just moved."""
-        game = cls.state[game_id]
         if just_moved == game["players"][0]:
             try:
                 game["turn"] = game["players"][1]
@@ -212,7 +211,6 @@ class Game:
             game["turn"] = game["players"][0]
 
     @classmethod
-    def game_over(cls, game_id, won=True):
+    def game_over(cls, game, won=True):
         """Set state to a game over state (player won / player disconnected)"""
-        game = cls.state[game_id]
         game["game_status"] = cls.WON if won is True else cls.DISCONNECTED

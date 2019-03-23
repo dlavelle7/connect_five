@@ -23,7 +23,9 @@ def connect():
 
 @app.route("/game/<game_id>", methods=["DELETE"])
 def disconnect(game_id):
-    Game.game_over(game_id, won=False)
+    game = db.get_game(game_id)
+    Game.game_over(game, won=False)
+    db.save_game(game_id, game)
     return app.response_class(
         response=json.dumps({"message": "OK"}),
         status=codes.ok,
@@ -46,21 +48,23 @@ def move(game_id):
     """Apply client move if valid and check if it's a winning move."""
     column = request.json["column"]
     name = request.json["name"]
-    disc = Game.get_player_disc_colour(game_id, name)
-    coordinates = Game.make_move(game_id, column, disc)
+    game = db.get_game(game_id)
+    disc = Game.get_player_disc_colour(game, name)
+    coordinates = Game.make_move(game, column, disc)
     if coordinates is None:
         message = f"Bad request, column full."
         status_code = codes.bad_request
-    elif Game.has_won(game_id, disc, coordinates):
+    elif Game.has_won(game, disc, coordinates):
         message = Game.WON
         status_code = codes.ok
-        Game.game_over(game_id)
+        Game.game_over(game)
     else:
         message = "OK"
         status_code = codes.ok
-        Game.toggle_turn(game_id, name)
+        Game.toggle_turn(game, name)
+    db.save_game(game_id, game)
     response_data = {"message": message}
-    response_data.update(Game.state[game_id])
+    response_data.update(game)
     return app.response_class(
         response=json.dumps(response_data),
         status=status_code,

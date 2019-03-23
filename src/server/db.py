@@ -13,7 +13,9 @@ class DB:
     def get_connection(cls):
         if DB._connection is None:
             # 'redis' is the hostname of the redis conainer
-            DB._connection = redis.StrictRedis(host='redis', port=6379, db=0)
+            DB._connection = redis.StrictRedis(
+                host='redis', port=6379, db=0,
+                charset="utf-8", decode_responses=True)
         return DB._connection
 
     def get_games(self):
