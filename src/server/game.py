@@ -1,21 +1,16 @@
 """Server module for holding game state and business logic."""
 import uuid
-import redis
 import threading
 
 from operator import add, sub
 
-# 'redis' is the hostname of the redis conainer
-db = redis.Redis(host='redis', port=6379)
+from src.server.db import DB
 
-LOCK = threading.RLock()
+db = DB()
 
 
 class Game:
     """Class to hold state of application and business logic."""
-
-    # Games state
-    state = {}
 
     EMPTY = "-"
     Xs = "x"
@@ -38,23 +33,23 @@ class Game:
 
         Return the game_id of the game that the user joined.
         """
-        import pdb; pdb.set_trace();  # XXX Breakpoint
-        with LOCK:
-            # Check for a space in an existing game for our new player to join
-            for game_id, existing_game in cls.state.items():
-                if len(existing_game["players"]) < 2 and \
-                        name not in existing_game["players"]:
-                    cls.join_existing_game(name, game_id)
-                    break
-            else:
-                game_id = cls.start_new_game(name)
-            return game_id
+        # TODO: redis lock?
+        # Check for a space in an existing game for our new player to join
+        for game_id, existing_game in db.get_games().items():
+            if len(existing_game["players"]) < 2 and \
+                    name not in existing_game["players"]:
+                cls.join_existing_game(name, game_id, existing_game)
+                break
+        else:
+            game_id = cls.start_new_game(name)
+        return str(game_id)
 
     @classmethod
-    def join_existing_game(cls, name, game_id):
-        cls.state[game_id]["players"].append(name)
-        if cls.state[game_id]["turn"] is None:
-            cls.state[game_id]["turn"] = name
+    def join_existing_game(cls, name, game_id, game):
+        game["players"].append(name)
+        if game["turn"] is None:
+            game["turn"] = name
+        db.save_game(game_id, game)
 
     @classmethod
     def start_new_game(cls, name):
@@ -67,7 +62,7 @@ class Game:
             "turn": name,
         }
         new_game_id = str(uuid.uuid4())
-        cls.state[new_game_id] = new_game
+        db.save_game(new_game_id, new_game)
         return new_game_id
 
     @classmethod

@@ -2,7 +2,7 @@
 from requests import codes
 from flask import Flask, request, json
 
-from src.server.game import Game
+from src.server.game import Game, db
 
 
 app = Flask(__name__)
@@ -35,7 +35,7 @@ def disconnect(game_id):
 def state(game_id):
     """Return the current state of the game."""
     return app.response_class(
-        response=json.dumps(Game.state[game_id]),
+        response=json.dumps(db.get_game(game_id)),
         status=codes.ok,
         content_type='application/json'
     )
