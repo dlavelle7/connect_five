@@ -51,7 +51,6 @@ class Game:
         pipeline = db.connection.pipeline()
         pipeline.watch(game_id)
         if len(game["players"]) > 1 or name in game["players"]:
-            pipeline.unwatch(game_id)
             return False
 
         game["players"].append(name)
