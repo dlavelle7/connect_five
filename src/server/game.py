@@ -51,13 +51,20 @@ class Game:
         if len(game["players"]) > 1 or name in game["players"]:
             return False
         # WATCH this available game_id for changes by other clients
-        db.connection.watch(game_id)
+        pipeline = db.connection.pipeline()
+        pipeline.watch(game_id)
+
         game["players"].append(name)
         if game["turn"] is None:
             game["turn"] = name
-        # Use a transaction (MULTI/EXEC) so that other clients cannot interrupt
-        success = db.save_game_transaction(game_id, game)
-        return success
+        pipeline.multi()
+        pipeline.set(game_id, json.dumps(game))
+        try:
+            pipeline.execute()
+        except redis.WatchError:
+            print("A watched key has changed, abort transaction.")
+            return False
+        return True
 
     @classmethod
     def start_new_game(cls, name):
