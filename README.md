@@ -1,6 +1,13 @@
 # Connect 5 [![Build Status](https://travis-ci.com/dlavelle7/connect_five.svg?branch=master)](https://travis-ci.com/dlavelle7/connect_five)
 
 ## What's New
+[v3.0 TBC]
+* Dockerized server
+* Replaced in memory game state with Redis container
+* Replaced Flask dev server with WSGI server (gunicorn)
+* docker-compose used to bring up server & redis containers
+* "debug mode" docker-compose file for breakpoints & src code mounting
+
 [v2.0.1 TBC]
 * Code refactor:
 
