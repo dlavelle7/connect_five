@@ -57,14 +57,8 @@ class Game:
         game["players"].append(name)
         if game["turn"] is None:
             game["turn"] = name
-        pipeline.multi()
-        pipeline.set(game_id, json.dumps(game))
-        try:
-            pipeline.execute()
-        except redis.WatchError:
-            print("A watched key has changed, abort transaction.")
-            return False
-        return True
+
+        return db.save_game_transaction(pipeline, game_id, game)
 
     @classmethod
     def start_new_game(cls, name):

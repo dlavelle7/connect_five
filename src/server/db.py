@@ -31,9 +31,15 @@ class DB:
     def save_game(self, game_id, game):
         self.connection.set(game_id, json.dumps(game))
 
-    def save_game_transaction(self, game_id, game):
+    def save_game_transaction(self, pipeline, game_id, game):
         """Save game within a transaction.
         
         Return whether or not the transaction executed successfully."""
-        # TODO:
-        pass
+        pipeline.multi()
+        pipeline.set(game_id, json.dumps(game))
+        try:
+            pipeline.execute()
+        except redis.WatchError:
+            print("A watched key has changed, abort transaction.")
+            return False
+        return True
