@@ -21,7 +21,7 @@ class DB:
 
     def get_games(self):
         games = {}
-        # TODO: use scan_iter() instead (generator)
+        # TODO: use scan_iter() instead (better to use a generator)
         for game_id in self.connection.keys():
             games[game_id] = self.get_game(game_id)
         return games

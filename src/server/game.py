@@ -47,11 +47,12 @@ class Game:
 
         Use Redis transaction with WATCH on game key to avoid race conditions.
         """
-        if len(game["players"]) > 1 or name in game["players"]:
-            return False
-        # WATCH this available game_id for changes by other clients
+        # WATCH this game_id for changes by other clients, while checking it
         pipeline = db.connection.pipeline()
         pipeline.watch(game_id)
+        if len(game["players"]) > 1 or name in game["players"]:
+            pipeline.unwatch(game_id)
+            return False
 
         game["players"].append(name)
         if game["turn"] is None:
