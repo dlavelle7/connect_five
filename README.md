@@ -14,6 +14,8 @@
 ## Dependencies
 * Python 3.6
 * pip
+* Docker
+* docker-compose==1.22.0
 
 ## Installation
 ```

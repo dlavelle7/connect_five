@@ -33,23 +33,31 @@ class Game:
 
         Return the game_id of the game that the user joined.
         """
-        # TODO: redis lock?
+
         # Check for a space in an existing game for our new player to join
-        for game_id, existing_game in db.get_games().items():
-            if len(existing_game["players"]) < 2 and \
-                    name not in existing_game["players"]:
-                cls.join_existing_game(name, game_id, existing_game)
+        for game_id, game in db.get_games().items():
+            if cls.join_existing_game(name, game_id, game):
                 break
         else:
-            game_id = cls.start_new_game(name)
+            game_id, game = cls.start_new_game(name)
         return game_id
 
     @classmethod
     def join_existing_game(cls, name, game_id, game):
+        """Try to join an existing game if there is space.
+
+        Use Redis transaction with WATCH on game key to avoid race conditions.
+        """
+        if len(game["players"]) > 1 or name in game["players"]:
+            return False
+        # WATCH this available game_id for changes by other clients
+        db.connection.watch(game_id)
         game["players"].append(name)
         if game["turn"] is None:
             game["turn"] = name
-        db.save_game(game_id, game)
+        # Use a transaction (MULTI/EXEC) so that other clients cannot interrupt
+        success = db.save_game_transaction(game_id, game)
+        return success
 
     @classmethod
     def start_new_game(cls, name):
@@ -63,7 +71,7 @@ class Game:
         }
         new_game_id = str(uuid.uuid4())
         db.save_game(new_game_id, new_game)
-        return new_game_id
+        return new_game_id, new_game
 
     @classmethod
     def make_move(cls, game, move, disc):
