@@ -1,6 +1,5 @@
 """Server module for holding game state and business logic."""
 import uuid
-import threading
 
 from operator import add, sub
 
@@ -57,7 +56,7 @@ class Game:
         game["players"].append(name)
         if game["turn"] is None:
             game["turn"] = name
-
+        # Save existing game in a transaction
         return db.save_game_transaction(pipeline, game_id, game)
 
     @classmethod

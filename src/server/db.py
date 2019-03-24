@@ -1,3 +1,4 @@
+"""Module for handling DB connection and data serialization/deserialization."""
 import redis
 import json
 
@@ -33,7 +34,7 @@ class DB:
 
     def save_game_transaction(self, pipeline, game_id, game):
         """Save game within a transaction.
-        
+
         Return whether or not the transaction executed successfully."""
         pipeline.multi()
         pipeline.set(game_id, json.dumps(game))
