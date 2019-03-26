@@ -32,17 +32,16 @@ class Game:
 
         Return the game_id of the game that the user joined.
         """
-
         # Check for a space in an existing game for our new player to join
-        for game_id, game in db.get_games().items():
-            if cls.join_existing_game(name, game_id, game):
+        for game_id in db.connection.scan_iter():
+            if cls.join_existing_game(name, game_id):
                 break
         else:
-            game_id, game = cls.start_new_game(name)
+            game_id = cls.start_new_game(name)
         return game_id
 
     @classmethod
-    def join_existing_game(cls, name, game_id, game):
+    def join_existing_game(cls, name, game_id):
         """Try to join an existing game if there is space.
 
         Use Redis transaction with WATCH on game key to avoid race conditions.
@@ -50,6 +49,7 @@ class Game:
         # WATCH this game_id for changes by other clients, while checking it
         pipeline = db.connection.pipeline()
         pipeline.watch(game_id)
+        game = db.get_game_transaction(pipeline, game_id)
         if len(game["players"]) > 1 or name in game["players"]:
             return False
 
@@ -71,7 +71,7 @@ class Game:
         }
         new_game_id = str(uuid.uuid4())
         db.save_game(new_game_id, new_game)
-        return new_game_id, new_game
+        return new_game_id
 
     @classmethod
     def make_move(cls, game, move, disc):

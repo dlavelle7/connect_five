@@ -19,20 +19,18 @@ class DB:
                 charset="utf-8", decode_responses=True)
         return DB._connection
 
-    def get_games(self):
-        games = {}
-        # TODO: use scan_iter() instead (better to use a generator)
-        for game_id in self.connection.keys():
-            games[game_id] = self.get_game(game_id)
-        return games
-
     def get_game(self, game_id):
         return json.loads(self.connection.get(game_id))
+
+    @staticmethod
+    def get_game_transaction(pipeline, game_id):
+        return json.loads(pipeline.get(game_id))
 
     def save_game(self, game_id, game):
         self.connection.set(game_id, json.dumps(game))
 
-    def save_game_transaction(self, pipeline, game_id, game):
+    @staticmethod
+    def save_game_transaction(pipeline, game_id, game):
         """Save game within a transaction.
 
         Return whether or not the transaction executed successfully."""
