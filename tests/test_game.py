@@ -278,28 +278,22 @@ class TestGame(TestCase):
             game_id = Game.new_player("terry")
         self.assertNotEqual("222", game_id)
 
-    def test_get_player_disc_colour_positive_1(self):
+    def test_get_player_disc_colour_player_1_is_xs_no_player_2(self):
         """Test with one player, 2nd player hasn't joined yet"""
-        game_id = "1"
-        test_state = {game_id: {"players": ["john"]}}
-        with patch("src.server.game.Game.state", test_state):
-            disc = Game.get_player_disc_colour(game_id, "john")
+        game = {"players": ["john"]}
+        disc = Game.get_player_disc_colour(game, "john")
         self.assertEqual("x", disc)
 
-    def test_get_player_disc_colour_positive_2(self):
+    def test_get_player_disc_colour_player_1_is_xs_2_players(self):
         """Player 1 is Xs"""
-        game_id = "1"
-        test_state = {game_id: {"players": ["robin", "brian"]}}
-        with patch("src.server.game.Game.state", test_state):
-            disc = Game.get_player_disc_colour(game_id, "robin")
+        game = {"players": ["robin", "brian"]}
+        disc = Game.get_player_disc_colour(game, "robin")
         self.assertEqual("x", disc)
 
-    def test_get_player_disc_colour_positive_3(self):
+    def test_get_player_disc_colour_player_2_is_ys_2_players(self):
         """Player 2 is Ys"""
-        game_id = "1"
-        test_state = {game_id: {"players": ["robin", "brian"]}}
-        with patch("src.server.game.Game.state", test_state):
-            disc = Game.get_player_disc_colour(game_id, "brian")
+        game = {"players": ["robin", "brian"]}
+        disc = Game.get_player_disc_colour(game, "brian")
         self.assertEqual("o", disc)
 
     def test_toggle_turn_player_1_moved(self):
