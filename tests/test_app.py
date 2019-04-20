@@ -39,6 +39,7 @@ class TestApp(TestCase):
         mock_move.assert_called_once_with("2", 1, "x")
         mock_get_disc.assert_called_once_with("2", "foo")
 
+    # FIXME: Too much mocking
     @patch("src.server.game.Game.game_over")
     @patch("src.server.game.Game.has_won", return_value=True)
     @patch("src.server.game.Game.get_player_disc_colour", return_value="x")
@@ -59,6 +60,7 @@ class TestApp(TestCase):
         mock_has_won.assert_called_once_with("2", "x", (1, 2))
         mock_game_over.assert_called_once_with("2")
 
+    # FIXME: Too much mocking
     @patch("src.server.game.Game.toggle_turn")
     @patch("src.server.game.Game.game_over")
     @patch("src.server.game.Game.has_won", return_value=False)

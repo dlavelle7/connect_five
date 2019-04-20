@@ -6,6 +6,9 @@ import json
 class DB:
 
     _connection = None
+    DB_HOST = 'redis'  # 'redis' is the hostname of the redis conainer
+    DB_PORT = 6379
+    DB_NUMBER = 0
 
     def __init__(self):
         self.connection = self.get_connection()
@@ -13,9 +16,8 @@ class DB:
     @classmethod
     def get_connection(cls):
         if DB._connection is None:
-            # 'redis' is the hostname of the redis conainer
             DB._connection = redis.StrictRedis(
-                host='redis', port=6379, db=0,
+                host=cls.DB_HOST, port=cls.DB_PORT, db=cls.DB_NUMBER,
                 charset="utf-8", decode_responses=True)
         return DB._connection
 

@@ -4,7 +4,7 @@ services:
   server:
     container_name: con5_debug
     environment:
-      - FLASK_APP=src.server.app.py 
+      - FLASK_APP=src.server.app.py
       - FLASK_DEBUG=1
     # 'stdin_open' & 'tty' allow you to attach to pdb breakpoint
     stdin_open: true
