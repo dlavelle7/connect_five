@@ -19,7 +19,7 @@ class TestClient(TestCase):
             "name": "foo",
             "column": 1,
         }
-        expected_url = "http://127.0.0.1:5000/game/123"
+        expected_url = "http://127.0.0.1/game/123"
         mock_patch.assert_called_once_with(
             expected_url, json=expected_payload)
         mock_display.assert_called_once()
@@ -45,7 +45,7 @@ class TestClient(TestCase):
             "name": "bar",
             "column": 9,
         }
-        expected_url = "http://127.0.0.1:5000/game/456"
+        expected_url = "http://127.0.0.1/game/456"
         mock_patch.assert_called_once_with(
             expected_url, json=expected_payload)
         mock_display.assert_called_once()
@@ -68,7 +68,7 @@ class TestClient(TestCase):
             call(retry_prompt),
         ]
         self.assertListEqual(mock_prompt.call_args_list, expected_prompts)
-        expected_url = "http://127.0.0.1:5000/game/789"
+        expected_url = "http://127.0.0.1/game/789"
         expected_calls = [
             call(expected_url, json={'column': 2, 'name': 'lola'}),
             call(expected_url, json={'column': 3, 'name': 'lola'})]
@@ -89,5 +89,5 @@ class TestClient2(TestCase):
         self.assertEqual(client.connect(), ("eric", "123"))
         self.assertFalse(mock_exit.called)
         mock_post.assert_called_once_with(
-            'http://127.0.0.1:5000/game', json={'name': 'eric'})
+            'http://127.0.0.1/game', json={'name': 'eric'})
         mock_prompt.assert_called_once_with("Enter name: ")
