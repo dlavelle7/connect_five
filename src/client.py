@@ -13,6 +13,8 @@ ACCEPTED_COLUMNS = [num for num in range(1, 10)]
 
 WIN_RESPONSE = "won"
 DISCONNECTED_RESPONSE = "disconnected"
+BOARD_ROWS = 6
+BOARD_COLS = 9
 
 
 def prompt_user(message):
@@ -38,8 +40,9 @@ def connect():
 
 def display_board(board):
     """Display the state of the board to the user."""
-    for row_idx in range(6):
-        row = " ".join(board[col_idx][row_idx] for col_idx in range(9))
+    for row_idx in range(BOARD_ROWS):
+        row = " ".join(board[col_idx][row_idx]
+                       for col_idx in range(BOARD_COLS))
         print(row)
 
 
