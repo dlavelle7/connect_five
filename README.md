@@ -8,15 +8,13 @@
 * docker-compose used to bring up server & redis containers
 * "debug mode" docker-compose file for breakpoints & src code mounting
 
-[v2.0.1 TBC]
+[v2.0]
+* Game server now supports multiple concurrent games (no more restarting)
+* More RESTful URIs ("game" resource being manipulated and accessed via /game)
 * Code refactor:
 
   * Refactored similar "check" functions
   * Removed hardcoded board dimensions and winning count number
-
-[v2.0 TBC]
-* Game server now supports multiple concurrent games (no more restarting)
-* More RESTful URIs ("game" resource being manipulated and accessed via /game)
 
 ## Dependencies
 * Python 3.6
@@ -65,9 +63,6 @@ The far left column on the user's screen is the first position in the board
 list.
 
 The bottom of a "column" corresponds to the last position in that list.
-
-The server has threaded mode enabled by default, meaning each request will be
-handled in a separate thread.
 
 ## Simplifications
 
