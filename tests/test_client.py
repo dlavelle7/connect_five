@@ -4,6 +4,7 @@ from unittest.mock import patch, call, Mock
 from src import client
 
 
+# FIXME: More meaningful test method names
 @patch("src.client.requests.patch")
 class TestClient(TestCase):
 

@@ -4,6 +4,7 @@ from unittest.mock import patch
 from src.server.game import Game
 
 
+# FIXME: More meaningful test method names
 class TestGame(TestCase):
 
     def test_check_vertical_positive_1(self):
@@ -301,30 +302,20 @@ class TestGame(TestCase):
             disc = Game.get_player_disc_colour(game_id, "brian")
         self.assertEqual("o", disc)
 
-    def test_toggle_turn_positive_1(self):
-        game_id = "123"
-        test_state = {
-            game_id: {"players": ["arthur", "billy"]}
-        }
-        with patch("src.server.game.Game.state", test_state):
-            Game.toggle_turn(game_id, "arthur")
-            self.assertEqual(Game.state[game_id]["turn"], "billy")
+    def test_toggle_turn_player_1_moved(self):
+        game = {"players": ["arthur", "billy"]}
+        Game.toggle_turn(game, "arthur")
+        self.assertEqual(game["turn"], "billy")
 
-    def test_toggle_turn_positive_2(self):
-        game_id = "12"
-        test_state = {
-            game_id: {"players": ["dingo", "zoot"]}
+    def test_toggle_turn_player_2_moved(self):
+        game = {
+            "players": ["dingo", "zoot"]
         }
-        with patch("src.server.game.Game.state", test_state):
-            Game.toggle_turn(game_id, "zoot")
-            self.assertEqual(Game.state[game_id]["turn"], "dingo")
+        Game.toggle_turn(game, "zoot")
+        self.assertEqual(game["turn"], "dingo")
 
-    def test_toggle_turn_negative_1(self):
+    def test_toggle_turn_player_1_moved_no_player_2(self):
         """2nd player hasn't joined yet, turn = None."""
-        game_id = "1"
-        test_state = {
-            game_id: {"players": ["galahad"]}
-        }
-        with patch("src.server.game.Game.state", test_state):
-            Game.toggle_turn(game_id, "galahad")
-            self.assertIsNone(Game.state[game_id]["turn"])
+        game = {"players": ["galahad"]}
+        Game.toggle_turn(game, "galahad")
+        self.assertIsNone(game["turn"])

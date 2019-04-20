@@ -4,6 +4,7 @@ from unittest.mock import patch
 from src.server import app
 
 
+# FIXME: More meaningful test method names
 class TestApp(TestCase):
 
     def setUp(self):
