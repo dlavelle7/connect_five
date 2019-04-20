@@ -11,7 +11,7 @@ class TestClient(TestCase):
     @patch("src.client.prompt_user", return_value='1')
     def test_make_move_positive(self, mock_prompt, mock_display, mock_patch):
         mock_patch.return_value = Mock(status_code=200)
-        test_client = client.Client("foo")
+        test_client = client.Client("foo", "123")
         test_client.make_move()
         expected_message = "It's your turn foo, please enter column (1 - 9): "
         mock_prompt.assert_called_once_with(expected_message)
@@ -19,7 +19,7 @@ class TestClient(TestCase):
             "name": "foo",
             "column": 1,
         }
-        expected_url = "http://127.0.0.1:5000/move"
+        expected_url = "http://127.0.0.1:5000/game/123"
         mock_patch.assert_called_once_with(
             expected_url, json=expected_payload)
         mock_display.assert_called_once()
@@ -29,7 +29,7 @@ class TestClient(TestCase):
     def test_make_move_negative(self, mock_prompt, mock_display, mock_patch):
         """Assert the user is prompted until a valid column is chosen."""
         mock_patch.return_value = Mock(status_code=200)
-        test_client = client.Client("bar")
+        test_client = client.Client("bar", "456")
         test_client.make_move()
         first_promt = "It's your turn bar, please enter column (1 - 9): "
         retry_prompt = 'Invalid choice, please enter column (1 - 9): '
@@ -45,7 +45,7 @@ class TestClient(TestCase):
             "name": "bar",
             "column": 9,
         }
-        expected_url = "http://127.0.0.1:5000/move"
+        expected_url = "http://127.0.0.1:5000/game/456"
         mock_patch.assert_called_once_with(
             expected_url, json=expected_payload)
         mock_display.assert_called_once()
@@ -60,7 +60,7 @@ class TestClient(TestCase):
         mock_response = Mock(status_code=400, json=lambda: mock_body)
         mock_patch.side_effect = [mock_response, Mock(status_code=200)]
 
-        test_client = client.Client("lola")
+        test_client = client.Client("lola", "789")
         test_client.make_move()
         first_promt = "It's your turn lola, please enter column (1 - 9): "
         expected_prompts = [
@@ -68,7 +68,7 @@ class TestClient(TestCase):
             call(retry_prompt),
         ]
         self.assertListEqual(mock_prompt.call_args_list, expected_prompts)
-        expected_url = "http://127.0.0.1:5000/move"
+        expected_url = "http://127.0.0.1:5000/game/789"
         expected_calls = [
             call(expected_url, json={'column': 2, 'name': 'lola'}),
             call(expected_url, json={'column': 3, 'name': 'lola'})]
@@ -84,38 +84,10 @@ class TestClient2(TestCase):
     @patch("src.client.exit")
     def test_connect_positive_1(self, mock_exit, mock_prompt, mock_post):
         """Assert that with an acceptable name, user is prompted once."""
-        mock_post.return_value = Mock(status_code=201)
-        self.assertEqual(client.connect(), "eric")
+        json = {"game_id": "123"}
+        mock_post.return_value = Mock(status_code=201, json=lambda: json)
+        self.assertEqual(client.connect(), ("eric", "123"))
         self.assertFalse(mock_exit.called)
         mock_post.assert_called_once_with(
-            'http://127.0.0.1:5000/connect', json={'name': 'eric'})
+            'http://127.0.0.1:5000/game', json={'name': 'eric'})
         mock_prompt.assert_called_once_with("Enter name: ")
-
-    @patch("src.client.prompt_user", return_value="john")
-    @patch("src.client.exit")
-    def test_connect_negative_1(self, mock_exit, mock_prompt, mock_post):
-        """Assert that when the game is full, new connections not allowed."""
-        mock_post.return_value = Mock(status_code=403)
-        with self.assertRaises(SystemExit):
-            client.connect()
-        mock_post.assert_called_once_with(
-            'http://127.0.0.1:5000/connect', json={'name': 'john'})
-        mock_prompt.assert_called_once_with("Enter name: ")
-
-    @patch("src.client.prompt_user", side_effect=["terry", "michael"])
-    @patch("src.client.exit")
-    def test_connect_negative_2(self, mock_exit, mock_prompt, mock_post):
-        """Assert when the name conflicts, user is re prompted."""
-        mock_post.side_effect = [Mock(status_code=409), Mock(status_code=201)]
-        self.assertEqual(client.connect(), "michael")
-        self.assertFalse(mock_exit.called)
-        expected_prompts = [
-            call('Enter name: '),
-            call('That name is already taken, please enter a different name: ')
-        ]
-        self.assertListEqual(mock_prompt.call_args_list, expected_prompts)
-        expected_posts = [
-            call('http://127.0.0.1:5000/connect', json={'name': 'terry'}),
-            call('http://127.0.0.1:5000/connect', json={'name': 'michael'})
-        ]
-        self.assertListEqual(mock_post.call_args_list, expected_posts)

@@ -1,5 +1,16 @@
 # Connect 5 [![Build Status](https://travis-ci.com/dlavelle7/connect_five.svg?branch=master)](https://travis-ci.com/dlavelle7/connect_five)
 
+## What's New
+[v2.0.1 TBC]
+* Code refactor:
+
+  * Refactored similar "check" functions
+  * Removed hardcoded board dimensions and winning count number
+
+[v2.0 TBC]
+* Game server now supports multiple concurrent games (no more restarting)
+* More RESTful URIs ("game" resource being manipulated and accessed via /game)
+
 ## Dependencies
 * Python 3.6
 * pip
@@ -55,8 +66,6 @@ environment this would need to be changed to an external DB or cache
 running the application.
 
 In the event of a draw game, players will disconnect themselves.
-
-A subsequent new game requires the server to be restarted.
 
 ## Assumptions
 

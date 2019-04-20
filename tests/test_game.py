@@ -4,7 +4,7 @@ from unittest.mock import patch
 from src.server.game import Game
 
 
-class TestServer(TestCase):
+class TestGame(TestCase):
 
     def test_check_vertical_positive_1(self):
         """Xs wins -> 5 in a row down."""
@@ -16,8 +16,7 @@ class TestServer(TestCase):
              Game.Xs,
              Game.Xs]
         ]
-        with patch("src.server.game.Game.board", test_board):
-            has_won = Game.check_vertical(Game.Xs, 0, 1)
+        has_won = Game.check_vertical(test_board, Game.Xs, 0, 1)
         self.assertTrue(has_won)
 
     def test_check_vertical_negative_1(self):
@@ -25,8 +24,7 @@ class TestServer(TestCase):
         test_board = [
             [Game.Xs, Game.Os, Game.Xs, Game.Xs, Game.Xs, Game.Xs]
         ]
-        with patch("src.server.game.Game.board", test_board):
-            has_won = Game.check_vertical(Game.Xs, 0, 0)
+        has_won = Game.check_vertical(test_board, Game.Xs, 0, 0)
         self.assertFalse(has_won)
 
     def test_check_vertical_negative_2(self):
@@ -34,8 +32,7 @@ class TestServer(TestCase):
         test_board = [
             [Game.EMPTY, Game.EMPTY, Game.EMPTY, Game.EMPTY, Game.Os, Game.Os]
         ]
-        with patch("src.server.game.Game.board", test_board):
-            has_won = Game.check_vertical(Game.Os, 0, 4)
+        has_won = Game.check_vertical(test_board, Game.Os, 0, 4)
         self.assertFalse(has_won)
 
     def test_check_horizontal_positive_1(self):
@@ -44,8 +41,7 @@ class TestServer(TestCase):
             [Game.Os], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs],
             [Game.Os], [Game.Os], [Game.Xs]
         ]
-        with patch("src.server.game.Game.board", test_board):
-            has_won = Game.check_horizontal(Game.Xs, 1, 0)
+        has_won = Game.check_horizontal(test_board, Game.Xs, 1, 0)
         self.assertTrue(has_won)
 
     def test_check_horizontal_positive_2(self):
@@ -54,8 +50,7 @@ class TestServer(TestCase):
             [Game.Os], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs],
             [Game.Os], [Game.Os], [Game.Xs]
         ]
-        with patch("src.server.game.Game.board", test_board):
-            has_won = Game.check_horizontal(Game.Xs, 5, 0)
+        has_won = Game.check_horizontal(test_board, Game.Xs, 5, 0)
         self.assertTrue(has_won)
 
     def test_check_horizontal_bug(self):
@@ -64,8 +59,7 @@ class TestServer(TestCase):
             [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs],
             [Game.Os], [Game.Os], [Game.Os], [Game.Xs]
         ]
-        with patch("src.server.game.Game.board", test_board):
-            has_won = Game.check_horizontal(Game.Xs, 4, 0)
+        has_won = Game.check_horizontal(test_board, Game.Xs, 4, 0)
         self.assertTrue(has_won)
 
     def test_check_horizontal_positive_3(self):
@@ -74,8 +68,7 @@ class TestServer(TestCase):
             [Game.Os], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs],
             [Game.Os], [Game.Os], [Game.Xs]
         ]
-        with patch("src.server.game.Game.board", test_board):
-            has_won = Game.check_horizontal(Game.Xs, 3, 0)
+        has_won = Game.check_horizontal(test_board, Game.Xs, 3, 0)
         self.assertTrue(has_won)
 
     def test_check_horizontal_negative_1(self):
@@ -84,8 +77,7 @@ class TestServer(TestCase):
             [Game.Os], [Game.Os], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs],
             [Game.Os], [Game.Os], [Game.Xs]
         ]
-        with patch("src.server.game.Game.board", test_board):
-            has_won = Game.check_horizontal(Game.Xs, 4, 0)
+        has_won = Game.check_horizontal(test_board, Game.Xs, 4, 0)
         self.assertFalse(has_won)
 
     def test_check_horizontal_negative_2(self):
@@ -94,8 +86,7 @@ class TestServer(TestCase):
             [Game.Os], [Game.Os], [Game.Xs], [Game.Os],
             [Game.EMPTY], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs]
         ]
-        with patch("src.server.game.Game.board", test_board):
-            has_won = Game.check_horizontal(Game.Xs, 8, 0)
+        has_won = Game.check_horizontal(test_board, Game.Xs, 8, 0)
         self.assertFalse(has_won)
 
     def test_check_horizontal_negative_3(self):
@@ -104,8 +95,7 @@ class TestServer(TestCase):
             [Game.Xs], [Game.Xs], [Game.Xs], [Game.Os],
             [Game.EMPTY], [Game.Xs], [Game.Xs], [Game.Xs], [Game.Xs]
         ]
-        with patch("src.server.game.Game.board", test_board):
-            has_won = Game.check_horizontal(Game.Xs, 1, 0)
+        has_won = Game.check_horizontal(test_board, Game.Xs, 1, 0)
         self.assertFalse(has_won)
 
     def test_check_diagonal_1_positive_1(self):
@@ -121,8 +111,7 @@ class TestServer(TestCase):
             [Game.EMPTY * 6],
             [Game.EMPTY * 6],
         ]
-        with patch("src.server.game.Game.board", test_board):
-            has_won = Game.check_diagonal_1(Game.Os, 0, 0)
+        has_won = Game.check_diagonal_1(test_board, Game.Os, 0, 0)
         self.assertTrue(has_won)
 
     def test_check_diagonal_1_positive_2(self):
@@ -138,8 +127,7 @@ class TestServer(TestCase):
             [Game.EMPTY * 6],
             [Game.EMPTY * 6],
         ]
-        with patch("src.server.game.Game.board", test_board):
-            has_won = Game.check_diagonal_1(Game.Os, 3, 3)
+        has_won = Game.check_diagonal_1(test_board, Game.Os, 3, 3)
         self.assertTrue(has_won)
 
     def test_check_diagonal_1_negative_1(self):
@@ -155,8 +143,7 @@ class TestServer(TestCase):
             [Game.EMPTY * 6],
             [Game.EMPTY * 6],
         ]
-        with patch("src.server.game.Game.board", test_board):
-            has_won = Game.check_diagonal_1(Game.Os, 3, 3)
+        has_won = Game.check_diagonal_1(test_board, Game.Os, 3, 3)
         self.assertFalse(has_won)
 
     def test_check_diagonal_2_positive_1(self):
@@ -172,8 +159,7 @@ class TestServer(TestCase):
             [Game.EMPTY * 6],
             [Game.EMPTY * 6],
         ]
-        with patch("src.server.game.Game.board", test_board):
-            has_won = Game.check_diagonal_2(Game.Xs, 1, 3)
+        has_won = Game.check_diagonal_2(test_board, Game.Xs, 1, 3)
         self.assertTrue(has_won)
 
     def test_check_diagonal_2_positive_2(self):
@@ -189,8 +175,7 @@ class TestServer(TestCase):
             [Game.EMPTY * 6],
             [Game.EMPTY * 6],
         ]
-        with patch("src.server.game.Game.board", test_board):
-            has_won = Game.check_diagonal_2(Game.Xs, 4, 0)
+        has_won = Game.check_diagonal_2(test_board, Game.Xs, 4, 0)
         self.assertTrue(has_won)
 
     def test_check_diagonal_2_positive_3(self):
@@ -206,8 +191,7 @@ class TestServer(TestCase):
             [Game.EMPTY * 6],
             [Game.EMPTY * 6],
         ]
-        with patch("src.server.game.Game.board", test_board):
-            has_won = Game.check_diagonal_2(Game.Xs, 0, 4)
+        has_won = Game.check_diagonal_2(test_board, Game.Xs, 0, 4)
         self.assertTrue(has_won)
 
     def test_check_diagonal_2_negative_1(self):
@@ -223,100 +207,124 @@ class TestServer(TestCase):
             [Game.EMPTY * 6],
             [Game.EMPTY * 6],
         ]
-        with patch("src.server.game.Game.board", test_board):
-            has_won = Game.check_diagonal_2(Game.Os, 1, 3)
+        has_won = Game.check_diagonal_2(test_board, Game.Os, 1, 3)
         self.assertFalse(has_won)
 
+    @patch("src.server.game.Game.state", {"123": {"board": []}})
     @patch("src.server.game.Game.check_diagonal_2", return_value=False)
     @patch("src.server.game.Game.check_diagonal_1", return_value=True)
     @patch("src.server.game.Game.check_horizontal", return_value=False)
     @patch("src.server.game.Game.check_vertical", return_value=False)
     def test_has_won_positive(self, mock_vert, mock_horiz, mock_d1, mock_d2):
         """Assert if one of the 'check' functions returns True, player wins"""
-        self.assertTrue(Game.has_won('x', (0, 1)))
-        mock_vert.assert_called_once_with('x', 0, 1)
-        mock_horiz.assert_called_once_with('x', 0, 1)
-        mock_d1.assert_called_once_with('x', 0, 1)
+        self.assertTrue(Game.has_won('123', 'x', (0, 1)))
+        mock_vert.assert_called_once_with([], 'x', 0, 1)
+        mock_horiz.assert_called_once_with([], 'x', 0, 1)
+        mock_d1.assert_called_once_with([], 'x', 0, 1)
         self.assertFalse(mock_d2.called)
 
+    @patch("src.server.game.Game.state", {"123": {"board": []}})
     @patch("src.server.game.Game.check_diagonal_2", return_value=False)
     @patch("src.server.game.Game.check_diagonal_1", return_value=False)
     @patch("src.server.game.Game.check_horizontal", return_value=False)
     @patch("src.server.game.Game.check_vertical", return_value=False)
     def test_has_won_negative(self, mock_vert, mock_horiz, mock_d1, mock_d2):
         """Assert if none of the 'check' functions return True game still on"""
-        self.assertFalse(Game.has_won('x', (0, 1)))
-        mock_vert.assert_called_once_with('x', 0, 1)
-        mock_horiz.assert_called_once_with('x', 0, 1)
-        mock_d1.assert_called_once_with('x', 0, 1)
-        mock_d2.assert_called_once_with('x', 0, 1)
+        self.assertFalse(Game.has_won('123', 'x', (0, 1)))
+        mock_vert.assert_called_once_with([], 'x', 0, 1)
+        mock_horiz.assert_called_once_with([], 'x', 0, 1)
+        mock_d1.assert_called_once_with([], 'x', 0, 1)
+        mock_d2.assert_called_once_with([], 'x', 0, 1)
 
-    @patch("src.server.game.Game.start_new_game")
-    def test_new_player_positive_1(self, mock_start_new_game):
+    def test_new_player_positive_1(self):
         """1st new player, gets added, their turn and board created."""
-        with patch("src.server.game.Game.players", []) as mock_players:
-            added, code = Game.new_player("dave")
-            self.assertEqual("dave", Game.turn)
-        self.assertListEqual(["dave"], mock_players)
-        self.assertTrue(added)
-        self.assertEqual(201, code)
-        mock_start_new_game.assert_called_once()
+        test_state = {}
+        with patch("src.server.game.Game.state", test_state):
+            game_id = Game.new_player("dave")
+        self.assertIsInstance(game_id, str)
+        self.assertIsInstance(test_state[game_id]["board"], list)
+        self.assertEqual("dave", test_state[game_id]["turn"])
+        self.assertListEqual(["dave"], test_state[game_id]["players"])
+        self.assertEqual("playing", test_state[game_id]["game_status"])
 
     @patch("src.server.game.Game.start_new_game")
     def test_new_player_positive_2(self, mock_start_new_game):
         """2nd new player, gets added, not their turn and board not created."""
-        with patch("src.server.game.Game.players", ["dom"]) as mock_players:
-            added, code = Game.new_player("mary")
-            self.assertNotEqual("mary", Game.turn)
-        self.assertListEqual(["dom", "mary"], mock_players)
-        self.assertTrue(added)
-        self.assertEqual(201, code)
+        game_id = "246"
+        test_state = {
+            game_id: {
+                "turn": "dom",
+                "players": ["dom"],
+            }
+        }
+        with patch("src.server.game.Game.state", test_state):
+            joined_game_id = Game.new_player("mary")
+
+        self.assertNotEqual("mary", test_state[game_id]["turn"])
+        self.assertListEqual(["dom", "mary"], test_state[game_id]["players"])
+        self.assertEqual(joined_game_id, game_id)
         self.assertFalse(mock_start_new_game.called)
 
-    def test_new_player_negative_1(self):
-        """Game already full."""
-        with patch("src.server.game.Game.players", ["foo", "bar"]):
-            added, code = Game.new_player("eggs")
-        self.assertFalse(added)
-        self.assertEqual(403, code)
-
     def test_new_player_negative_2(self):
-        """Player name already in use, return 409."""
-        with patch("src.server.game.Game.players", ["terry"]):
-            added, code = Game.new_player("terry")
-        self.assertFalse(added)
-        self.assertEqual(409, code)
+        """Player name already in use, don't add to same game."""
+        test_state = {
+            "222": {
+                "turn": "terry",
+                "players": ["terry"],
+            }
+        }
+        with patch("src.server.game.Game.state", test_state):
+            game_id = Game.new_player("terry")
+        self.assertNotEqual("222", game_id)
 
     def test_get_player_disc_colour_positive_1(self):
         """Test with one player, 2nd player hasn't joined yet"""
-        with patch("src.server.game.Game.players", ["john"]):
-            disc = Game.get_player_disc_colour("john")
+        game_id = "1"
+        test_state = {game_id: {"players": ["john"]}}
+        with patch("src.server.game.Game.state", test_state):
+            disc = Game.get_player_disc_colour(game_id, "john")
         self.assertEqual("x", disc)
 
     def test_get_player_disc_colour_positive_2(self):
         """Player 1 is Xs"""
-        with patch("src.server.game.Game.players", ["robin", "brian"]):
-            disc = Game.get_player_disc_colour("robin")
+        game_id = "1"
+        test_state = {game_id: {"players": ["robin", "brian"]}}
+        with patch("src.server.game.Game.state", test_state):
+            disc = Game.get_player_disc_colour(game_id, "robin")
         self.assertEqual("x", disc)
 
     def test_get_player_disc_colour_positive_3(self):
         """Player 2 is Ys"""
-        with patch("src.server.game.Game.players", ["robin", "brian"]):
-            disc = Game.get_player_disc_colour("brian")
+        game_id = "1"
+        test_state = {game_id: {"players": ["robin", "brian"]}}
+        with patch("src.server.game.Game.state", test_state):
+            disc = Game.get_player_disc_colour(game_id, "brian")
         self.assertEqual("o", disc)
 
     def test_toggle_turn_positive_1(self):
-        with patch("src.server.game.Game.players", ["arthur", "billy"]):
-            Game.toggle_turn("arthur")
-            self.assertEqual(Game.turn, "billy")
+        game_id = "123"
+        test_state = {
+            game_id: {"players": ["arthur", "billy"]}
+        }
+        with patch("src.server.game.Game.state", test_state):
+            Game.toggle_turn(game_id, "arthur")
+            self.assertEqual(Game.state[game_id]["turn"], "billy")
 
     def test_toggle_turn_positive_2(self):
-        with patch("src.server.game.Game.players", ["dingo", "zoot"]):
-            Game.toggle_turn("zoot")
-            self.assertEqual(Game.turn, "dingo")
+        game_id = "12"
+        test_state = {
+            game_id: {"players": ["dingo", "zoot"]}
+        }
+        with patch("src.server.game.Game.state", test_state):
+            Game.toggle_turn(game_id, "zoot")
+            self.assertEqual(Game.state[game_id]["turn"], "dingo")
 
     def test_toggle_turn_negative_1(self):
         """2nd player hasn't joined yet, turn = None."""
-        with patch("src.server.game.Game.players", ["galahad"]):
-            Game.toggle_turn("galahad")
-            self.assertIsNone(Game.turn)
+        game_id = "1"
+        test_state = {
+            game_id: {"players": ["galahad"]}
+        }
+        with patch("src.server.game.Game.state", test_state):
+            Game.toggle_turn(game_id, "galahad")
+            self.assertIsNone(Game.state[game_id]["turn"])
