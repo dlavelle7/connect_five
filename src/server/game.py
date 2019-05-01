@@ -207,7 +207,7 @@ class Game:
         return cls._check_diagonal(board, disc, column, row, "//")
 
     @classmethod
-    def toggle_turn(cls, game, just_moved):
+    def toggle_turn(cls, game_id, game, just_moved):
         """Swap the 'turn' from player who has just moved."""
         if just_moved == game["players"][0]:
             try:
@@ -217,8 +217,10 @@ class Game:
                 game["turn"] = None
         else:
             game["turn"] = game["players"][0]
+        db.save_game(game_id, game)
 
     @classmethod
-    def game_over(cls, game, won=True):
+    def game_over(cls, game_id, game, won=True):
         """Set state to a game over state (player won / player disconnected)"""
         game["game_status"] = cls.WON if won is True else cls.DISCONNECTED
+        db.save_game(game_id, game)

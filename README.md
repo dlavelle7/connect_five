@@ -7,6 +7,9 @@
 * Replaced Flask dev server with WSGI server (gunicorn)
 * docker-compose used to bring up server & redis containers
 * "debug mode" docker-compose file for breakpoints & src code mounting
+* [TODO] better unit testing
+** less mocking
+** more descriptive test method names
 
 [v2.0]
 * Game server now supports multiple concurrent games (no more restarting)
@@ -20,7 +23,6 @@
 * Python 3.6
 * pip
 * Docker
-* docker-compose==1.22.0
 
 ## Installation
 ```
@@ -28,7 +30,7 @@ git clone git@github.com:dlavelle7/connect_five.git
 cd connect_five
 
 # preferably in a python virtual env
-pip install -r requirements.txt
+pip install -r requirements_run.txt
 ```
 
 ## Usage
@@ -88,7 +90,7 @@ pytest tests/
 
 Tox was chosen as the CI automation tool and runs the following tests:
 * unit tests
-* unit test coverage (greater than 70%)
+* unit test coverage (greater than 75%)
 * static code analysis `flake8`
 
 Run the CI build locally:

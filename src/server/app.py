@@ -2,6 +2,7 @@
 from requests import codes
 from flask import Flask, request, json
 
+# TODO: maybe db module should only be in game.py & game should do get_game()
 from src.server.game import Game, db
 
 
@@ -24,8 +25,7 @@ def connect():
 @app.route("/game/<game_id>", methods=["DELETE"])
 def disconnect(game_id):
     game = db.get_game(game_id)
-    Game.game_over(game, won=False)
-    db.save_game(game_id, game)
+    Game.game_over(game_id, game, won=False)
     return app.response_class(
         response=json.dumps({"message": "OK"}),
         status=codes.ok,
@@ -57,12 +57,11 @@ def move(game_id):
     elif Game.has_won(game, disc, coordinates):
         message = Game.WON
         status_code = codes.ok
-        Game.game_over(game)
+        Game.game_over(game_id, game)
     else:
         message = "OK"
         status_code = codes.ok
-        Game.toggle_turn(game, name)
-    db.save_game(game_id, game)
+        Game.toggle_turn(game_id, game, name)
     response_data = {"message": message}
     response_data.update(game)
     return app.response_class(

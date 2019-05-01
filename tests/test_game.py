@@ -211,72 +211,101 @@ class TestGame(TestCase):
         has_won = Game.check_diagonal_2(test_board, Game.Os, 1, 3)
         self.assertFalse(has_won)
 
-    @patch("src.server.game.Game.state", {"123": {"board": []}})
-    @patch("src.server.game.Game.check_diagonal_2", return_value=False)
-    @patch("src.server.game.Game.check_diagonal_1", return_value=True)
-    @patch("src.server.game.Game.check_horizontal", return_value=False)
-    @patch("src.server.game.Game.check_vertical", return_value=False)
-    def test_has_won_positive(self, mock_vert, mock_horiz, mock_d1, mock_d2):
+    @patch("src.server.game.Game.check_horizontal")
+    @patch("src.server.game.Game.check_vertical", return_value=True)
+    def test_has_won_return_true_on_2nd_check(self, mock_vert, mock_horiz):
         """Assert if one of the 'check' functions returns True, player wins"""
-        self.assertTrue(Game.has_won('123', 'x', (0, 1)))
+        game = {"board": []}
+        self.assertTrue(Game.has_won(game, 'x', (0, 1)))
         mock_vert.assert_called_once_with([], 'x', 0, 1)
-        mock_horiz.assert_called_once_with([], 'x', 0, 1)
-        mock_d1.assert_called_once_with([], 'x', 0, 1)
-        self.assertFalse(mock_d2.called)
+        self.assertFalse(mock_horiz.called)
 
-    @patch("src.server.game.Game.state", {"123": {"board": []}})
+    # FIXME: Too much mocking
     @patch("src.server.game.Game.check_diagonal_2", return_value=False)
     @patch("src.server.game.Game.check_diagonal_1", return_value=False)
     @patch("src.server.game.Game.check_horizontal", return_value=False)
     @patch("src.server.game.Game.check_vertical", return_value=False)
-    def test_has_won_negative(self, mock_vert, mock_horiz, mock_d1, mock_d2):
+    def test_has_won_all_check_methods_return_false(
+            self, mock_vert, mock_horiz, mock_d1, mock_d2):
         """Assert if none of the 'check' functions return True game still on"""
-        self.assertFalse(Game.has_won('123', 'x', (0, 1)))
+        game= {"board": []}
+        self.assertFalse(Game.has_won(game, 'x', (0, 1)))
         mock_vert.assert_called_once_with([], 'x', 0, 1)
         mock_horiz.assert_called_once_with([], 'x', 0, 1)
         mock_d1.assert_called_once_with([], 'x', 0, 1)
         mock_d2.assert_called_once_with([], 'x', 0, 1)
 
-    def test_new_player_positive_1(self):
-        """1st new player, gets added, their turn and board created."""
-        test_state = {}
-        with patch("src.server.game.Game.state", test_state):
-            game_id = Game.new_player("dave")
+    @patch("src.server.game.db")
+    def test_start_new_game(self, mock_db):
+        """new player added to 'players', their turn and board created."""
+        game_id = Game.start_new_game("dave")
         self.assertIsInstance(game_id, str)
-        self.assertIsInstance(test_state[game_id]["board"], list)
-        self.assertEqual("dave", test_state[game_id]["turn"])
-        self.assertListEqual(["dave"], test_state[game_id]["players"])
-        self.assertEqual("playing", test_state[game_id]["game_status"])
+        call_game_id, call_game_state = mock_db.save_game.call_args[0]
+        self.assertEqual(game_id, call_game_id)
+        self.assertIsInstance(call_game_state["board"], list)
+        self.assertEqual("dave", call_game_state["turn"])
+        self.assertListEqual(["dave"], call_game_state["players"])
+        self.assertEqual("playing", call_game_state["game_status"])
 
-    @patch("src.server.game.Game.start_new_game")
-    def test_new_player_positive_2(self, mock_start_new_game):
-        """2nd new player, gets added, not their turn and board not created."""
+    @patch("src.server.game.db")
+    def test_2nd_player_joins_after_player1_has_moved(self, mock_db):
+        """2nd player added, player 1 had already moved, their turn now"""
         game_id = "246"
-        test_state = {
-            game_id: {
-                "turn": "dom",
-                "players": ["dom"],
-            }
+        test_game_state = {
+            "turn": None,
+            "players": ["dom"],
         }
-        with patch("src.server.game.Game.state", test_state):
-            joined_game_id = Game.new_player("mary")
+        mock_db.get_game_transaction.return_value = test_game_state
+        Game.join_existing_game("mary", game_id)
 
-        self.assertNotEqual("mary", test_state[game_id]["turn"])
-        self.assertListEqual(["dom", "mary"], test_state[game_id]["players"])
-        self.assertEqual(joined_game_id, game_id)
-        self.assertFalse(mock_start_new_game.called)
+        _, call_game_id, call_game_state = \
+            mock_db.save_game_transaction.call_args[0]
 
-    def test_new_player_negative_2(self):
-        """Player name already in use, don't add to same game."""
-        test_state = {
-            "222": {
-                "turn": "terry",
-                "players": ["terry"],
-            }
+        self.assertEqual(game_id, call_game_id)
+        self.assertEqual("mary", call_game_state["turn"])
+        self.assertListEqual(["dom", "mary"], call_game_state["players"])
+
+    @patch("src.server.game.db")
+    def test_2nd_player_joins_while_its_player1s_move(self, mock_db):
+        """2nd player added, while it's player 1 move, not their turn now."""
+        game_id = "246"
+        test_game_state = {
+            "turn": "dom",
+            "players": ["dom"],
         }
-        with patch("src.server.game.Game.state", test_state):
-            game_id = Game.new_player("terry")
-        self.assertNotEqual("222", game_id)
+        mock_db.get_game_transaction.return_value = test_game_state
+        Game.join_existing_game("mary", game_id)
+
+        _, call_game_id, call_game_state = \
+            mock_db.save_game_transaction.call_args[0]
+
+        self.assertEqual(game_id, call_game_id)
+        self.assertEqual("dom", call_game_state["turn"])
+        self.assertListEqual(["dom", "mary"], call_game_state["players"])
+
+    @patch("src.server.game.db")
+    def test_new_player_joins_this_game_already_full(self, mock_db):
+        """This existing game is full, return False so next game is checked"""
+        game_id = "333"
+        test_game_state = {
+            "turn": "eric",
+            "players": ["eric", "polly"],
+        }
+        mock_db.get_game_transaction.return_value = test_game_state
+        self.assertFalse(Game.join_existing_game("mary", game_id))
+        self.assertFalse(mock_db.save_game_transaction.called)
+
+    @patch("src.server.game.db")
+    def test_new_player_joins_with_same_name(self, mock_db):
+        """Player name already in use for this game, don't add, return False"""
+        game_id = "222"
+        test_game_state = {
+            "turn": "terry",
+            "players": ["terry"],
+        }
+        mock_db.get_game_transaction.return_value = test_game_state
+        self.assertFalse(Game.join_existing_game("terry", game_id))
+        self.assertFalse(mock_db.save_game_transaction.called)
 
     def test_get_player_disc_colour_player_1_is_xs_no_player_2(self):
         """Test with one player, 2nd player hasn't joined yet"""
@@ -296,20 +325,37 @@ class TestGame(TestCase):
         disc = Game.get_player_disc_colour(game, "brian")
         self.assertEqual("o", disc)
 
-    def test_toggle_turn_player_1_moved(self):
+    @patch("src.server.game.db")
+    def test_toggle_turn_player_1_moved(self, mock_db):
         game = {"players": ["arthur", "billy"]}
-        Game.toggle_turn(game, "arthur")
-        self.assertEqual(game["turn"], "billy")
+        Game.toggle_turn("1", game, "arthur")
+        mock_db.save_game.assert_called_once_with(
+            '1', {'players': ['arthur', 'billy'], 'turn': 'billy'})
 
-    def test_toggle_turn_player_2_moved(self):
+    @patch("src.server.game.db")
+    def test_toggle_turn_player_2_moved(self, mock_db):
         game = {
             "players": ["dingo", "zoot"]
         }
-        Game.toggle_turn(game, "zoot")
-        self.assertEqual(game["turn"], "dingo")
+        Game.toggle_turn("2", game, "zoot")
+        mock_db.save_game.assert_called_once_with(
+            '2', {'players': ['dingo', 'zoot'], 'turn': 'dingo'})
 
-    def test_toggle_turn_player_1_moved_no_player_2(self):
+    @patch("src.server.game.db")
+    def test_toggle_turn_player_1_moved_no_player_2(self, mock_db):
         """2nd player hasn't joined yet, turn = None."""
         game = {"players": ["galahad"]}
-        Game.toggle_turn(game, "galahad")
-        self.assertIsNone(game["turn"])
+        Game.toggle_turn("3", game, "galahad")
+        mock_db.save_game.assert_called_once_with(
+            '3', {'players': ['galahad'], 'turn': None})
+
+    @patch("src.server.game.db")
+    def test_game_over_won(self, mock_db):
+        Game.game_over("1", {})
+        mock_db.save_game.assert_called_once_with("1", {"game_status": "won"})
+
+    @patch("src.server.game.db")
+    def test_game_over_disconnected(self, mock_db):
+        Game.game_over("1", {}, won=False)
+        mock_db.save_game.assert_called_once_with(
+            "1", {"game_status": "disconnected"})
