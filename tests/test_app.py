@@ -4,7 +4,6 @@ from unittest.mock import patch
 from src.server import app
 
 
-# FIXME: More meaningful test method names
 class TestApp(TestCase):
 
     def setUp(self):
@@ -48,7 +47,7 @@ class TestApp(TestCase):
     @patch("src.server.game.Game.get_player_disc_colour", return_value="x")
     @patch("src.server.game.Game.make_move", return_value=(1, 2))
     def test_move_winning_move(self, mock_move, mock_get_disc, mock_has_won,
-                             mock_game_over):
+                               mock_game_over):
         """Winning move, inform client with response."""
         test_payload = {
             "name": "foo",
