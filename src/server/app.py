@@ -2,8 +2,7 @@
 from requests import codes
 from flask import Flask, request, json
 
-# TODO: maybe db module should only be in game.py & game should do get_game()
-from src.server.game import Game, db
+from src.server.game import Game
 
 
 app = Flask(__name__)
@@ -11,7 +10,7 @@ app = Flask(__name__)
 
 @app.route("/game", methods=["POST"])
 def connect():
-    """Handle new user connections and current user disconnections."""
+    """Find an available game for the new user and return that games game id"""
     name = request.json.get("name")
     game_id = Game.new_player(name)
     response = app.response_class(
@@ -24,8 +23,10 @@ def connect():
 
 @app.route("/game/<game_id>", methods=["DELETE"])
 def disconnect(game_id):
-    game = db.get_game(game_id)
-    Game.game_over(game_id, game, won=False)
+    # TODO: This should be a patch with {"game_status": "disconnected"}
+    game = Game(game_id)
+    game.load_game()
+    game.game_over(won=False)
     return app.response_class(
         response=json.dumps({"message": "OK"}),
         status=codes.ok,
@@ -36,8 +37,10 @@ def disconnect(game_id):
 @app.route("/game/<game_id>", methods=["GET"])
 def state(game_id):
     """Return the current state of the game."""
+    game = Game(game_id)
+    game.load_game()
     return app.response_class(
-        response=json.dumps(db.get_game(game_id)),
+        response=json.dumps(game.game),
         status=codes.ok,
         content_type='application/json'
     )
@@ -48,22 +51,23 @@ def move(game_id):
     """Apply client move if valid and check if it's a winning move."""
     column = request.json["column"]
     name = request.json["name"]
-    game = db.get_game(game_id)
-    disc = Game.get_player_disc_colour(game, name)
-    coordinates = Game.make_move(game, column, disc)
+    game = Game(game_id)
+    game.load_game()
+    disc = game.get_player_disc_colour(name)
+    coordinates = game.make_move(column, disc)
     if coordinates is None:
         message = f"Bad request, column full."
         status_code = codes.bad_request
-    elif Game.has_won(game, disc, coordinates):
+    elif game.has_won(disc, coordinates):
         message = Game.WON
         status_code = codes.ok
-        Game.game_over(game_id, game)
+        game.game_over()
     else:
         message = "OK"
         status_code = codes.ok
-        Game.toggle_turn(game_id, game, name)
+        game.toggle_turn(name)
     response_data = {"message": message}
-    response_data.update(game)
+    response_data.update(game.game)
     return app.response_class(
         response=json.dumps(response_data),
         status=status_code,

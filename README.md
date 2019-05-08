@@ -55,6 +55,15 @@ Run the server in "debug" mode:
 docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 ```
 
+This runs the server using the Flask devserver, mounts the local source code
+directory in the container and allows for interactive breakpoints to be used.
+
+After a breakpoint has been inserted and hit, attach to the container:
+
+```
+docker attach con5_debug
+```
+
 ## Approach
 
 The server is written using the Flask framework and the clients communicate
