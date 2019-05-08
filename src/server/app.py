@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 
 @app.route("/game", methods=["POST"])
-def connect():
+def post():
     """Find an available game for the new user and return that games game id"""
     name = request.json.get("name")
     game_id = Game.new_player(name)
@@ -22,7 +22,7 @@ def connect():
 
 
 @app.route("/game/<game_id>", methods=["GET"])
-def state(game_id):
+def get(game_id):
     """Return the current state of the game."""
     game = Game(game_id)
     game.load_game()
@@ -34,7 +34,7 @@ def state(game_id):
 
 
 @app.route("/game/<game_id>", methods=["PATCH"])
-def move(game_id):
+def patch(game_id):
     """Play the user's turn or disconnect from a game."""
     game = Game(game_id)
     game.load_game()
