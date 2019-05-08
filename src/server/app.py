@@ -53,19 +53,18 @@ def move(game_id):
     name = request.json["name"]
     game = Game(game_id)
     game.load_game()
-    disc = game.get_player_disc_colour(name)
-    coordinates = game.make_move(column, disc)
-    if coordinates is None:
-        message = f"Bad request, column full."
+    move_result = game.move(name, column)
+
+    if move_result is None:
+        message = "Bad request, column full."
         status_code = codes.bad_request
-    elif game.has_won(disc, coordinates):
+    elif move_result is True:
         message = Game.WON
         status_code = codes.ok
-        game.game_over()
     else:
         message = "OK"
         status_code = codes.ok
-        game.toggle_turn(name)
+
     response_data = {"message": message}
     response_data.update(game.game)
     return app.response_class(

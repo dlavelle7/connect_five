@@ -87,6 +87,25 @@ class Game:
         db.save_game(new_game_id, new_game)
         return new_game_id
 
+    def move(self, name, column):
+        """Play the users turn.
+
+        Return value:
+        - None  : move was invalid
+        - True  : winning move
+        - False : non winning move
+        """
+        disc = self.get_player_disc_colour(name)
+        coordinates = self.make_move(column, disc)
+        if coordinates is None:
+            return None
+        elif self.has_won(disc, coordinates):
+            self.game_over()
+            return True
+        else:
+            self.toggle_turn(name)
+            return False
+
     def make_move(self, move, disc):
         """Make move on board and return coordinates of move."""
         column = move - 1

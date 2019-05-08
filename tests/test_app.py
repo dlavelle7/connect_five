@@ -25,9 +25,8 @@ class TestApp(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(self.test_state, response.json)
 
-    @patch("src.server.game.Game.get_player_disc_colour", return_value="x")
-    @patch("src.server.game.Game.make_move", return_value=None)
-    def test_move_column_full(self, mock_move, mock_get_disc):
+    @patch("src.server.game.Game.move", return_value=None)
+    def test_move_column_full(self, mock_move):
         """Column full, return 400"""
         test_payload = {
             "name": "foo",
@@ -38,16 +37,10 @@ class TestApp(TestCase):
         expected_msg = 'Bad request, column full.'
         self.assertEqual(expected_msg, response.json.pop("message"))
         self.assertDictEqual(self.test_state, response.json)
-        mock_move.assert_called_once_with(1, "x")
-        mock_get_disc.assert_called_once_with("foo")
+        mock_move.assert_called_once_with("foo", 1)
 
-    # FIXME: Too much mocking
-    @patch("src.server.game.Game.game_over")
-    @patch("src.server.game.Game.has_won", return_value=True)
-    @patch("src.server.game.Game.get_player_disc_colour", return_value="x")
-    @patch("src.server.game.Game.make_move", return_value=(1, 2))
-    def test_move_winning_move(self, mock_move, mock_get_disc, mock_has_won,
-                               mock_game_over):
+    @patch("src.server.game.Game.move", return_value=True)
+    def test_move_winning_move(self, mock_move):
         """Winning move, inform client with response."""
         test_payload = {
             "name": "foo",
@@ -58,19 +51,10 @@ class TestApp(TestCase):
         expected_msg = 'won'
         self.assertEqual(expected_msg, response.json.pop("message"))
         self.assertDictEqual(self.test_state, response.json)
-        mock_move.assert_called_once_with(1, "x")
-        mock_get_disc.assert_called_once_with("foo")
-        mock_has_won.assert_called_once_with("x", (1, 2))
-        mock_game_over.assert_called_once_with()
+        mock_move.assert_called_once_with("foo", 1)
 
-    # FIXME: Too much mocking
-    @patch("src.server.game.Game.toggle_turn")
-    @patch("src.server.game.Game.game_over")
-    @patch("src.server.game.Game.has_won", return_value=False)
-    @patch("src.server.game.Game.get_player_disc_colour", return_value="x")
-    @patch("src.server.game.Game.make_move", return_value=(1, 2))
-    def test_move_no_win(self, mock_move, mock_get_disc, mock_has_won,
-                         mock_game_over, mock_toggle_turn):
+    @patch("src.server.game.Game.move", return_value=False)
+    def test_move_no_win(self, mock_move):
         """Move accepted, not a winning one, play on."""
         test_payload = {
             "name": "foo",
@@ -81,7 +65,4 @@ class TestApp(TestCase):
         expected_msg = 'OK'
         self.assertEqual(expected_msg, response.json.pop("message"))
         self.assertDictEqual(self.test_state, response.json)
-        mock_move.assert_called_once_with(1, "x")
-        mock_get_disc.assert_called_once_with("foo")
-        mock_has_won.assert_called_once_with("x", (1, 2))
-        self.assertFalse(mock_game_over.called)
+        mock_move.assert_called_once_with("foo", 1)
