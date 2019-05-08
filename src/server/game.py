@@ -11,7 +11,6 @@ db = DB()
 class Game:
     """Class to hold business logic of game."""
 
-    # TODO: put in separate Game constants
     EMPTY = "-"
     Xs = "x"
     Os = "o"
@@ -27,6 +26,12 @@ class Game:
     def __init__(self, game_id):
         self.game_id = game_id
         self.game = None
+
+    @property
+    def check_has_won_methods(self):
+        """Methods to check for a winning move."""
+        return [self.check_vertical, self.check_horizontal,
+                self.check_diagonal_1, self.check_diagonal_2]
 
     def load_game(self):
         """Load the game state from the db for this instance."""
@@ -107,10 +112,7 @@ class Game:
     def has_won(self, disc, coordinates):
         """Returns True if move wins, otherwise returns False"""
         board = self.game["board"]
-        # TODO: if this was an instance method, check_methods could be property
-        check_methods = [self.check_vertical, self.check_horizontal,
-                         self.check_diagonal_1, self.check_diagonal_2]
-        for check_method in check_methods:
+        for check_method in self.check_has_won_methods:
             if check_method(board, disc, *coordinates) is True:
                 return True
         return False

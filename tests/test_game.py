@@ -220,21 +220,13 @@ class TestGame(TestCase):
         mock_vert.assert_called_once_with([], 'x', 0, 1)
         self.assertFalse(mock_horiz.called)
 
-    # FIXME: Too much mocking
-    @patch("src.server.game.Game.check_diagonal_2", return_value=False)
-    @patch("src.server.game.Game.check_diagonal_1", return_value=False)
-    @patch("src.server.game.Game.check_horizontal", return_value=False)
-    @patch("src.server.game.Game.check_vertical", return_value=False)
-    def test_has_won_all_check_methods_return_false(
-            self, mock_vert, mock_horiz, mock_d1, mock_d2):
+    @patch("src.server.game.Game.check_has_won_methods",
+           return_value=[False, False])
+    def test_has_won_all_check_methods_return_false(self, mock_check_methods):
         """Assert if none of the 'check' functions return True game still on"""
         game = Game("2")
         game.game = {"board": []}
         self.assertFalse(game.has_won('x', (0, 1)))
-        mock_vert.assert_called_once_with([], 'x', 0, 1)
-        mock_horiz.assert_called_once_with([], 'x', 0, 1)
-        mock_d1.assert_called_once_with([], 'x', 0, 1)
-        mock_d2.assert_called_once_with([], 'x', 0, 1)
 
     @patch("src.server.game.db")
     def test_start_new_game(self, mock_db):
