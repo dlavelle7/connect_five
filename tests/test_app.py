@@ -38,8 +38,8 @@ class TestApp(TestCase):
         expected_msg = 'Bad request, column full.'
         self.assertEqual(expected_msg, response.json.pop("message"))
         self.assertDictEqual(self.test_state, response.json)
-        mock_move.assert_called_once_with(self.test_state, 1, "x")
-        mock_get_disc.assert_called_once_with(self.test_state, "foo")
+        mock_move.assert_called_once_with(1, "x")
+        mock_get_disc.assert_called_once_with("foo")
 
     # FIXME: Too much mocking
     @patch("src.server.game.Game.game_over")
@@ -58,10 +58,10 @@ class TestApp(TestCase):
         expected_msg = 'won'
         self.assertEqual(expected_msg, response.json.pop("message"))
         self.assertDictEqual(self.test_state, response.json)
-        mock_move.assert_called_once_with(self.test_state, 1, "x")
-        mock_get_disc.assert_called_once_with(self.test_state, "foo")
-        mock_has_won.assert_called_once_with(self.test_state, "x", (1, 2))
-        mock_game_over.assert_called_once_with("2", self.test_state)
+        mock_move.assert_called_once_with(1, "x")
+        mock_get_disc.assert_called_once_with("foo")
+        mock_has_won.assert_called_once_with("x", (1, 2))
+        mock_game_over.assert_called_once_with()
 
     # FIXME: Too much mocking
     @patch("src.server.game.Game.toggle_turn")
@@ -81,7 +81,7 @@ class TestApp(TestCase):
         expected_msg = 'OK'
         self.assertEqual(expected_msg, response.json.pop("message"))
         self.assertDictEqual(self.test_state, response.json)
-        mock_move.assert_called_once_with(self.test_state, 1, "x")
-        mock_get_disc.assert_called_once_with(self.test_state, "foo")
-        mock_has_won.assert_called_once_with(self.test_state, "x", (1, 2))
+        mock_move.assert_called_once_with(1, "x")
+        mock_get_disc.assert_called_once_with("foo")
+        mock_has_won.assert_called_once_with("x", (1, 2))
         self.assertFalse(mock_game_over.called)

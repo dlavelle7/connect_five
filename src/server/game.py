@@ -107,7 +107,7 @@ class Game:
     def has_won(self, disc, coordinates):
         """Returns True if move wins, otherwise returns False"""
         board = self.game["board"]
-        # TODO: if this was an instance method, check_methods could be a property
+        # TODO: if this was an instance method, check_methods could be property
         check_methods = [self.check_vertical, self.check_horizontal,
                          self.check_diagonal_1, self.check_diagonal_2]
         for check_method in check_methods:
