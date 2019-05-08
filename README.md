@@ -7,9 +7,10 @@
 * Replaced Flask dev server with WSGI server (gunicorn)
 * docker-compose used to bring up server & redis containers
 * "debug mode" docker-compose file for breakpoints & src code mounting
-* [TODO] better unit testing
+* better unit testing
 ** less mocking
 ** more descriptive test method names
+* bugfix: fixed bug where user could join a disconnected game
 
 [v2.0]
 * Game server now supports multiple concurrent games (no more restarting)
