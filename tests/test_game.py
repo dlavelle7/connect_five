@@ -247,6 +247,7 @@ class TestGame(TestCase):
         test_game_state = {
             "turn": None,
             "players": ["dom"],
+            "game_status": Game.PLAYING,
         }
         mock_db.get_game_transaction.return_value = test_game_state
         Game.join_existing_game("mary", game_id)
@@ -265,6 +266,7 @@ class TestGame(TestCase):
         test_game_state = {
             "turn": "dom",
             "players": ["dom"],
+            "game_status": Game.PLAYING,
         }
         mock_db.get_game_transaction.return_value = test_game_state
         Game.join_existing_game("mary", game_id)
@@ -275,6 +277,18 @@ class TestGame(TestCase):
         self.assertEqual(game_id, call_game_id)
         self.assertEqual("dom", call_game_state["turn"])
         self.assertListEqual(["dom", "mary"], call_game_state["players"])
+
+    @patch("src.server.game.db")
+    def test_bug_2nd_player_cant_join_disconnected_game(self, mock_db):
+        """2nd player added, game checked has been disconnected, can't join."""
+        game_id = "888"
+        test_game_state = {
+            "turn": "bob",
+            "players": ["bob"],
+            "game_status": Game.DISCONNECTED,
+        }
+        mock_db.get_game_transaction.return_value = test_game_state
+        self.assertFalse(Game.join_existing_game("mary", game_id))
 
     @patch("src.server.game.db")
     def test_new_player_joins_this_game_already_full(self, mock_db):

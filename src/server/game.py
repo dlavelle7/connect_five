@@ -56,7 +56,7 @@ class Game:
 
     @classmethod
     def join_existing_game(cls, name, game_id):
-        """Try to join an existing game if there is space.
+        """Try to join an existing active game if there is space.
 
         Use Redis transaction with WATCH on game key to avoid race conditions.
         """
@@ -64,6 +64,9 @@ class Game:
         pipeline = db.connection.pipeline()
         pipeline.watch(game_id)
         game = db.get_game_transaction(pipeline, game_id)
+        # TODO: Is there a way of querying only active games (see above)
+        if game.get("game_status") != Game.PLAYING:
+            return False
         if len(game["players"]) > 1 or name in game["players"]:
             return False
 
