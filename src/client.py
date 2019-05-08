@@ -11,8 +11,8 @@ GAME_URL = f"{SERVER_URL}/game"
 WAIT_INTERVAL = 2
 ACCEPTED_COLUMNS = [num for num in range(1, 10)]
 
-WIN_RESPONSE = "won"
-DISCONNECTED_RESPONSE = "disconnected"
+GAME_WON = "won"
+GAME_DISCONNECTED = "disconnected"
 BOARD_ROWS = 6
 BOARD_COLS = 9
 
@@ -71,11 +71,11 @@ class Client:
         response_data = response.json()
         turn = response_data["turn"]
         game_status = response_data["game_status"]
-        if game_status == WIN_RESPONSE:
+        if game_status == GAME_WON:
             board = response.json().get("board")
             display_board(board)
             exit_game(f"Game over, {turn} has won.")
-        elif game_status == DISCONNECTED_RESPONSE:
+        elif game_status == GAME_DISCONNECTED:
             exit_game(f"Game over, other player disconnected.")
         elif turn == self.name:
             display_board(response_data["board"])
@@ -110,7 +110,7 @@ class Client:
                     board = response.json().get("board")
                     display_board(board)
                     message = response.json().get("message")
-                    if message == WIN_RESPONSE:
+                    if message == GAME_WON:
                         exit_game("Congrats, you have won!")
                     break
                 else:
@@ -131,7 +131,8 @@ class Client:
 
     def disconnect(self, message):
         """Connected client leaves the game, inform server to end game."""
-        requests.delete(self.client_game_url)
+        disconnected_body = {"game_status": GAME_DISCONNECTED}
+        requests.patch(self.client_game_url, json=disconnected_body)
         exit_game(message)
 
 

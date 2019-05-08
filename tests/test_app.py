@@ -66,3 +66,15 @@ class TestApp(TestCase):
         self.assertEqual(expected_msg, response.json.pop("message"))
         self.assertDictEqual(self.test_state, response.json)
         mock_move.assert_called_once_with("foo", 1)
+
+    @patch("src.server.game.Game.game_over")
+    def test_disconnect(self, mock_game_over):
+        """PATCH request to disconnect from a game."""
+        test_payload = {
+            "game_status": "disconnected"
+        }
+        response = self.client.patch("/game/2", json=test_payload)
+        self.assertEqual(200, response.status_code)
+        expected_msg = 'OK'
+        self.assertEqual(expected_msg, response.json.pop("message"))
+        mock_game_over.assert_called_once_with(won=False)

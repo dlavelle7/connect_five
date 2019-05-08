@@ -21,19 +21,6 @@ def connect():
     return response
 
 
-@app.route("/game/<game_id>", methods=["DELETE"])
-def disconnect(game_id):
-    # TODO: This should be a patch with {"game_status": "disconnected"}
-    game = Game(game_id)
-    game.load_game()
-    game.game_over(won=False)
-    return app.response_class(
-        response=json.dumps({"message": "OK"}),
-        status=codes.ok,
-        content_type='application/json'
-    )
-
-
 @app.route("/game/<game_id>", methods=["GET"])
 def state(game_id):
     """Return the current state of the game."""
@@ -48,11 +35,19 @@ def state(game_id):
 
 @app.route("/game/<game_id>", methods=["PATCH"])
 def move(game_id):
-    """Apply client move if valid and check if it's a winning move."""
-    column = request.json["column"]
-    name = request.json["name"]
+    """Play the user's turn or disconnect from a game."""
     game = Game(game_id)
     game.load_game()
+    if request.json.get("game_status") == Game.DISCONNECTED:
+        game.game_over(won=False)
+        return app.response_class(
+            response=json.dumps({"message": "OK"}),
+            status=codes.ok,
+            content_type='application/json'
+        )
+
+    column = request.json["column"]
+    name = request.json["name"]
     move_result = game.move(name, column)
 
     if move_result is None:
