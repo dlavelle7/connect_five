@@ -239,6 +239,7 @@ class TestGame(TestCase):
         self.assertEqual("dave", call_game_state["turn"])
         self.assertListEqual(["dave"], call_game_state["players"])
         self.assertEqual("playing", call_game_state["game_status"])
+        self.assertEqual(2, call_game_state["max_players"])
 
     @patch("src.server.game.db")
     def test_2nd_player_joins_after_player1_has_moved(self, mock_db):
@@ -248,6 +249,7 @@ class TestGame(TestCase):
             "turn": None,
             "players": ["dom"],
             "game_status": Game.PLAYING,
+            "max_players": 2,
         }
         mock_db.get_game_transaction.return_value = test_game_state
         Game.join_existing_game("mary", game_id)
@@ -267,6 +269,7 @@ class TestGame(TestCase):
             "turn": "dom",
             "players": ["dom"],
             "game_status": Game.PLAYING,
+            "max_players": 2,
         }
         mock_db.get_game_transaction.return_value = test_game_state
         Game.join_existing_game("mary", game_id)

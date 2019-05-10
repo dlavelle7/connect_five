@@ -22,6 +22,7 @@ class Game:
     MAX_COUNT = WINNING_COUNT - 1
     BOARD_ROWS = 6
     BOARD_COLS = 9
+    DEFAULT_MAX_PLAYERS = 2
 
     def __init__(self, game_id):
         self.game_id = game_id
@@ -46,7 +47,6 @@ class Game:
 
         Return the game_id of the game that the user joined.
         """
-        # TODO: Is there a way of querying only active games???
         for game_id in db.connection.scan_iter():
             if cls.join_existing_game(name, game_id):
                 break
@@ -64,10 +64,11 @@ class Game:
         pipeline = db.connection.pipeline()
         pipeline.watch(game_id)
         game = db.get_game_transaction(pipeline, game_id)
-        # TODO: Is there a way of querying only active games (see above)
         if game.get("game_status") != Game.PLAYING:
             return False
-        if len(game["players"]) > 1 or name in game["players"]:
+        if len(game["players"]) > game["max_players"] - 1:
+            return False
+        if name in game["players"]:
             return False
 
         game["players"].append(name)
@@ -85,6 +86,7 @@ class Game:
             "game_status": cls.PLAYING,
             "players": [name],
             "turn": name,
+            "max_players": cls.DEFAULT_MAX_PLAYERS,
         }
         new_game_id = str(uuid.uuid4())
         db.save_game(new_game_id, new_game)
