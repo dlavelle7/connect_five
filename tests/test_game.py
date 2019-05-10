@@ -239,6 +239,7 @@ class TestGame(TestCase):
         self.assertEqual("dave", call_game_state["turn"])
         self.assertListEqual(["dave"], call_game_state["players"])
         self.assertEqual("playing", call_game_state["game_status"])
+        self.assertEqual(2, call_game_state["max_players"])
 
     @patch("src.server.game.db")
     def test_2nd_player_joins_after_player1_has_moved(self, mock_db):
@@ -248,6 +249,7 @@ class TestGame(TestCase):
             "turn": None,
             "players": ["dom"],
             "game_status": Game.PLAYING,
+            "max_players": 2,
         }
         mock_db.get_game_transaction.return_value = test_game_state
         Game.join_existing_game("mary", game_id)
@@ -267,6 +269,7 @@ class TestGame(TestCase):
             "turn": "dom",
             "players": ["dom"],
             "game_status": Game.PLAYING,
+            "max_players": 2,
         }
         mock_db.get_game_transaction.return_value = test_game_state
         Game.join_existing_game("mary", game_id)
@@ -347,20 +350,26 @@ class TestGame(TestCase):
     def test_toggle_turn_player_2_moved(self, mock_db):
         game = Game("2")
         game.game = {
-            "players": ["dingo", "zoot"]
+            "players": ["dingo", "zoot"],
+            "max_players": 2,
         }
         game.toggle_turn("zoot")
         mock_db.save_game.assert_called_once_with(
-            '2', {'players': ['dingo', 'zoot'], 'turn': 'dingo'})
+            '2', {'players': ['dingo', 'zoot'],
+                  'turn': 'dingo',
+                  'max_players': 2})
 
     @patch("src.server.game.db")
     def test_toggle_turn_player_1_moved_no_player_2(self, mock_db):
         """2nd player hasn't joined yet, turn = None."""
         game = Game("3")
-        game.game = {"players": ["galahad"]}
+        game.game = {
+            "players": ["galahad"],
+            "max_players": 2,
+        }
         game.toggle_turn("galahad")
         mock_db.save_game.assert_called_once_with(
-            '3', {'players': ['galahad'], 'turn': None})
+            '3', {'players': ['galahad'], 'turn': None, 'max_players': 2})
 
     @patch("src.server.game.db")
     def test_game_over_won(self, mock_db):
