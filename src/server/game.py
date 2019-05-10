@@ -239,16 +239,18 @@ class Game:
     def check_diagonal_2(cls, board, disc, column, row):
         return cls._check_diagonal(board, disc, column, row, "//")
 
-    def toggle_turn(self, just_moved):
-        """Swap the 'turn' from player who has just moved."""
-        if just_moved == self.game["players"][0]:
-            try:
-                self.game["turn"] = self.game["players"][1]
-            except IndexError:
-                # other player may not have joined yet
+    def toggle_turn(self, current_player):
+        """Move the game's turn on to the next player."""
+        current_player_index = self.game["players"].index(current_player)
+        next_player_index = current_player_index + 1
+        try:
+            self.game["turn"] = self.game["players"][next_player_index]
+        except IndexError:
+            if next_player_index > self.game["max_players"] - 1:
+                self.game["turn"] = self.game["players"][0]
+            else:
+                # other player has not joined yet
                 self.game["turn"] = None
-        else:
-            self.game["turn"] = self.game["players"][0]
         db.save_game(self.game_id, self.game)
 
     def game_over(self, won=True):
