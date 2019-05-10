@@ -14,7 +14,8 @@ class Game:
     EMPTY = "-"
     Xs = "x"
     Os = "o"
-    player_discs = (Xs, Os)
+    Zs = "z"
+    player_discs = (Xs, Os, Zs)
     PLAYING = "playing"
     WON = "won"
     DISCONNECTED = "disconnected"

@@ -82,8 +82,7 @@ class Client:
             self.make_move()
         else:
             if turn is None:
-                print("Started new game, "
-                      "waiting for another player to join . . .")
+                print("Waiting for another player to join . . .")
             else:
                 print(f"Waiting on player {turn} . . .")
             time.sleep(WAIT_INTERVAL)
