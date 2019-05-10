@@ -12,8 +12,9 @@ class TestApp(TestCase):
         self.client = app.app.test_client()
         # mock game state for each test method
         self.test_state = {
-            "2": {"board": [], "game_status": "playing", "turn": "foo"}}
-        self.patcher = patch("src.server.game.Game.state", self.test_state)
+            "board": [], "game_status": "playing", "turn": "foo"}
+        self.patcher = patch("src.server.game.db.get_game",
+                             return_value=self.test_state)
         self.patcher.start()
 
     def tearDown(self):
@@ -22,11 +23,10 @@ class TestApp(TestCase):
     def test_get_state(self):
         response = self.client.get("/game/2")
         self.assertEqual(200, response.status_code)
-        self.assertEqual(self.test_state["2"], response.json)
+        self.assertEqual(self.test_state, response.json)
 
-    @patch("src.server.game.Game.get_player_disc_colour", return_value="x")
-    @patch("src.server.game.Game.make_move", return_value=None)
-    def test_move_negative_1(self, mock_move, mock_get_disc):
+    @patch("src.server.game.Game.move", return_value=None)
+    def test_move_column_full(self, mock_move):
         """Column full, return 400"""
         test_payload = {
             "name": "foo",
@@ -34,17 +34,13 @@ class TestApp(TestCase):
         }
         response = self.client.patch("/game/2", json=test_payload)
         self.assertEqual(400, response.status_code)
-        self.test_state["2"].update({'message': 'Bad request, column full.'})
-        self.assertDictEqual(self.test_state["2"], response.json)
-        mock_move.assert_called_once_with("2", 1, "x")
-        mock_get_disc.assert_called_once_with("2", "foo")
+        expected_msg = 'Bad request, column full.'
+        self.assertEqual(expected_msg, response.json.pop("message"))
+        self.assertDictEqual(self.test_state, response.json)
+        mock_move.assert_called_once_with("foo", 1)
 
-    @patch("src.server.game.Game.game_over")
-    @patch("src.server.game.Game.has_won", return_value=True)
-    @patch("src.server.game.Game.get_player_disc_colour", return_value="x")
-    @patch("src.server.game.Game.make_move", return_value=(1, 2))
-    def test_move_positive_1(self, mock_move, mock_get_disc, mock_has_won,
-                             mock_game_over):
+    @patch("src.server.game.Game.move", return_value=True)
+    def test_move_winning_move(self, mock_move):
         """Winning move, inform client with response."""
         test_payload = {
             "name": "foo",
@@ -52,20 +48,13 @@ class TestApp(TestCase):
         }
         response = self.client.patch("/game/2", json=test_payload)
         self.assertEqual(200, response.status_code)
-        self.test_state["2"].update({'message': 'won'})
-        self.assertDictEqual(self.test_state["2"], response.json)
-        mock_move.assert_called_once_with("2", 1, "x")
-        mock_get_disc.assert_called_once_with("2", "foo")
-        mock_has_won.assert_called_once_with("2", "x", (1, 2))
-        mock_game_over.assert_called_once_with("2")
+        expected_msg = 'won'
+        self.assertEqual(expected_msg, response.json.pop("message"))
+        self.assertDictEqual(self.test_state, response.json)
+        mock_move.assert_called_once_with("foo", 1)
 
-    @patch("src.server.game.Game.toggle_turn")
-    @patch("src.server.game.Game.game_over")
-    @patch("src.server.game.Game.has_won", return_value=False)
-    @patch("src.server.game.Game.get_player_disc_colour", return_value="x")
-    @patch("src.server.game.Game.make_move", return_value=(1, 2))
-    def test_move_positive_2(self, mock_move, mock_get_disc, mock_has_won,
-                             mock_game_over, mock_toggle_turn):
+    @patch("src.server.game.Game.move", return_value=False)
+    def test_move_no_win(self, mock_move):
         """Move accepted, not a winning one, play on."""
         test_payload = {
             "name": "foo",
@@ -73,9 +62,19 @@ class TestApp(TestCase):
         }
         response = self.client.patch("/game/2", json=test_payload)
         self.assertEqual(200, response.status_code)
-        self.test_state["2"].update({'message': 'OK'})
-        self.assertDictEqual(self.test_state["2"], response.json)
-        mock_move.assert_called_once_with("2", 1, "x")
-        mock_get_disc.assert_called_once_with("2", "foo")
-        mock_has_won.assert_called_once_with("2", "x", (1, 2))
-        self.assertFalse(mock_game_over.called)
+        expected_msg = 'OK'
+        self.assertEqual(expected_msg, response.json.pop("message"))
+        self.assertDictEqual(self.test_state, response.json)
+        mock_move.assert_called_once_with("foo", 1)
+
+    @patch("src.server.game.Game.game_over")
+    def test_disconnect(self, mock_game_over):
+        """PATCH request to disconnect from a game."""
+        test_payload = {
+            "game_status": "disconnected"
+        }
+        response = self.client.patch("/game/2", json=test_payload)
+        self.assertEqual(200, response.status_code)
+        expected_msg = 'OK'
+        self.assertEqual(expected_msg, response.json.pop("message"))
+        mock_game_over.assert_called_once_with(won=False)

@@ -1,19 +1,29 @@
 # Connect 5 [![Build Status](https://travis-ci.com/dlavelle7/connect_five.svg?branch=master)](https://travis-ci.com/dlavelle7/connect_five)
 
 ## What's New
-[v2.0.1 TBC]
+[v3.0]
+* Dockerized server
+* Replaced in memory game state with Redis container
+* Replaced Flask dev server with WSGI server (gunicorn)
+* docker-compose used to bring up server & redis containers
+* Added "debug mode" docker-compose file for breakpoints & src code mounting
+* Improved unit testing:
+** less mocking (using code refactor)
+** more descriptive test method names
+* Bugfix: fixed bug where user could join a disconnected game
+
+[v2.0]
+* Game server now supports multiple concurrent games (no more restarting)
+* More RESTful URIs ("game" resource being manipulated and accessed via /game)
 * Code refactor:
 
   * Refactored similar "check" functions
   * Removed hardcoded board dimensions and winning count number
 
-[v2.0 TBC]
-* Game server now supports multiple concurrent games (no more restarting)
-* More RESTful URIs ("game" resource being manipulated and accessed via /game)
-
 ## Dependencies
 * Python 3.6
 * pip
+* Docker
 
 ## Installation
 ```
@@ -21,13 +31,13 @@ git clone git@github.com:dlavelle7/connect_five.git
 cd connect_five
 
 # preferably in a python virtual env
-pip install -r requirements.txt
+pip install -r requirements_run.txt
 ```
 
 ## Usage
 Run the server:
 ```
-FLASK_APP=src.server.app.py flask run
+docker-compose up --build
 ```
 
 In a separate shell, run the first client:
@@ -38,6 +48,21 @@ python src/client.py
 In a separate shell, run the second client:
 ```
 python src/client.py
+```
+
+### Debugging
+Run the server in "debug" mode:
+```
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+```
+
+This runs the server using the Flask devserver, mounts the local source code
+directory in the container and allows for interactive breakpoints to be used.
+
+After a breakpoint has been inserted and hit, attach to the container:
+
+```
+docker attach con5_debug
 ```
 
 ## Approach
@@ -51,19 +76,7 @@ list.
 
 The bottom of a "column" corresponds to the last position in that list.
 
-The server has threaded mode enabled by default, meaning each request will be
-handled in a separate thread.
-
 ## Simplifications
-
-For the purpose of this exercise, I have chosen to run the server application
-using Flask's development server. In a production setting this would need to be
-replaced by a WSGI HTTP server like `gunicorn` or `uwsgi`.
-
-The game state is stored in memory by the `Game` class. In a production
-environment this would need to be changed to an external DB or cache
-(e.g. `Redis`), so that the state could be shared between multiple processes
-running the application.
 
 In the event of a draw game, players will disconnect themselves.
 
@@ -87,7 +100,7 @@ pytest tests/
 
 Tox was chosen as the CI automation tool and runs the following tests:
 * unit tests
-* unit test coverage (greater than 70%)
+* unit test coverage (greater than 75%)
 * static code analysis `flake8`
 
 Run the CI build locally:
