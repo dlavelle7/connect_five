@@ -8,22 +8,32 @@ from src.server.game import Game
 app = Flask(__name__)
 
 
-@app.route("/game", methods=["POST"])
-def post():
-    """Find an available game for the new user and return that games game id"""
+@app.route("/game", methods=["POST", "PATCH"])
+def new_player():
+    """Create a new game or join an existing one."""
     name = request.json.get("name")
-    game_id = Game.new_player(name)
-    response = app.response_class(
-        response=json.dumps({"game_id": game_id}),
-        status=codes.created,
-        content_type='application/json'
-    )
+    if request.method == "POST":
+        max_players = int(request.json.get("max_players"))
+        game_id = Game.start_new_game(name, max_players)
+        response = app.response_class(
+            response=json.dumps({"game_id": game_id}),
+            status=codes.created,
+            content_type='application/json'
+        )
+    else:
+        game_id = Game.join_existing_game(name)
+        status = codes.not_found if game_id is None else codes.ok
+        response = app.response_class(
+            response=json.dumps({"game_id": game_id}),
+            status=status,
+            content_type='application/json'
+        )
     return response
 
 
 @app.route("/game/<game_id>", methods=["GET"])
-def get(game_id):
-    """Return the current state of the game."""
+def get_game(game_id):
+    """Get the specified game."""
     game = Game(game_id)
     game.load_game()
     return app.response_class(
@@ -34,8 +44,8 @@ def get(game_id):
 
 
 @app.route("/game/<game_id>", methods=["PATCH"])
-def patch(game_id):
-    """Play the user's turn or disconnect from a game."""
+def update_game(game_id):
+    """Update the specified game (make a move or end a game)."""
     game = Game(game_id)
     game.load_game()
     if request.json.get("game_status") == Game.DISCONNECTED:

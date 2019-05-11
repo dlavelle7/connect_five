@@ -10,6 +10,10 @@ GAME_URL = f"{SERVER_URL}/game"
 
 WAIT_INTERVAL = 2
 ACCEPTED_COLUMNS = [num for num in range(1, 10)]
+JOIN_GAME = "1"
+NEW_2P_GAME = "2"
+NEW_3P_GAME = "3"
+ACCEPTED_GAME_TYPES = (JOIN_GAME, NEW_2P_GAME, NEW_3P_GAME)
 
 GAME_WON = "won"
 GAME_DISCONNECTED = "disconnected"
@@ -30,12 +34,41 @@ def connect():
     """Get player name from user and request to server to join game."""
     message = "Enter name: "
     name = prompt_user(message)
-    response = requests.post(GAME_URL, json={"name": name})
-    if response.status_code == requests.codes.created:
-        game_id = response.json()["game_id"]
-        return name, game_id
+    message = (
+        "1. Join existing game\n"
+        "2. Create new two player game\n"
+        "3. Create new three player game\n"
+        "Select game type: "
+    )
+
+    while True:
+        game_type = prompt_user(message)
+        if game_type in ACCEPTED_GAME_TYPES:
+            break
+        message = "Invalid choice, please select 1, 2 or 3: "
+
+    if game_type == JOIN_GAME:
+        while True:
+            response = requests.patch(GAME_URL, json={"name": name})
+            if response.status_code == requests.codes.ok:
+                game_id = response.json()["game_id"]
+                return name, game_id
+            elif response.status_code == requests.codes.not_found:
+                print("Waiting for an available space . . . ")
+                time.sleep(WAIT_INTERVAL)
+            else:
+                response.raise_for_status()
     else:
-        response.raise_for_status()
+        body = {
+            "name": name,
+            "max_players": game_type,
+        }
+        response = requests.post(GAME_URL, json=body)
+        if response.status_code == requests.codes.created:
+            game_id = response.json()["game_id"]
+            return name, game_id
+        else:
+            response.raise_for_status()
 
 
 def display_board(board):
