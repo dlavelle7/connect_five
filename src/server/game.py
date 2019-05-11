@@ -46,11 +46,11 @@ class Game:
         the game_id of that game. Return None if no available space could be
         found.
         """
-        game_id = None
         for game_id in db.connection.scan_iter():
             if cls._join_existing_game(name, game_id):
-                break
-        return game_id
+                return game_id
+        else:
+            return None
 
     @classmethod
     def _join_existing_game(cls, name, game_id):
