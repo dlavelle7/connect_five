@@ -8,27 +8,30 @@ from src.server.game import Game
 app = Flask(__name__)
 
 
-@app.route("/game", methods=["POST", "PATCH"])
-def new_player():
-    """Create a new game or join an existing one."""
+@app.route("/game", methods=["POST"])
+def create_game():
+    """Create a new game for the new player."""
     name = request.json.get("name")
-    if request.method == "POST":
-        max_players = int(request.json.get("max_players"))
-        game_id = Game.start_new_game(name, max_players)
-        response = app.response_class(
-            response=json.dumps({"game_id": game_id}),
-            status=codes.created,
-            content_type='application/json'
-        )
-    else:
-        game_id = Game.join_existing_game(name)
-        status = codes.not_found if game_id is None else codes.ok
-        response = app.response_class(
-            response=json.dumps({"game_id": game_id}),
-            status=status,
-            content_type='application/json'
-        )
-    return response
+    max_players = int(request.json.get("max_players"))
+    game_id = Game.start_new_game(name, max_players)
+    return app.response_class(
+        response=json.dumps({"game_id": game_id}),
+        status=codes.created,
+        content_type='application/json'
+    )
+
+
+@app.route("/game", methods=["PATCH"])
+def new_player_update_game():
+    """Update an available game by adding the new player to it."""
+    name = request.json.get("name")
+    game_id = Game.join_existing_game(name)
+    status = codes.not_found if game_id is None else codes.ok
+    return app.response_class(
+        response=json.dumps({"game_id": game_id}),
+        status=status,
+        content_type='application/json'
+    )
 
 
 @app.route("/game/<game_id>", methods=["GET"])
