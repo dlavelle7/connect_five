@@ -166,7 +166,7 @@ class TestClientPatchRequests(TestCase):
 @patch("src.client.requests.post")
 class TestClientPostRequests(TestCase):
 
-    @patch("src.client.prompt_user", return_value="eric")
+    @patch("src.client.prompt_user", side_effect=["eric", "2"])
     @patch("src.client.exit")
     def test_connect_acceptable_name(self, mock_exit, mock_prompt, mock_post):
         """Assert that with an acceptable name, user is prompted once."""
@@ -175,5 +175,4 @@ class TestClientPostRequests(TestCase):
         self.assertEqual(client.connect(), ("eric", "123"))
         self.assertFalse(mock_exit.called)
         mock_post.assert_called_once_with(
-            'http://127.0.0.1/game', json={'name': 'eric'})
-        mock_prompt.assert_called_once_with("Enter name: ")
+            'http://127.0.0.1/game', json={'name': 'eric', 'max_players': 2})

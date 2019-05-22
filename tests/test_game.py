@@ -231,7 +231,7 @@ class TestGame(TestCase):
     @patch("src.server.game.db")
     def test_start_new_game(self, mock_db):
         """new player added to 'players', their turn and board created."""
-        game_id = Game.start_new_game("dave")
+        game_id = Game.start_new_game("dave", 2)
         self.assertIsInstance(game_id, str)
         call_game_id, call_game_state = mock_db.save_game.call_args[0]
         self.assertEqual(game_id, call_game_id)
@@ -240,6 +240,22 @@ class TestGame(TestCase):
         self.assertListEqual(["dave"], call_game_state["players"])
         self.assertEqual("playing", call_game_state["game_status"])
         self.assertEqual(2, call_game_state["max_players"])
+
+    @patch("src.server.game.db")
+    @patch("src.server.game.Game._join_existing_game",
+           side_effect=[False, True])
+    def test_join_existing_game_game_found(self, mock_join, mock_db):
+        """Available game with space found, return game_id."""
+        mock_db.connection.scan_iter.return_value = ["1", "2", "3"]
+        self.assertEqual("2", Game.join_existing_game("foo"))
+        self.assertEqual(2, mock_join.call_count)
+
+    @patch("src.server.game.db")
+    @patch("src.server.game.Game._join_existing_game", return_value=False)
+    def test_join_existing_game_no_game_found(self, mock_join, mock_db):
+        """No available game with space found, return None."""
+        mock_db.connection.scan_iter.return_value = ["1", "2", "3"]
+        self.assertIsNone(Game.join_existing_game("foo"))
 
     @patch("src.server.game.db")
     def test_2nd_player_joins_after_player1_has_moved(self, mock_db):
@@ -252,7 +268,7 @@ class TestGame(TestCase):
             "max_players": 2,
         }
         mock_db.get_game_transaction.return_value = test_game_state
-        Game.join_existing_game("mary", game_id)
+        Game._join_existing_game("mary", game_id)
 
         _, call_game_id, call_game_state = \
             mock_db.save_game_transaction.call_args[0]
@@ -272,7 +288,7 @@ class TestGame(TestCase):
             "max_players": 2,
         }
         mock_db.get_game_transaction.return_value = test_game_state
-        Game.join_existing_game("mary", game_id)
+        Game._join_existing_game("mary", game_id)
 
         _, call_game_id, call_game_state = \
             mock_db.save_game_transaction.call_args[0]
@@ -291,7 +307,7 @@ class TestGame(TestCase):
             "game_status": Game.DISCONNECTED,
         }
         mock_db.get_game_transaction.return_value = test_game_state
-        self.assertFalse(Game.join_existing_game("mary", game_id))
+        self.assertFalse(Game._join_existing_game("mary", game_id))
 
     @patch("src.server.game.db")
     def test_new_player_joins_this_game_already_full(self, mock_db):
@@ -302,7 +318,7 @@ class TestGame(TestCase):
             "players": ["eric", "polly"],
         }
         mock_db.get_game_transaction.return_value = test_game_state
-        self.assertFalse(Game.join_existing_game("mary", game_id))
+        self.assertFalse(Game._join_existing_game("mary", game_id))
         self.assertFalse(mock_db.save_game_transaction.called)
 
     @patch("src.server.game.db")
@@ -314,7 +330,7 @@ class TestGame(TestCase):
             "players": ["terry"],
         }
         mock_db.get_game_transaction.return_value = test_game_state
-        self.assertFalse(Game.join_existing_game("terry", game_id))
+        self.assertFalse(Game._join_existing_game("terry", game_id))
         self.assertFalse(mock_db.save_game_transaction.called)
 
     def test_get_player_disc_colour_player_1_is_xs_no_player_2(self):

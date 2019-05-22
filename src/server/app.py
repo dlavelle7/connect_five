@@ -1,50 +1,50 @@
 """Server module containing application instance and RESTful API."""
-from requests import codes
-from flask import Flask, request, json
+from flask import request
+from flask_api import FlaskAPI, status
 
 from src.server.game import Game
 
 
-app = Flask(__name__)
+app = FlaskAPI(__name__)
 
 
 @app.route("/game", methods=["POST"])
-def post():
-    """Find an available game for the new user and return that games game id"""
+def create_game():
+    """Create a new game for the new player."""
     name = request.json.get("name")
-    game_id = Game.new_player(name)
-    response = app.response_class(
-        response=json.dumps({"game_id": game_id}),
-        status=codes.created,
-        content_type='application/json'
-    )
-    return response
+    max_players = request.json.get("max_players")
+    game_id = Game.start_new_game(name, max_players)
+    return {"game_id": game_id}, status.HTTP_201_CREATED
+
+
+@app.route("/game", methods=["PATCH"])
+def update_game_new_player():
+    """Update an available game by adding the new player to it."""
+    name = request.json.get("name")
+    game_id = Game.join_existing_game(name)
+    if game_id is None:
+        status_code = status.HTTP_404_NOT_FOUND
+    else:
+        status_code = status.HTTP_200_OK
+    return {"game_id": game_id}, status_code,
 
 
 @app.route("/game/<game_id>", methods=["GET"])
-def get(game_id):
-    """Return the current state of the game."""
+def get_game(game_id):
+    """Get the specified game."""
     game = Game(game_id)
     game.load_game()
-    return app.response_class(
-        response=json.dumps(game.game),
-        status=codes.ok,
-        content_type='application/json'
-    )
+    return game.game, status.HTTP_200_OK
 
 
 @app.route("/game/<game_id>", methods=["PATCH"])
-def patch(game_id):
-    """Play the user's turn or disconnect from a game."""
+def update_game(game_id):
+    """Update the specified game (make a move or end a game)."""
     game = Game(game_id)
     game.load_game()
     if request.json.get("game_status") == Game.DISCONNECTED:
         game.game_over(won=False)
-        return app.response_class(
-            response=json.dumps({"message": "OK"}),
-            status=codes.ok,
-            content_type='application/json'
-        )
+        return {"message": "OK"}, status.HTTP_200_OK
 
     column = request.json["column"]
     name = request.json["name"]
@@ -52,18 +52,14 @@ def patch(game_id):
 
     if move_result is None:
         message = "Bad request, column full."
-        status_code = codes.bad_request
+        status_code = status.HTTP_400_BAD_REQUEST
     elif move_result is True:
         message = Game.WON
-        status_code = codes.ok
+        status_code = status.HTTP_200_OK
     else:
         message = "OK"
-        status_code = codes.ok
+        status_code = status.HTTP_200_OK
 
     response_data = {"message": message}
     response_data.update(game.game)
-    return app.response_class(
-        response=json.dumps(response_data),
-        status=status_code,
-        content_type='application/json'
-    )
+    return response_data, status_code

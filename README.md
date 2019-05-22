@@ -1,6 +1,10 @@
 # Connect 5 [![Build Status](https://travis-ci.com/dlavelle7/connect_five.svg?branch=master)](https://travis-ci.com/dlavelle7/connect_five)
 
 ## What's New
+[v4.0]
+* Introduced "3 player" mode
+* Switched from Flask to FlaskAPI
+
 [v3.0]
 * Dockerized server
 * Replaced in memory game state with Redis container

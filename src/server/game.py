@@ -14,7 +14,8 @@ class Game:
     EMPTY = "-"
     Xs = "x"
     Os = "o"
-    player_discs = (Xs, Os)
+    Zs = "z"
+    player_discs = (Xs, Os, Zs)
     PLAYING = "playing"
     WON = "won"
     DISCONNECTED = "disconnected"
@@ -22,7 +23,6 @@ class Game:
     MAX_COUNT = WINNING_COUNT - 1
     BOARD_ROWS = 6
     BOARD_COLS = 9
-    DEFAULT_MAX_PLAYERS = 2
 
     def __init__(self, game_id):
         self.game_id = game_id
@@ -39,23 +39,21 @@ class Game:
         self.game = db.get_game(self.game_id)
 
     @classmethod
-    def new_player(cls, name):
-        """Add new player to a game.
+    def join_existing_game(cls, name):
+        """Add new player to an existing game.
 
-        If there is an open space in an existing game, add the player to that,
-        otherwise create a new game for that user.
-
-        Return the game_id of the game that the user joined.
+        If an available space is found, add the player to that game and return
+        the game_id of that game. Return None if no available space could be
+        found.
         """
         for game_id in db.connection.scan_iter():
-            if cls.join_existing_game(name, game_id):
-                break
+            if cls._join_existing_game(name, game_id):
+                return game_id
         else:
-            game_id = cls.start_new_game(name)
-        return game_id
+            return None
 
     @classmethod
-    def join_existing_game(cls, name, game_id):
+    def _join_existing_game(cls, name, game_id):
         """Try to join an existing active game if there is space.
 
         Use Redis transaction with WATCH on game key to avoid race conditions.
@@ -78,7 +76,7 @@ class Game:
         return db.save_game_transaction(pipeline, game_id, game)
 
     @classmethod
-    def start_new_game(cls, name):
+    def start_new_game(cls, name, max_players):
         """Create a new game id and new game state. Return new game ID."""
         new_game = {
             "board": [[cls.EMPTY for i in range(cls.BOARD_ROWS)]
@@ -86,7 +84,7 @@ class Game:
             "game_status": cls.PLAYING,
             "players": [name],
             "turn": name,
-            "max_players": cls.DEFAULT_MAX_PLAYERS,
+            "max_players": max_players,
         }
         new_game_id = str(uuid.uuid4())
         db.save_game(new_game_id, new_game)
