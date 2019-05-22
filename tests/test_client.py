@@ -175,4 +175,4 @@ class TestClientPostRequests(TestCase):
         self.assertEqual(client.connect(), ("eric", "123"))
         self.assertFalse(mock_exit.called)
         mock_post.assert_called_once_with(
-            'http://127.0.0.1/game', json={'name': 'eric', 'max_players': '2'})
+            'http://127.0.0.1/game', json={'name': 'eric', 'max_players': 2})

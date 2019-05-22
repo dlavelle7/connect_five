@@ -12,7 +12,7 @@ app = Flask(__name__)
 def create_game():
     """Create a new game for the new player."""
     name = request.json.get("name")
-    max_players = int(request.json.get("max_players"))
+    max_players = request.json.get("max_players")
     game_id = Game.start_new_game(name, max_players)
     return app.response_class(
         response=json.dumps({"game_id": game_id}),
@@ -22,7 +22,7 @@ def create_game():
 
 
 @app.route("/game", methods=["PATCH"])
-def new_player_update_game():
+def update_game_new_player():
     """Update an available game by adding the new player to it."""
     name = request.json.get("name")
     game_id = Game.join_existing_game(name)

@@ -31,7 +31,7 @@ def exit_game(message):
 
 
 def connect():
-    """Get player name from user and request to server to join game."""
+    """Get player name, choose game type and connect player to game."""
     message = "Enter name: "
     name = prompt_user(message)
     message = (
@@ -59,9 +59,10 @@ def connect():
             else:
                 response.raise_for_status()
     else:
+        max_players = int(game_type)
         body = {
             "name": name,
-            "max_players": game_type,
+            "max_players": max_players,
         }
         response = requests.post(GAME_URL, json=body)
         if response.status_code == requests.codes.created:
