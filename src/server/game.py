@@ -3,9 +3,9 @@ import uuid
 
 from operator import add, sub
 
-from src.server.db import DB
+from src.server.db import get_db
 
-db = DB()
+db = get_db()
 
 
 class Game:
@@ -46,7 +46,7 @@ class Game:
         the game_id of that game. Return None if no available space could be
         found.
         """
-        for game_id in db.connection.scan_iter():
+        for game_id in db.scan_games():
             if cls._join_existing_game(name, game_id):
                 return game_id
         else:

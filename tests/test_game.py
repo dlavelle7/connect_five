@@ -246,7 +246,7 @@ class TestGame(TestCase):
            side_effect=[False, True])
     def test_join_existing_game_game_found(self, mock_join, mock_db):
         """Available game with space found, return game_id."""
-        mock_db.connection.scan_iter.return_value = ["1", "2", "3"]
+        mock_db.scan_games.return_value = ["1", "2", "3"]
         self.assertEqual("2", Game.join_existing_game("foo"))
         self.assertEqual(2, mock_join.call_count)
 
