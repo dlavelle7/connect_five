@@ -19,6 +19,20 @@ class DB:
         """Traverse through all the games in the database."""
         raise NotImplementedError()
 
+    def begin_transaction(self, game_id):
+        """Begin transaction while checking for available games to join."""
+        raise NotImplementedError()
+
+    @staticmethod
+    def get_game_transaction(transaction, game_id):
+        """Return game object from transaction."""
+        raise NotImplementedError()
+
+    @staticmethod
+    def save_game_transaction(pipeline, game_id, game):
+        """Commit transaction."""
+        raise NotImplementedError()
+
 
 class RedisDB(DB):
 
@@ -52,7 +66,9 @@ class RedisDB(DB):
     def save_game_transaction(pipeline, game_id, game):
         """Save game within a transaction.
 
-        Return whether or not the transaction executed successfully."""
+        Use Redis transaction with WATCH on game key to avoid race conditions.
+        Return whether or not the transaction executed successfully.
+        """
         pipeline.multi()
         pipeline.set(game_id, json.dumps(game))
         try:
@@ -65,6 +81,12 @@ class RedisDB(DB):
     def scan_games(self):
         for game_id in self.connection.scan_iter():
             yield game_id
+
+    def begin_transaction(self, game_id):
+        """WATCH game_id for changes by other clients, while checking it."""
+        pipeline = self.connection.pipeline()
+        pipeline.watch(game_id)
+        return pipeline
 
 
 DB_OPTIONS = {

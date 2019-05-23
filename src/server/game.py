@@ -54,14 +54,10 @@ class Game:
 
     @classmethod
     def _join_existing_game(cls, name, game_id):
-        """Try to join an existing active game if there is space.
+        """Try to join an existing active game if there is space."""
+        transaction = db.begin_transaction(game_id)
+        game = db.get_game_transaction(transaction, game_id)
 
-        Use Redis transaction with WATCH on game key to avoid race conditions.
-        """
-        # WATCH this game_id for changes by other clients, while checking it
-        pipeline = db.connection.pipeline()
-        pipeline.watch(game_id)
-        game = db.get_game_transaction(pipeline, game_id)
         if game.get("game_status") != Game.PLAYING:
             return False
         if len(game["players"]) > game["max_players"] - 1:
@@ -72,8 +68,9 @@ class Game:
         game["players"].append(name)
         if game["turn"] is None:
             game["turn"] = name
+
         # Save existing game in a transaction
-        return db.save_game_transaction(pipeline, game_id, game)
+        return db.save_game_transaction(transaction, game_id, game)
 
     @classmethod
     def start_new_game(cls, name, max_players):
