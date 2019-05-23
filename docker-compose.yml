@@ -8,9 +8,9 @@ services:
     networks:
       - con5_net
     depends_on:
-      - redis
+      - db
 
-  redis:
+  db:
     restart: always
     image: redis:5.0.0
     expose:

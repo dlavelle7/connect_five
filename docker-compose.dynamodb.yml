@@ -1,0 +1,13 @@
+version: "2.3"
+services:
+  db:
+    # Use local version of Amazon's DynamoDB instead of the default Redis db
+    restart: always
+    image: amazon/dynamodb-local:1.11.477
+    expose:
+      - "8000"
+    environment:
+     - CONNECT_5_DB_TYPE=dynamodb
+     - AWS_ACCESS_KEY_ID=RANDOM
+     - AWS_SECRET_ACCESS_KEY=RANDOM
+     - AWS_DEFAULT_REGION=local
