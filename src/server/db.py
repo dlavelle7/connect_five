@@ -146,7 +146,7 @@ class DynamoDB(DB):
 
     def save_game(self, game_id, game):
         table = self.connection.Table(self.DB_TABLE)
-        response = table.put_item(
+        table.put_item(
             Item=game,
         )
 
