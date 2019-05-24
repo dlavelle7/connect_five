@@ -145,7 +145,7 @@ class DynamoDB(DB):
         return response["Item"]
 
     def save_game(self, game_id, game):
-        table = dynamodb.Table(self.DB_TABLE)
+        table = self.connection.Table(self.DB_TABLE)
         response = table.put_item(
             Item=game,
         )
