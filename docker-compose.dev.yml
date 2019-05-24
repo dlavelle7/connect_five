@@ -6,6 +6,7 @@ services:
     environment:
       - FLASK_APP=src.server.app.py
       - FLASK_DEBUG=1
+      - FLASK_ENV=development
     # 'stdin_open' & 'tty' allow you to attach to pdb breakpoint
     stdin_open: true
     tty: true
