@@ -1,4 +1,6 @@
 """Server module containing application instance and RESTful API."""
+import json
+
 from flask import request
 from flask_api import FlaskAPI, status
 
@@ -34,7 +36,7 @@ def get_game(game_id):
     """Get the specified game."""
     game = Game(game_id)
     game.load_game()
-    return game.game, status.HTTP_200_OK
+    return json.dumps(game.game, cls=DecimalEncoder), status.HTTP_200_OK
 
 
 @app.route("/game/<game_id>", methods=["PATCH"])
@@ -62,4 +64,4 @@ def update_game(game_id):
 
     response_data = {"message": message}
     response_data.update(game.game)
-    return response_data, status_code
+    return json.dumps(response_data, cls=DecimalEncoder), status_code
