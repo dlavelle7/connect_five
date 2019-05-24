@@ -5,6 +5,7 @@ from flask import request
 from flask_api import FlaskAPI, status
 
 from src.server.game import Game
+from src.server.utils import DecimalEncoder
 
 
 app = FlaskAPI(__name__)

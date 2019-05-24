@@ -21,6 +21,10 @@ class DB:
             DB._connection = cls._get_connection()
         return DB._connection
 
+    def setup_db(self):
+        """Prior to running app, set up any DB dependencies required."""
+        pass
+
     @classmethod
     def _get_connection(cls):
         """Make the db connection for the specific underlying db."""
@@ -110,17 +114,20 @@ class DynamoDB(DB):
     def _get_connection(cls):
         dynamodb = boto3.resource(
             'dynamodb', endpoint_url=f"http://{cls.DB_HOST}:{cls.DB_PORT}")
-        cls.create_game_table(dynamodb)
         return dynamodb
 
-    @classmethod
-    def create_game_table(cls, dynamodb):
+    def setup_db(self):
+        """Create the Game table in dynamodb."""
+        self.create_game_table()
+
+    def create_game_table(self):
         """Create the Game table if required."""
-        if cls.DB_TABLE in dynamodb.meta.client.list_tables()["TableNames"]:
+        tables = self.connection.meta.client.list_tables()["TableNames"]
+        if self.DB_TABLE in tables:
             return
         # Create the table schema and define the primary key
-        table = dynamodb.create_table(
-            TableName=cls.DB_TABLE,
+        table = self.connection.create_table(
+            TableName=self.DB_TABLE,
             KeySchema=[
                 {
                     "AttributeName": "game_id",
@@ -140,7 +147,7 @@ class DynamoDB(DB):
         )
         # create_table is async, wait until the table exists.
         table.meta.client.get_waiter('table_exists').wait(
-            TableName=cls.DB_TABLE)
+            TableName=self.DB_TABLE)
 
     def get_game(self, game_id):
         table = self.connection.Table(self.DB_TABLE)
@@ -190,3 +197,8 @@ DB_OPTIONS = {
 def get_db():
     db_setting = os.environ.get("CONNECT_5_DB_TYPE", "redis")
     return DB_OPTIONS[db_setting]()
+
+
+def setup_db():
+    db = get_db()
+    db.setup_db()
