@@ -110,7 +110,7 @@ class DynamoDB(DB):
     def _get_connection(cls):
         dynamodb = boto3.resource(
             'dynamodb', endpoint_url=f"http://{cls.DB_HOST}:{cls.DB_PORT}")
-        # Create the table schema
+        # Create the table schema and define the primary key
         table = dynamodb.create_table(
             TableName=cls.DB_TABLE,
             KeySchema=[
@@ -121,32 +121,16 @@ class DynamoDB(DB):
             ],
             AttributeDefinitions=[
                 {
-                    "AttributeName": "name",
+                    "AttributeName": "game_id",
                     "AttributeType": "S",
                 },
-                {
-                    "AttributeName": "game_status",
-                    "AttributeType": "S",
-                },
-                {
-                    "AttributeName": "players",
-                    "AttributeType": "L",
-                },
-                {
-                    "AttributeName": "board",
-                    "AttributeType": "L",
-                },
-                {
-                    "AttributeName": "turn",
-                    "AttributeType": "S",
-                },
-                {
-                    "AttributeName": "max_players",
-                    "AttributeType": "N",
-                },
-            ]
+            ],
+            ProvisionedThroughput={
+                'ReadCapacityUnits': 100,  # throttle rate (requests per sec)
+                'WriteCapacityUnits': 100,
+            },
         )
-        # Wait until the table exists.
+        # create_table is async, wait until the table exists.
         table.meta.client.get_waiter('table_exists').wait(
             TableName=cls.DB_TABLE)
         return dynamodb
@@ -161,9 +145,9 @@ class DynamoDB(DB):
         return response["Item"]
 
     def save_game(self, game_id, game):
-        self.connection.put_item(
-            TableName=self.DB_TABLE,
-            Item=game
+        table = dynamodb.Table(self.DB_TABLE)
+        response = table.put_item(
+            Item=game,
         )
 
     def scan_games(self):
