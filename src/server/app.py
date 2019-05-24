@@ -10,7 +10,7 @@ from src.server.utils import DecimalEncoder
 
 app = FlaskAPI(__name__)
 
-JSON_RESPONSE_HEADERS = {"Content-Type": "application/json"}
+RESPONSE_HEADERS = {"Content-Type": "application/json"}
 
 
 @app.route("/game", methods=["POST"])
@@ -19,7 +19,7 @@ def create_game():
     name = request.json.get("name")
     max_players = request.json.get("max_players")
     game_id = Game.start_new_game(name, max_players)
-    return {"game_id": game_id}, status.HTTP_201_CREATED, JSON_RESPONSE_HEADERS
+    return {"game_id": game_id}, status.HTTP_201_CREATED, RESPONSE_HEADERS
 
 
 @app.route("/game", methods=["PATCH"])
@@ -31,7 +31,7 @@ def update_game_new_player():
         status_code = status.HTTP_404_NOT_FOUND
     else:
         status_code = status.HTTP_200_OK
-    return {"game_id": game_id}, status_code, JSON_RESPONSE_HEADERS
+    return {"game_id": game_id}, status_code, RESPONSE_HEADERS
 
 
 @app.route("/game/<game_id>", methods=["GET"])
@@ -39,7 +39,8 @@ def get_game(game_id):
     """Get the specified game."""
     game = Game(game_id)
     game.load_game()
-    return json.dumps(game.game, cls=DecimalEncoder), status.HTTP_200_OK, JSON_RESPONSE_HEADERS
+    response_body = json.dumps(game.game, cls=DecimalEncoder)
+    return response_body, status.HTTP_200_OK, RESPONSE_HEADERS
 
 
 @app.route("/game/<game_id>", methods=["PATCH"])
@@ -49,7 +50,7 @@ def update_game(game_id):
     game.load_game()
     if request.json.get("game_status") == Game.DISCONNECTED:
         game.game_over(won=False)
-        return {"message": "OK"}, status.HTTP_200_OK, JSON_RESPONSE_HEADERS
+        return {"message": "OK"}, status.HTTP_200_OK, RESPONSE_HEADERS
 
     column = request.json["column"]
     name = request.json["name"]
@@ -67,4 +68,5 @@ def update_game(game_id):
 
     response_data = {"message": message}
     response_data.update(game.game)
-    return json.dumps(response_data, cls=DecimalEncoder), status_code, JSON_RESPONSE_HEADERS
+    response_body = json.dumps(response_data, cls=DecimalEncoder)
+    return response_body, status_code, RESPONSE_HEADERS
