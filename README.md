@@ -84,6 +84,9 @@ After a breakpoint has been inserted and hit, attach to the container:
 docker attach debug
 ```
 
+Note: When debugging with the auto reloader on, 2 processes will be spawned,
+which can make using breakpoints messy, this can be disabled with FLASK_DEBUG=0
+
 ## Approach
 
 The server is written using the Flask framework and the clients communicate

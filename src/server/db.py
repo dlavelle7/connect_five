@@ -116,10 +116,7 @@ class DynamoDB(DB):
     @classmethod
     def create_game_table(cls, dynamodb):
         """Create the Game table if required."""
-        # FIXME: why is this called twice???
-        # TODO: Should this check be necessary???
-        response = dynamodb.list_tables()
-        if cls.DB_TABLE in response["TableNames"]:
+        if cls.DB_TABLE in dynamodb.meta.client.list_tables()["TableNames"]:
             return
         # Create the table schema and define the primary key
         table = dynamodb.create_table(
@@ -146,10 +143,10 @@ class DynamoDB(DB):
             TableName=cls.DB_TABLE)
 
     def get_game(self, game_id):
-        response = self.connection.get_item(
-            TableName=self.DB_TABLE,
+        table = self.connection.Table(self.DB_TABLE)
+        response = table.get_item(
             Key={
-                "game_id", game_id,
+                "game_id": game_id,
             }
         )
         return response["Item"]
