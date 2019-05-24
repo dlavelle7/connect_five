@@ -29,6 +29,13 @@
 * pip
 * Docker
 
+## Technology Stack
+* Python
+* FlaskAPI
+* Redis / DynamoDB
+* Docker
+* docker-compose
+
 ## Installation
 ```
 git clone git@github.com:dlavelle7/connect_five.git
@@ -52,6 +59,14 @@ python src/client.py
 In a separate shell, run the second client:
 ```
 python src/client.py
+```
+
+## Change DB
+The application uses Redis as the database by default. Alternatively, you can
+run the application using a local version of DynamoDB instead using:
+
+```
+docker-compose -f docker-compose.yml -f docker-compose.dynamodb.yml up --build
 ```
 
 ### Debugging

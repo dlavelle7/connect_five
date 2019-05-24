@@ -11,6 +11,9 @@ class DB:
     _connection = None
     DB_HOST = 'db'  # 'db' is the hostname of the db conainer
 
+    def __init__(self):
+        self.connection = self.get_connection()
+
     @classmethod
     def get_connection(cls):
         """Singleton pattern to ensure only one db connection opened."""
@@ -18,8 +21,8 @@ class DB:
             DB._connection = cls._get_connection()
         return DB._connection
 
-    @staticmethod
-    def _get_connection():
+    @classmethod
+    def _get_connection(cls):
         """Make the db connection for the specific underlying db."""
         raise NotImplementedError()
 
@@ -54,9 +57,6 @@ class RedisDB(DB):
 
     DB_PORT = 6379
     DB_NUMBER = 0
-
-    def __init__(self):
-        self.connection = self.get_connection()
 
     @classmethod
     def _get_connection(cls):
@@ -103,38 +103,89 @@ class RedisDB(DB):
 
 class DynamoDB(DB):
 
-    DB_PORT = 6379
+    DB_PORT = 8000
+    DB_TABLE = "Game"
 
-    # TODO
-    @staticmethod
-    def _get_connection():
-        return boto3.client('dynamodb',
-                            endpoint_url=f"http://{cls.DB_HOST}:{cls.DB_PORT}")
+    @classmethod
+    def _get_connection(cls):
+        dynamodb = boto3.resource(
+            'dynamodb', endpoint_url=f"http://{cls.DB_HOST}:{cls.DB_PORT}")
+        # Create the table schema
+        table = dynamodb.create_table(
+            TableName=cls.DB_TABLE,
+            KeySchema=[
+                {
+                    "AttributeName": "game_id",
+                    "KeyType": "HASH",
+                }
+            ],
+            AttributeDefinitions=[
+                {
+                    "AttributeName": "name",
+                    "AttributeType": "S",
+                },
+                {
+                    "AttributeName": "game_status",
+                    "AttributeType": "S",
+                },
+                {
+                    "AttributeName": "players",
+                    "AttributeType": "L",
+                },
+                {
+                    "AttributeName": "board",
+                    "AttributeType": "L",
+                },
+                {
+                    "AttributeName": "turn",
+                    "AttributeType": "S",
+                },
+                {
+                    "AttributeName": "max_players",
+                    "AttributeType": "N",
+                },
+            ]
+        )
+        # Wait until the table exists.
+        table.meta.client.get_waiter('table_exists').wait(
+            TableName=cls.DB_TABLE)
+        return dynamodb
 
     def get_game(self, game_id):
-        """Return the game of the given game id."""
-        raise NotImplementedError()
+        response = self.connection.get_item(
+            TableName=self.DB_TABLE,
+            Key={
+                "game_id", game_id,
+            }
+        )
+        return response["Item"]
 
     def save_game(self, game_id, game):
-        """Persist the given game object using the given game id."""
-        raise NotImplementedError()
+        self.connection.put_item(
+            TableName=self.DB_TABLE,
+            Item=game
+        )
 
     def scan_games(self):
         """Traverse through all the games in the database."""
+        # TODO:
         raise NotImplementedError()
 
     def begin_transaction(self, game_id):
         """Begin transaction while checking for available games to join."""
+        # TODO:
         raise NotImplementedError()
 
     @staticmethod
     def get_game_transaction(transaction, game_id):
         """Return game object from transaction."""
+        # TODO:
         raise NotImplementedError()
 
     @staticmethod
     def save_game_transaction(pipeline, game_id, game):
         """Commit transaction."""
+        # TODO:
         raise NotImplementedError()
 
 

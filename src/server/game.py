@@ -75,7 +75,9 @@ class Game:
     @classmethod
     def start_new_game(cls, name, max_players):
         """Create a new game id and new game state. Return new game ID."""
+        new_game_id = str(uuid.uuid4())
         new_game = {
+            "game_id": new_game_id,
             "board": [[cls.EMPTY for i in range(cls.BOARD_ROWS)]
                       for j in range(cls.BOARD_COLS)],
             "game_status": cls.PLAYING,
@@ -83,7 +85,6 @@ class Game:
             "turn": name,
             "max_players": max_players,
         }
-        new_game_id = str(uuid.uuid4())
         db.save_game(new_game_id, new_game)
         return new_game_id
 

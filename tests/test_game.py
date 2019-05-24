@@ -236,6 +236,7 @@ class TestGame(TestCase):
         call_game_id, call_game_state = mock_db.save_game.call_args[0]
         self.assertEqual(game_id, call_game_id)
         self.assertIsInstance(call_game_state["board"], list)
+        self.assertEqual(game_id, call_game_state["game_id"])
         self.assertEqual("dave", call_game_state["turn"])
         self.assertListEqual(["dave"], call_game_state["players"])
         self.assertEqual("playing", call_game_state["game_status"])
