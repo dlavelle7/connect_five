@@ -81,7 +81,7 @@ directory in the container and allows for interactive breakpoints to be used.
 After a breakpoint has been inserted and hit, attach to the container:
 
 ```
-docker attach con5_debug
+docker attach debug
 ```
 
 ## Approach
