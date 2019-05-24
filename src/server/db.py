@@ -110,6 +110,17 @@ class DynamoDB(DB):
     def _get_connection(cls):
         dynamodb = boto3.resource(
             'dynamodb', endpoint_url=f"http://{cls.DB_HOST}:{cls.DB_PORT}")
+        cls.create_game_table(dynamodb)
+        return dynamodb
+
+    @classmethod
+    def create_game_table(cls, dynamodb):
+        """Create the Game table if required."""
+        # FIXME: why is this called twice???
+        # TODO: Should this check be necessary???
+        response = dynamodb.list_tables()
+        if cls.DB_TABLE in response["TableNames"]:
+            return
         # Create the table schema and define the primary key
         table = dynamodb.create_table(
             TableName=cls.DB_TABLE,
@@ -133,7 +144,6 @@ class DynamoDB(DB):
         # create_table is async, wait until the table exists.
         table.meta.client.get_waiter('table_exists').wait(
             TableName=cls.DB_TABLE)
-        return dynamodb
 
     def get_game(self, game_id):
         response = self.connection.get_item(
