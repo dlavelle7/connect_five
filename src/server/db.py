@@ -172,8 +172,8 @@ class DynamoDB(DB):
             #FilterExpression=Attr("game_status").eq("playing")
         )
         games = response['Items']
-        for game_id in games:
-            yield game_id
+        for game in games:
+            yield game["game_id"]
 
     def begin_transaction(self, game_id):
         # TODO: transaction ???
