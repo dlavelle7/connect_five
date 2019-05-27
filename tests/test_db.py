@@ -51,3 +51,13 @@ class TestDynamoDB(TestDB):
         ddb2 = get_db()
         self.assertEqual(id(ddb1.connection), id(ddb2.connection))
         self.assertEqual(1, mock_get_ddb_connection.call_count)
+
+    @patch("src.server.db.DynamoDB._get_connection")
+    def test_create_table_table_exists(self, mock_get_connection):
+        mock_connection = Mock()
+        mock_connection.meta.client.list_tables.return_value = \
+            {"TableNames": ["Game"]}
+        mock_get_connection.return_value = mock_connection
+        db = get_db()
+        db.create_game_table()
+        self.assertFalse(mock_connection.create_table.called)

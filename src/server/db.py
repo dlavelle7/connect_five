@@ -46,11 +46,13 @@ class DB:
         """Begin transaction while checking for available games to join."""
         raise NotImplementedError()
 
-    def get_game_transaction(self, transaction, game_id):
+    @classmethod
+    def get_game_transaction(cls, transaction, game_id):
         """Return game object from transaction."""
         raise NotImplementedError()
 
-    def save_game_transaction(self, pipeline, game_id, game):
+    @classmethod
+    def save_game_transaction(cls, pipeline, game_id, game):
         """Commit transaction."""
         raise NotImplementedError()
 
@@ -69,13 +71,15 @@ class RedisDB(DB):
     def get_game(self, game_id):
         return json.loads(self.connection.get(game_id))
 
-    def get_game_transaction(self, pipeline, game_id):
+    @classmethod
+    def get_game_transaction(cls, pipeline, game_id):
         return json.loads(pipeline.get(game_id))
 
     def save_game(self, game_id, game):
         self.connection.set(game_id, json.dumps(game))
 
-    def save_game_transaction(self, pipeline, game_id, game):
+    @classmethod
+    def save_game_transaction(cls, pipeline, game_id, game):
         """Save game within a transaction.
 
         Use Redis transaction with WATCH on game key to avoid race conditions.
@@ -169,7 +173,7 @@ class DynamoDB(DB):
         table = self.get_game_table()
         # TODO: Figure out filtering / querying / transactions
         response = table.scan(
-            #FilterExpression=Attr("game_status").eq("playing")
+            # FilterExpression=Attr("game_status").eq("playing")
         )
         games = response['Items']
         for game in games:
@@ -179,13 +183,15 @@ class DynamoDB(DB):
         # TODO: transaction ???
         pass
 
-    def get_game_transaction(self, transaction, game_id):
+    @classmethod
+    def get_game_transaction(cls, transaction, game_id):
         # TODO: transaction ???
-        return self.get_game(game_id)
+        return cls.get_game(game_id)
 
-    def save_game_transaction(self, pipeline, game_id, game):
+    @classmethod
+    def save_game_transaction(cls, pipeline, game_id, game):
         # TODO: transaction ???
-        self.save_game(game_id, game)
+        cls.save_game(game_id, game)
         return True
 
 
