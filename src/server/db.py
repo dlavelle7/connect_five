@@ -46,13 +46,11 @@ class DB:
         """Begin transaction while checking for available games to join."""
         raise NotImplementedError()
 
-    @staticmethod
-    def get_game_transaction(transaction, game_id):
+    def get_game_transaction(self, transaction, game_id):
         """Return game object from transaction."""
         raise NotImplementedError()
 
-    @staticmethod
-    def save_game_transaction(pipeline, game_id, game):
+    def save_game_transaction(self, pipeline, game_id, game):
         """Commit transaction."""
         raise NotImplementedError()
 
@@ -71,15 +69,13 @@ class RedisDB(DB):
     def get_game(self, game_id):
         return json.loads(self.connection.get(game_id))
 
-    @staticmethod
-    def get_game_transaction(pipeline, game_id):
+    def get_game_transaction(self, pipeline, game_id):
         return json.loads(pipeline.get(game_id))
 
     def save_game(self, game_id, game):
         self.connection.set(game_id, json.dumps(game))
 
-    @staticmethod
-    def save_game_transaction(pipeline, game_id, game):
+    def save_game_transaction(self, pipeline, game_id, game):
         """Save game within a transaction.
 
         Use Redis transaction with WATCH on game key to avoid race conditions.
@@ -149,8 +145,11 @@ class DynamoDB(DB):
         table.meta.client.get_waiter('table_exists').wait(
             TableName=self.DB_TABLE)
 
+    def get_game_table(self):
+        return self.connection.Table(self.DB_TABLE)
+
     def get_game(self, game_id):
-        table = self.connection.Table(self.DB_TABLE)
+        table = self.get_game_table()
         response = table.get_item(
             Key={
                 "game_id": game_id,
@@ -160,32 +159,34 @@ class DynamoDB(DB):
         return game
 
     def save_game(self, game_id, game):
-        table = self.connection.Table(self.DB_TABLE)
+        table = self.get_game_table()
         table.put_item(
             Item=game,
         )
 
     def scan_games(self):
         """Traverse through all the games in the database."""
-        # TODO:
-        raise NotImplementedError()
+        table = self.get_game_table()
+        # TODO: Figure out filtering / querying / transactions
+        response = table.scan(
+            #FilterExpression=Attr("game_status").eq("playing")
+        )
+        games = response['Items']
+        for game_id in games:
+            yield game_id
 
     def begin_transaction(self, game_id):
-        """Begin transaction while checking for available games to join."""
-        # TODO:
-        raise NotImplementedError()
+        # TODO: transaction ???
+        pass
 
-    @staticmethod
-    def get_game_transaction(transaction, game_id):
-        """Return game object from transaction."""
-        # TODO:
-        raise NotImplementedError()
+    def get_game_transaction(self, transaction, game_id):
+        # TODO: transaction ???
+        return self.get_game(game_id)
 
-    @staticmethod
-    def save_game_transaction(pipeline, game_id, game):
-        """Commit transaction."""
-        # TODO:
-        raise NotImplementedError()
+    def save_game_transaction(self, pipeline, game_id, game):
+        # TODO: transaction ???
+        self.save_game(game_id, game)
+        return True
 
 
 DB_OPTIONS = {
