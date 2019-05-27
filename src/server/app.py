@@ -5,6 +5,7 @@ from flask import request
 from flask_api import FlaskAPI, status
 
 from src.server.game import Game
+from src.server.game_finder import get_game_finder
 from src.server.utils import DecimalEncoder
 
 
@@ -26,7 +27,8 @@ def create_game():
 def update_game_new_player():
     """Update an available game by adding the new player to it."""
     name = request.json.get("name")
-    game_id = Game.join_existing_game(name)
+    game_finder = get_game_finder()
+    game_id = game_finder.join_game(name)
     if game_id is None:
         status_code = status.HTTP_404_NOT_FOUND
     else:

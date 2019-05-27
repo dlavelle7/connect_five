@@ -1,4 +1,4 @@
-"""Server module for holding game state and business logic."""
+"""Server module for holding connect 5 game logic."""
 import uuid
 
 from operator import add, sub
@@ -37,40 +37,6 @@ class Game:
     def load_game(self):
         """Load the game state from the db for this instance."""
         self.game = db.get_game(self.game_id)
-
-    @classmethod
-    def join_existing_game(cls, name):
-        """Add new player to an existing game.
-
-        If an available space is found, add the player to that game and return
-        the game_id of that game. Return None if no available space could be
-        found.
-        """
-        for game_id in db.scan_games():
-            if cls._join_existing_game(name, game_id):
-                return game_id
-        else:
-            return None
-
-    @classmethod
-    def _join_existing_game(cls, name, game_id):
-        """Try to join an existing active game if there is space."""
-        transaction = db.begin_transaction(game_id)
-        game = db.get_game_transaction(transaction, game_id)
-
-        if game.get("game_status") != Game.PLAYING:
-            return False
-        if len(game["players"]) > game["max_players"] - 1:
-            return False
-        if name in game["players"]:
-            return False
-
-        game["players"].append(name)
-        if game["turn"] is None:
-            game["turn"] = name
-
-        # Save existing game in a transaction
-        return db.save_game_transaction(transaction, game_id, game)
 
     @classmethod
     def start_new_game(cls, name, max_players):

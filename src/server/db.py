@@ -11,7 +11,8 @@ class DB:
     _connection = None
     DB_HOST = 'db'  # 'db' is the hostname of the db conainer
 
-    def __init__(self):
+    def __init__(self, db_name):
+        self.name = db_name
         self.connection = self.get_connection()
 
     @classmethod
@@ -168,6 +169,7 @@ class DynamoDB(DB):
             Item=game,
         )
 
+    # FIXME: replace this with queries
     def scan_games(self):
         """Traverse through all the games in the database."""
         table = self.get_game_table()
@@ -202,8 +204,8 @@ DB_OPTIONS = {
 
 
 def get_db():
-    db_setting = os.environ.get("CONNECT_5_DB_TYPE", "redis")
-    return DB_OPTIONS[db_setting]()
+    db_name = os.environ.get("CONNECT_5_DB_TYPE", "redis")
+    return DB_OPTIONS[db_name](db_name)
 
 
 def setup_db():
