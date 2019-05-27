@@ -30,7 +30,7 @@ class TestRedisGameFinder(TestCase):
         test_game_state = {
             "turn": None,
             "players": ["dom"],
-            "game_status": "playing",
+            "game_status": "open",
             "max_players": 2,
         }
         mock_db.get_game_transaction.return_value = test_game_state
@@ -50,7 +50,7 @@ class TestRedisGameFinder(TestCase):
         test_game_state = {
             "turn": "dom",
             "players": ["dom"],
-            "game_status": "playing",
+            "game_status": "open",
             "max_players": 2,
         }
         mock_db.get_game_transaction.return_value = test_game_state
@@ -82,6 +82,8 @@ class TestRedisGameFinder(TestCase):
         test_game_state = {
             "turn": "eric",
             "players": ["eric", "polly"],
+            "game_status": "playing",
+            "max_players": 2,
         }
         mock_db.get_game_transaction.return_value = test_game_state
         self.assertFalse(RedisGameFinder._join_game("mary", game_id))
@@ -94,6 +96,8 @@ class TestRedisGameFinder(TestCase):
         test_game_state = {
             "turn": "terry",
             "players": ["terry"],
+            "game_status": "open",
+            "max_players": 2,
         }
         mock_db.get_game_transaction.return_value = test_game_state
         self.assertFalse(RedisGameFinder._join_game("terry", game_id))

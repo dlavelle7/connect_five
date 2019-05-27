@@ -16,6 +16,7 @@ class Game:
     Os = "o"
     Zs = "z"
     player_discs = (Xs, Os, Zs)
+    OPEN = "open"
     PLAYING = "playing"
     WON = "won"
     DISCONNECTED = "disconnected"
@@ -46,7 +47,7 @@ class Game:
             "game_id": new_game_id,
             "board": [[cls.EMPTY for i in range(cls.BOARD_ROWS)]
                       for j in range(cls.BOARD_COLS)],
-            "game_status": cls.PLAYING,
+            "game_status": cls.OPEN,
             "players": [name],
             "turn": name,
             "max_players": max_players,

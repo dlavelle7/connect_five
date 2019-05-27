@@ -239,7 +239,7 @@ class TestGame(TestCase):
         self.assertEqual(game_id, call_game_state["game_id"])
         self.assertEqual("dave", call_game_state["turn"])
         self.assertListEqual(["dave"], call_game_state["players"])
-        self.assertEqual("playing", call_game_state["game_status"])
+        self.assertEqual("open", call_game_state["game_status"])
         self.assertEqual(2, call_game_state["max_players"])
 
     def test_get_player_disc_colour_player_1_is_xs_no_player_2(self):

@@ -39,16 +39,18 @@ class RedisGameFinder(GameFinder):
         transaction = db.begin_transaction(game_id)
         game = db.get_game_transaction(transaction, game_id)
 
-        if game.get("game_status") != Game.PLAYING:
-            return False
-        if len(game["players"]) > game["max_players"] - 1:
+        if game.get("game_status") != Game.OPEN:
             return False
         if name in game["players"]:
             return False
 
         game["players"].append(name)
+
         if game["turn"] is None:
             game["turn"] = name
+
+        if len(game["players"]) == game["max_players"]:
+            game["game_status"] = Game.PLAYING
 
         # Save existing game in a transaction
         return db.save_game_transaction(transaction, game_id, game)
@@ -56,8 +58,10 @@ class RedisGameFinder(GameFinder):
 
 class DynamoGameFinder(GameFinder):
 
-    # TODO:
-    pass
+    @classmethod
+    def join_game(cls, name):
+        # TODO: write_items_transact() with condition game_status==Game.Open
+        pass
 
 
 GAME_FINDERS = {
