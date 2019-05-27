@@ -4,6 +4,8 @@ import json
 import redis
 import boto3
 
+from boto3.dynamodb.conditions import Attr
+
 
 class DB:
     """Base class for APIs to whatever underlying DB is used."""
@@ -39,7 +41,7 @@ class DB:
         """Persist the given game object using the given game id."""
         raise NotImplementedError()
 
-    def scan_games(self):
+    def scan_games(self, *args):
         """Traverse through all the games in the database."""
         raise NotImplementedError()
 
@@ -47,13 +49,11 @@ class DB:
         """Begin transaction while checking for available games to join."""
         raise NotImplementedError()
 
-    @classmethod
-    def get_game_transaction(cls, transaction, game_id):
+    def get_game_transaction(self, *args):
         """Return game object from transaction."""
         raise NotImplementedError()
 
-    @classmethod
-    def save_game_transaction(cls, pipeline, game_id, game):
+    def save_game_transaction(self, *args):
         """Commit transaction."""
         raise NotImplementedError()
 
@@ -72,15 +72,13 @@ class RedisDB(DB):
     def get_game(self, game_id):
         return json.loads(self.connection.get(game_id))
 
-    @classmethod
-    def get_game_transaction(cls, pipeline, game_id):
+    def get_game_transaction(self, pipeline, game_id):
         return json.loads(pipeline.get(game_id))
 
     def save_game(self, game_id, game):
         self.connection.set(game_id, json.dumps(game))
 
-    @classmethod
-    def save_game_transaction(cls, pipeline, game_id, game):
+    def save_game_transaction(self, pipeline, game_id, game):
         """Save game within a transaction.
 
         Use Redis transaction with WATCH on game key to avoid race conditions.
@@ -95,7 +93,7 @@ class RedisDB(DB):
             return False
         return True
 
-    def scan_games(self):
+    def scan_games(self, *args):
         for game_id in self.connection.scan_iter():
             yield game_id
 
@@ -169,31 +167,23 @@ class DynamoDB(DB):
             Item=game,
         )
 
-    # FIXME: replace this with queries
-    def scan_games(self):
-        """Traverse through all the games in the database."""
+    def scan_games(self, filter_key, filter_val):
+        """Traverse through all the open games in the database."""
         table = self.get_game_table()
-        # TODO: Figure out filtering / querying / transactions
         response = table.scan(
-            # FilterExpression=Attr("game_status").eq("playing")
+            FilterExpression=Attr(filter_key).eq(filter_val)
         )
         games = response['Items']
         for game in games:
-            yield game["game_id"]
+            yield game
 
-    def begin_transaction(self, game_id):
-        # TODO: transaction ???
-        pass
-
-    @classmethod
-    def get_game_transaction(cls, transaction, game_id):
-        # TODO: transaction ???
+    def get_game_transaction(self, transaction, game_id):
+        # TODO: transaction needed????
         return cls.get_game(game_id)
 
-    @classmethod
-    def save_game_transaction(cls, pipeline, game_id, game):
-        # TODO: transaction ???
-        cls.save_game(game_id, game)
+    def save_game_transaction(self, game):
+        # TODO: implement transact_write_items() with condition check
+        self.save_game(game["game_id"], game)
         return True
 
 
