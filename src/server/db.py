@@ -169,19 +169,20 @@ class DynamoDB(DB):
             Item=game,
         )
 
-    def scan_games(self, filter_key, filter_val):
+    def scan_games(self, state_key, state_val, name):
         """Traverse through all the open games in the database."""
-        table = self.get_game_table()
-        response = table.scan(
-            FilterExpression=Attr(filter_key).eq(filter_val)
+        response = self.connection.meta.client.scan(
+            TableName=self.DB_TABLE,
+            # TODO: pass in params
+            FilterExpression="game_status = :status AND NOT contains (players, :name)",
+            ExpressionAttributeValues={
+                ":status": state_val,
+                ":name": name,
+            }
         )
-        games = response['Items']
+        games = response["Items"]
         for game in games:
             yield game
-
-    def get_game_transaction(self, transaction, game_id):
-        # TODO: transaction needed????
-        return cls.get_game(game_id)
 
     def save_game_transaction(self, game):
         """Save game in a dynamodb transaction.
@@ -190,7 +191,7 @@ class DynamoDB(DB):
         not transaction was successful.
         """
         try:
-            response = dynamodb.meta.client.transact_write_items(
+            response = self.connection.meta.client.transact_write_items(
                 TransactItems=[
                     {
                         'Put': {
@@ -199,7 +200,7 @@ class DynamoDB(DB):
                             # TODO: pass in as params
                             'ConditionExpression': 'game_status = :status',
                             'ExpressionAttributeValues': {
-                                ":status": "playing",
+                                ":status": "open",
                             }
                         }
                     },

@@ -68,7 +68,7 @@ class DynamoGameFinder(GameFinder):
     @classmethod
     def join_game(cls, name):
         """Use dynamo scan with filter to search for an available game."""
-        for game in db.scan_games("game_status", Game.OPEN):
+        for game in db.scan_games("game_status", Game.OPEN, name):
             if cls._join_game(name, game):
                 return game["game_id"]
         else:
@@ -77,9 +77,6 @@ class DynamoGameFinder(GameFinder):
     @classmethod
     def _join_game(cls, name, game):
         """Attempt to join the game within a transaction condition."""
-        # TODO: Make this a scan filter expression (x not in y)
-        if name in game["players"]:
-            return False
         game = cls.add_player(game, name)
         return db.save_game_transaction(game)
 
