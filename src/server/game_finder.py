@@ -81,7 +81,6 @@ class DynamoGameFinder(GameFinder):
         return db.save_game_transaction(game)
 
 
-
 GAME_FINDERS = {
     "redis": RedisGameFinder,
     "dynamodb": DynamoGameFinder,

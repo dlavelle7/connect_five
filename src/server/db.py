@@ -4,7 +4,6 @@ import json
 import redis
 import boto3
 
-from boto3.dynamodb.conditions import Attr
 from botocore.exceptions import ClientError
 
 
@@ -174,7 +173,8 @@ class DynamoDB(DB):
         response = self.connection.meta.client.scan(
             TableName=self.DB_TABLE,
             # TODO: pass in params
-            FilterExpression="game_status = :status AND NOT contains (players, :name)",
+            FilterExpression=("game_status = :status "
+                              "AND NOT contains (players, :name)"),
             ExpressionAttributeValues={
                 ":status": state_val,
                 ":name": name,
@@ -191,7 +191,7 @@ class DynamoDB(DB):
         not transaction was successful.
         """
         try:
-            response = self.connection.meta.client.transact_write_items(
+            self.connection.meta.client.transact_write_items(
                 TransactItems=[
                     {
                         'Put': {
@@ -206,7 +206,7 @@ class DynamoDB(DB):
                     },
                 ]
             )
-        except ClientError as exc:
+        except ClientError:
             # TODO: Logging
             print("Abort transaction, game is no longer available.")
             return False

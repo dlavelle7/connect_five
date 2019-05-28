@@ -2,7 +2,7 @@ from redis import WatchError
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
-from src.server.db import DB, RedisDB, get_db
+from src.server.db import DB, RedisDB, get_db, DynamoDB
 
 
 class TestDB(TestCase):
@@ -64,3 +64,25 @@ class TestDynamoDB(TestDB):
         db = get_db()
         db.create_game_table()
         self.assertFalse(mock_connection.create_table.called)
+
+    @patch("src.server.db.DynamoDB._get_connection")
+    def test_save_game_transaction_successful(self, mock_get_connection):
+        mock_dyno = Mock()
+        mock_get_connection.return_value = mock_dyno
+        dynamodb = DynamoDB("redis")
+        mock_game = {"foo": "bar"}
+        self.assertTrue(dynamodb.save_game_transaction(mock_game))
+        mock_dyno.meta.client.transact_write_items.assert_called_once_with(
+            TransactItems=[
+                {
+                    'Put': {
+                        'Item': {"foo": "bar"},
+                        'TableName': "Game",
+                        'ConditionExpression': 'game_status = :status',
+                        'ExpressionAttributeValues': {
+                            ":status": "open",
+                        }
+                    }
+                },
+            ]
+        )
