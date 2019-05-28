@@ -168,17 +168,19 @@ class DynamoDB(DB):
             Item=game,
         )
 
-    def scan_games(self, state_key, state_val, name):
+    def scan_games(self, status_key, status_value, player_key, player_value):
         """Traverse through all the open games in the database."""
+        filter_exp = (
+            f"{status_key} = :status AND NOT contains ({player_key}, :name)"
+        )
+        filter_exp_attr_values = {
+            ":status": status_value,
+            ":name": player_value,
+        }
         response = self.connection.meta.client.scan(
             TableName=self.DB_TABLE,
-            # TODO: pass in params
-            FilterExpression=("game_status = :status "
-                              "AND NOT contains (players, :name)"),
-            ExpressionAttributeValues={
-                ":status": state_val,
-                ":name": name,
-            }
+            FilterExpression=filter_exp,
+            ExpressionAttributeValues=filter_exp_attr_values,
         )
         games = response["Items"]
         for game in games:
