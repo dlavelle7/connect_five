@@ -5,6 +5,7 @@ import redis
 import boto3
 
 from boto3.dynamodb.conditions import Attr
+from botocore.exceptions import ClientError
 
 
 class DB:
@@ -89,6 +90,7 @@ class RedisDB(DB):
         try:
             pipeline.execute()
         except redis.WatchError:
+            # TODO: Logging
             print("A watched key has changed, abort transaction.")
             return False
         return True
@@ -182,8 +184,31 @@ class DynamoDB(DB):
         return cls.get_game(game_id)
 
     def save_game_transaction(self, game):
-        # TODO: implement transact_write_items() with condition check
-        self.save_game(game["game_id"], game)
+        """Save game in a dynamodb transaction.
+
+        Use conditional check on game status and return whether or
+        not transaction was successful.
+        """
+        try:
+            response = dynamodb.meta.client.transact_write_items(
+                TransactItems=[
+                    {
+                        'Put': {
+                            'Item': game,
+                            'TableName': self.DB_TABLE,
+                            # TODO: pass in as params
+                            'ConditionExpression': 'game_status = :status',
+                            'ExpressionAttributeValues': {
+                                ":status": "playing",
+                            }
+                        }
+                    },
+                ]
+            )
+        except ClientError as exc:
+            # TODO: Logging
+            print("Abort transaction, game is no longer available.")
+            return False
         return True
 
 
