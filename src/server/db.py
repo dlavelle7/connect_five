@@ -109,6 +109,7 @@ class DynamoDB(DB):
 
     DB_PORT = 8000
     DB_TABLE = "Game"
+    LAST_EVALUATED_KEY = "LastEvaluatedKey"
 
     @classmethod
     def _get_connection(cls):
@@ -185,6 +186,15 @@ class DynamoDB(DB):
         games = response["Items"]
         for game in games:
             yield game
+
+        # If the scan results are greater than 1mb, dynamo will paginate
+        while self.LAST_EVALUATED_KEY in response:
+            table = self.get_game_table()
+            response = table.scan(
+                ExclusiveStartKey=response[self.LAST_EVALUATED_KEY])
+            games = response["Items"]
+            for game in games:
+                yield game
 
     def save_game_transaction(self, game):
         """Save game in a dynamodb transaction.
