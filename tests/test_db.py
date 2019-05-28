@@ -69,7 +69,8 @@ class TestDynamoDB(TestDB):
         mock_get_connection.return_value = mock_dyno
         dynamodb = DynamoDB("redis")
         mock_game = {"foo": "bar"}
-        self.assertTrue(dynamodb.save_game_transaction(mock_game))
+        self.assertTrue(dynamodb.save_game_transaction(mock_game,
+                                                       "game_status", "open"))
         mock_dyno.meta.client.transact_write_items.assert_called_once_with(
             TransactItems=[
                 {

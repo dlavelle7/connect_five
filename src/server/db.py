@@ -89,7 +89,6 @@ class RedisDB(DB):
         try:
             pipeline.execute()
         except redis.WatchError:
-            # TODO: Logging
             print("A watched key has changed, abort transaction.")
             return False
         return True
@@ -196,7 +195,7 @@ class DynamoDB(DB):
             for game in games:
                 yield game
 
-    def save_game_transaction(self, game):
+    def save_game_transaction(self, game, status_key, status_value):
         """Save game in a dynamodb transaction.
 
         Use conditional check on game status and return whether or
@@ -209,17 +208,15 @@ class DynamoDB(DB):
                         'Put': {
                             'Item': game,
                             'TableName': self.DB_TABLE,
-                            # TODO: pass in as params
-                            'ConditionExpression': 'game_status = :status',
+                            'ConditionExpression': f'{status_key} = :status',
                             'ExpressionAttributeValues': {
-                                ":status": "open",
+                                ":status": status_value,
                             }
                         }
                     },
                 ]
             )
         except ClientError:
-            # TODO: Logging
             print("Abort transaction, game is no longer available.")
             return False
         return True

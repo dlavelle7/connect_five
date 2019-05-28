@@ -78,7 +78,7 @@ class DynamoGameFinder(GameFinder):
     def _join_game(cls, name, game):
         """Attempt to join the game within a transaction condition."""
         game = cls.add_player(game, name)
-        return db.save_game_transaction(game)
+        return db.save_game_transaction(game, "game_status", Game.OPEN)
 
 
 GAME_FINDERS = {
