@@ -2,10 +2,11 @@ version: "2.3"
 services:
   # when used as an "override" compose file, will merge with docker-compose.yml
   server:
-    container_name: con5_debug
+    container_name: debug
     environment:
       - FLASK_APP=src.server.app.py
-      - FLASK_DEBUG=1
+      - FLASK_DEBUG=1  # enable / disable auto refresh
+      - FLASK_ENV=development
     # 'stdin_open' & 'tty' allow you to attach to pdb breakpoint
     stdin_open: true
     tty: true
@@ -13,4 +14,4 @@ services:
     volumes:
       - ./src:/code/src
     # override with devserver for debugging
-    command: "flask run --host=0.0.0.0 --port=8000"
+    command: "./entrypoint_dev.sh"

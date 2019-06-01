@@ -29,6 +29,13 @@
 * pip
 * Docker
 
+## Technology Stack
+* Python
+* FlaskAPI
+* Redis / DynamoDB
+* Docker
+* docker-compose
+
 ## Installation
 ```
 git clone git@github.com:dlavelle7/connect_five.git
@@ -54,6 +61,14 @@ In a separate shell, run the second client:
 python src/client.py
 ```
 
+## Change DB
+The application uses Redis as the database by default. Alternatively, you can
+run the application using a local version of DynamoDB instead using:
+
+```
+docker-compose -f docker-compose.yml -f docker-compose.dynamodb.yml up --build
+```
+
 ### Debugging
 Run the server in "debug" mode:
 ```
@@ -66,8 +81,11 @@ directory in the container and allows for interactive breakpoints to be used.
 After a breakpoint has been inserted and hit, attach to the container:
 
 ```
-docker attach con5_debug
+docker attach debug
 ```
+
+Note: When debugging with the auto reloader on, 2 processes will be spawned,
+which can make using breakpoints messy, this can be disabled with FLASK_DEBUG=0
 
 ## Approach
 

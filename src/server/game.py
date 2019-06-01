@@ -1,11 +1,11 @@
-"""Server module for holding game state and business logic."""
+"""Server module for holding connect 5 game logic."""
 import uuid
 
 from operator import add, sub
 
-from src.server.db import DB
+from src.server.db import get_db
 
-db = DB()
+db = get_db()
 
 
 class Game:
@@ -16,6 +16,7 @@ class Game:
     Os = "o"
     Zs = "z"
     player_discs = (Xs, Os, Zs)
+    OPEN = "open"
     PLAYING = "playing"
     WON = "won"
     DISCONNECTED = "disconnected"
@@ -39,54 +40,18 @@ class Game:
         self.game = db.get_game(self.game_id)
 
     @classmethod
-    def join_existing_game(cls, name):
-        """Add new player to an existing game.
-
-        If an available space is found, add the player to that game and return
-        the game_id of that game. Return None if no available space could be
-        found.
-        """
-        for game_id in db.connection.scan_iter():
-            if cls._join_existing_game(name, game_id):
-                return game_id
-        else:
-            return None
-
-    @classmethod
-    def _join_existing_game(cls, name, game_id):
-        """Try to join an existing active game if there is space.
-
-        Use Redis transaction with WATCH on game key to avoid race conditions.
-        """
-        # WATCH this game_id for changes by other clients, while checking it
-        pipeline = db.connection.pipeline()
-        pipeline.watch(game_id)
-        game = db.get_game_transaction(pipeline, game_id)
-        if game.get("game_status") != Game.PLAYING:
-            return False
-        if len(game["players"]) > game["max_players"] - 1:
-            return False
-        if name in game["players"]:
-            return False
-
-        game["players"].append(name)
-        if game["turn"] is None:
-            game["turn"] = name
-        # Save existing game in a transaction
-        return db.save_game_transaction(pipeline, game_id, game)
-
-    @classmethod
     def start_new_game(cls, name, max_players):
         """Create a new game id and new game state. Return new game ID."""
+        new_game_id = str(uuid.uuid4())
         new_game = {
+            "game_id": new_game_id,
             "board": [[cls.EMPTY for i in range(cls.BOARD_ROWS)]
                       for j in range(cls.BOARD_COLS)],
-            "game_status": cls.PLAYING,
+            "game_status": cls.OPEN,
             "players": [name],
             "turn": name,
             "max_players": max_players,
         }
-        new_game_id = str(uuid.uuid4())
         db.save_game(new_game_id, new_game)
         return new_game_id
 
